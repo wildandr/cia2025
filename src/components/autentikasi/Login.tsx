@@ -2,7 +2,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   MailIcon,
   UserIcon,
@@ -10,32 +9,18 @@ import {
   EyeFilledIcon,
   EyeSlashFilledIcon,
 } from "@/components/icons";
+import { useAuth } from "@/lib/auth/useAuth"; // Sesuaikan path jika perlu
 
 export default function Login() {
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
+  const { login, isLoading, error } = useAuth();
 
-  const handleLogin = async (e: any) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        router.push("/dashboard");
-      } else {
-        alert(data.message);
-      }
-    } catch (error) {
-      console.error("An error occurred", error);
-    }
+    await login({ email, username, password });
   };
 
   const toggleVisibility = () => {
@@ -85,7 +70,13 @@ export default function Login() {
               </p>
             </div>
 
-            <form>
+            {error && (
+              <div className="mb-4 p-2 bg-red-500/20 border border-red-500 rounded text-white">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleLogin}>
               <div className="mb-4">
                 <label
                   className="block text-white text-sm 2xl:text-xl"
@@ -99,11 +90,15 @@ export default function Login() {
                   </div>
                   <input
                     id="email"
-                    type="email"
+                    type="text"
                     placeholder="Masukkan alamat emailmu"
                     className="pl-10 pr-3 py-2 w-full bg-transparent border-b border-white text-white 2xl:text-xl focus:outline-none autofill:text-white autofill:bg-transparent placeholder:text-white/50"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setUsername(e.target.value);
+                    }}
+                    required
                   />
                 </div>
               </div>
@@ -126,6 +121,7 @@ export default function Login() {
                     className="pl-10 pr-10 py-2 w-full bg-transparent border-b border-white text-white 2xl:text-xl focus:outline-none autofill:bg-transparent placeholder:text-white/50"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    required
                   />
                   <button
                     type="button"
@@ -143,9 +139,10 @@ export default function Login() {
 
               <button
                 type="submit"
-                className="w-full bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-full hover:bg-white transition duration-300"
+                className="w-full bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-full hover:bg-white transition duration-300 disabled:opacity-70"
+                disabled={isLoading}
               >
-                Login
+                {isLoading ? "Memproses..." : "Login"}
               </button>
             </form>
           </div>
