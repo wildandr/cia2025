@@ -1,0 +1,156 @@
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  MailIcon,
+  UserIcon,
+  PasswordIcon,
+  EyeFilledIcon,
+  EyeSlashFilledIcon,
+} from "@/components/icons";
+
+export default function Login() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleLogin = async (e: any) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        router.push("/dashboard");
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("An error occurred", error);
+    }
+  };
+
+  const toggleVisibility = () => {
+    setIsVisible((prevState) => !prevState);
+  };
+
+  return (
+    <main className="h-screen flex flex-col xl:flex-row items-center justify-center pt-10 bg-cia-primary text-white bg-[url('/assets/autentikasi/teksture.svg')] bg-cover bg-center font-plusJakarta relative">
+      <Image
+        alt="background"
+        src={"/assets/autentikasi/teksture_city.svg"}
+        width={500}
+        height={500}
+        className="w-full h-auto absolute bottom-0"
+      />
+      <div className="h-2/5 lg:h-full w-full flex flex-col justify-end lg:justify-center items-center relative px-8 z-50">
+        <div className="absolute top-[15%] left-[15%]">
+          <Image
+            alt="title"
+            src="/assets/autentikasi/star.svg"
+            className="w-2/5 md:w-3/5 lg:w-4/5 h-auto z-10"
+            width={500}
+            height={500}
+          />
+        </div>
+        <Image
+          alt="title"
+          src="/assets/autentikasi/title.svg"
+          className="w-3/5 md:w-2/5 lg:w-3/5 h-auto z-10"
+          width={500}
+          height={500}
+        />
+      </div>
+      <div className="h-4/5 lg:h-full w-full xl:w-4/5 flex flex-col py-[4%]">
+        <div className="flex flex-col h-full bg-[url('/assets/autentikasi/bg-form-mobile.svg')] md:bg-[url('/assets/autentikasi/bg-form-md.svg')] lg:bg-[url('/assets/autentikasi/bg-form.svg')] bg-contain lg:bg-cover bg-center lg:bg-left bg-no-repeat justify-center items-center lg:items-start lg:ps-[10%] z-10">
+          <div className="w-full h-full flex flex-col justify-center px-[20%] lg:px-8 lg:ps-[10%]">
+            <div className="flex flex-col w-full">
+              <h1 className="text-xl md:text-2xl 2xl:text-4xl font-medium text-white mb-3">
+                Masuk
+              </h1>
+
+              <p className="text-sm 2xl:text-base text-white mb-6">
+                Jika kamu belum memiliki akun, kamu dapat{" "}
+                <a href="/register" className="font-semibold">
+                  Daftar disini!
+                </a>
+              </p>
+            </div>
+
+            <form>
+              <div className="mb-4">
+                <label
+                  className="block text-white text-sm 2xl:text-xl"
+                  htmlFor="email"
+                >
+                  Username/Email
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-3 flex items-center">
+                    <MailIcon className="h-5 w-5" />
+                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="Masukkan alamat emailmu"
+                    className="pl-10 pr-3 py-2 w-full bg-transparent border-b border-white text-white 2xl:text-xl focus:outline-none autofill:text-white autofill:bg-transparent placeholder:text-white/50"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <label
+                  className="block text-white text-sm 2xl:text-xl"
+                  htmlFor="password"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-3 flex items-center">
+                    <PasswordIcon className="h-5 w-5" />
+                  </div>
+                  <input
+                    id="password"
+                    type={isVisible ? "text" : "password"}
+                    placeholder="Masukkan passwordmu disini"
+                    className="pl-10 pr-10 py-2 w-full bg-transparent border-b border-white text-white 2xl:text-xl focus:outline-none autofill:bg-transparent placeholder:text-white/50"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-3 flex items-center"
+                    onClick={toggleVisibility}
+                  >
+                    {isVisible ? (
+                      <EyeFilledIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeSlashFilledIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-full hover:bg-white transition duration-300"
+              >
+                Login
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
