@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Form } from "@/components/cic/Form";
-import { Footer } from "../layout/Footer";
+
 
 export const MobileLayout = () => {
   return (
@@ -85,7 +85,7 @@ export const MobileLayout = () => {
           />
         </div>
       </div>
-      <Footer />
+     
     </div>
   );
 };

@@ -21,7 +21,7 @@ export function Footer() {
     if (pathname.includes('/craft')) return 'craft';
     if (pathname.includes('/sbc')) return 'sbc';
     if (pathname.includes('/fcec')) return 'fcec';
-    return 'cic'; // default fallback
+    return 'craft'; // default fallback
   };
 
   const variant = getVariant();

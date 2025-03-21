@@ -13,7 +13,7 @@ export const DesktopLayout = () => {
           fill
         />
       </div>
-      <div className="absolute -bottom-[50rem] 2xl:-bottom-[60rem]  w-full h-full z-[0]">
+      <div className="absolute -bottom-[30rem]  2xl:-bottom-[60rem]  w-full h-full z-[0]">
         <Image
           src="/assets/cic/ornament_bg.png"
           alt="ornament"

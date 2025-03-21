@@ -12,7 +12,7 @@ export const Input = ({ label, required, helperText, ...props }: InputProps) => 
       <label className="block text-white font-medium text-[0.7rem] md:text-base lg:text-lg mb-1">
         {label} {required && <span className="text-red-500">*</span>}
         {helperText && (
-          <span className="text-gray-400 text-[0.7rem]"> ({helperText})</span>
+          <span className="text-white/70  text-[0.7rem]"> ({helperText})</span>
         )}
       </label>
       <div className="form relative">
