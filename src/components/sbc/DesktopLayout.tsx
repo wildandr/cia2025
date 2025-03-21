@@ -49,7 +49,7 @@ export const DesktopLayout = () => {
         <div className="w-full h-full relative items-center flex flex-col">
           <div className="relative w-full flex justify-center">
             <Image
-              src="/assets/sbc/ornament_form_sbc_top.png"
+              src="/assets/sbc/ornament_form_top.png"
               alt="ornament"
               className="h-[28rem] w-full z-[3]"
               width={500}
@@ -78,7 +78,7 @@ export const DesktopLayout = () => {
             </div>
           </div>
           <Image
-            src="/assets/sbc/ornament_form_sbc_bot.png"
+            src="/assets/sbc/ornament_form_bot.png"
             alt="ornament"
             className="w-full h-[20rem] z-[3] -mt-3"
             width={500}
