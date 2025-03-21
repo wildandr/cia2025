@@ -8,7 +8,7 @@ export const DesktopLayout = () => {
         <Image
           src="/assets/fcec/ornament_bg.png"
           alt="ornament"
-          className="object-cover w-full h-full opacity-50"
+          className="object-cover w-full h-full opacity-25"
           fill
         />
       </div>
@@ -16,7 +16,7 @@ export const DesktopLayout = () => {
         <Image
           src="/assets/fcec/ornament_bg.png"
           alt="ornament"
-          className="object-cover w-full h-full opacity-50"
+          className="object-cover w-full h-full opacity-25"
           fill
         />
       </div>
