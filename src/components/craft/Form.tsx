@@ -5,8 +5,15 @@ import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
 import { Button } from "@/components/ui/Button";
 import { formInstructionsCraft } from "@/data/formInstructionsCraft";
+import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export function Form() {
+  const isAuthenticated = useAuthCheck();
+
+  if (!isAuthenticated) {
+    return null; // Or loading spinner
+  }
+
   return (
     <div className="relative flex flex-col overflow-hidden sm:overflow-scroll max-w-5xl mx-auto font-openSans">
       <div className="flex flex-col lg:justify-center items-center relative min-w-full">

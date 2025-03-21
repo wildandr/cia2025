@@ -5,8 +5,15 @@ import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
 import { Button } from "@/components/ui/Button";
 import { formInstructionsFcec } from "@/data/formInstructionsFcec";
+import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export function Form() {
+  const isAuthenticated = useAuthCheck();
+
+  if (!isAuthenticated) {
+    return null; // Or loading spinner
+  }
+
   const [activeTab, setActiveTab] = useState<"ketua" | "anggota1" | "anggota2">("ketua");
 
   const handleTabChange = (tab: "ketua" | "anggota1" | "anggota2") => {
