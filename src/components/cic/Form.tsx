@@ -1,10 +1,13 @@
+// components/Form.tsx
 "use client";
 import React, { useState, FormEvent } from "react";
-import { useAuth } from "@/context/AuthContext"; // Assuming this exists
+import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
 import { Button } from "@/components/ui/Button";
 import { formInstructionsCic } from "@/data/formInstructionsCic";
+import { useAuthCheck } from '@/hooks/useAuthCheck';
+import Cookies from 'js-cookie'; // Add this import
 
 interface TeamMember {
   full_name: string;
@@ -13,6 +16,10 @@ interface TeamMember {
   phone_number: string;
   line_id: string;
   email: string;
+  twibbon_link?: string;
+  skma_file?: string;
+  ktm_file?: string;
+  photo_file?: string;
 }
 
 interface FormData {
@@ -29,7 +36,7 @@ interface FormData {
 }
 
 export function Form() {
-  const { user } = useAuth(); // Get current user
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     team: {
@@ -46,9 +53,17 @@ export function Form() {
       batch: "",
       phone_number: "",
       line_id: "",
-      email: ""
+      email: "",
+      twibbon_link: "",
+      skma_file: "",
+      ktm_file: "",
+      photo_file: ""
     },
-    members: []
+    members: [
+      { full_name: "", department: "", batch: "", phone_number: "", line_id: "", email: "", twibbon_link: "", skma_file: "", ktm_file: "", photo_file: "" },
+      { full_name: "", department: "", batch: "", phone_number: "", line_id: "", email: "", twibbon_link: "", skma_file: "", ktm_file: "", photo_file: "" },
+      { full_name: "", department: "", batch: "", phone_number: "", line_id: "", email: "", twibbon_link: "", skma_file: "", ktm_file: "", photo_file: "" }
+    ]
   });
 
   const handleSubmit = async (e: FormEvent) => {
@@ -56,23 +71,38 @@ export function Form() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/teams/cic/new', {
+      const token = Cookies.get('token'); // Get token from cookies
+      
+      // Debug logs
+      console.log('Form Data being submitted:', {
+        team: formData.team,
+        leader: formData.leader,
+        members: formData.members
+      });
+      console.log('Token:', token);
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/new`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Add authorization header
         },
         body: JSON.stringify(formData)
       });
 
+      // Log response details
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+
       if (!response.ok) {
-        throw new Error('Failed to submit form');
+        throw new Error(`Failed to submit form: ${responseData.message || 'Unknown error'}`);
       }
 
-      // Handle success
       alert('Form submitted successfully!');
-      // Optionally redirect or clear form
+      // Optionally reset form or redirect
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error details:', error);
       alert('Failed to submit form. Please try again.');
     } finally {
       setLoading(false);
@@ -89,7 +119,12 @@ export function Form() {
     }));
   };
 
-  const handleMemberChange = (type: 'leader' | 'member', index: number, field: keyof TeamMember, value: string) => {
+  const handleMemberChange = (
+    type: 'leader' | 'member',
+    index: number,
+    field: keyof TeamMember,
+    value: string
+  ) => {
     if (type === 'leader') {
       setFormData(prev => ({
         ...prev,
@@ -101,12 +136,36 @@ export function Form() {
     } else {
       setFormData(prev => ({
         ...prev,
-        members: prev.members.map((member, i) => 
+        members: prev.members.map((member, i) =>
           i === index ? { ...member, [field]: value } : member
         )
       }));
     }
   };
+
+  const handleFileChange = (
+    type: 'team' | 'leader' | 'member',
+    index: number | null,
+    field: string,
+    file: File | null
+  ) => {
+    // Store file name or handle file upload as needed
+    if (!file) return;
+    
+    if (type === 'team') {
+      handleTeamInfoChange(field as keyof typeof formData.team, file.name);
+    } else if (type === 'leader') {
+      handleMemberChange('leader', 0, field as keyof TeamMember, file.name);
+    } else if (type === 'member' && index !== null) {
+      handleMemberChange('member', index, field as keyof TeamMember, file.name);
+    }
+  };
+
+  const isAuthenticated = useAuthCheck();
+
+  if (!isAuthenticated) {
+    return null; // Or loading spinner
+  }
 
   const [activeTab, setActiveTab] = useState<"ketua" | "anggota1" | "anggota2" | "anggota3">("ketua");
 
@@ -159,12 +218,14 @@ export function Form() {
             <Input
               label="Nama Perguruan Tinggi"
               type="text"
-              placeholder="Nama perguruan tinggi anda"
+              value={formData.team.institution_name}
+              onChange={(e) => handleTeamInfoChange('institution_name', e.target.value)}
               required
             />
             <FileInput
               label="Bukti Pembayaran"
               accept="application/pdf"
+              onChange={(e) => handleFileChange('team', null, 'payment_proof', e.target.files?.[0] || null)}
               required
               variant="cic"
               helperText="Format Penamaan: Bukti Pembayaran_Nama Tim"
@@ -172,6 +233,7 @@ export function Form() {
             <FileInput
               label="Bukti Voucher"
               accept="image/*"
+              onChange={(e) => handleFileChange('team', null, 'voucher', e.target.files?.[0] || null)}
               variant="cic"
               helperText="Format Penamaan: Bukti Voucher_Nama Tim"
             />
@@ -230,44 +292,51 @@ export function Form() {
                     <Input
                       label="Jurusan"
                       type="text"
-                      placeholder="Masukkan jurusan ketua tim"
+                      value={formData.leader.department}
+                      onChange={(e) => handleMemberChange('leader', 0, 'department', e.target.value)}
                       helperText="Ketua wajib berasal dari teknik sipil"
                       required
                     />
                     <Input
                       label="Semester"
                       type="text"
-                      placeholder="Masukkan semester ketua tim"
+                      value={formData.leader.batch}
+                      onChange={(e) => handleMemberChange('leader', 0, 'batch', e.target.value)}
                       required
                     />
                     <Input
                       label="Email"
                       type="email"
-                      placeholder="Masukkan email ketua tim"
+                      value={formData.leader.email}
+                      onChange={(e) => handleMemberChange('leader', 0, 'email', e.target.value)}
                       required
                     />
                     <Input
                       label="Nomor Whatsapp"
                       type="text"
-                      placeholder="Masukkan nomor whatsapp ketua tim"
+                      value={formData.leader.phone_number}
+                      onChange={(e) => handleMemberChange('leader', 0, 'phone_number', e.target.value)}
                       required
                     />
                     <Input
                       label="ID Line"
                       type="text"
-                      placeholder="Masukkan ID Line ketua tim"
+                      value={formData.leader.line_id}
+                      onChange={(e) => handleMemberChange('leader', 0, 'line_id', e.target.value)}
                       required
                     />
                     <Input
                       label="Link Upload Twibbon"
                       type="text"
-                      placeholder="Masukkan link bukti upload twibbon ketua tim"
+                      value={formData.leader.twibbon_link}
+                      onChange={(e) => handleMemberChange('leader', 0, 'twibbon_link', e.target.value)}
                       helperText="Peserta harap tidak menggunakan private account"
                       required
                     />
                     <FileInput
                       label="Surat Keterangan Mahasiswa Aktif"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('leader', 0, 'skma_file', e.target.files?.[0] || null)}
                       required
                       variant="cic"
                       helperText="Format Penamaan: SKMA_Nama Tim_Nama Lengkap"
@@ -275,6 +344,7 @@ export function Form() {
                     <FileInput
                       label="Kartu Tanda Mahasiswa"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('leader', 0, 'ktm_file', e.target.files?.[0] || null)}
                       required
                       variant="cic"
                       helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
@@ -282,6 +352,7 @@ export function Form() {
                     <FileInput
                       label="Pas Foto 3x4"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('leader', 0, 'photo_file', e.target.files?.[0] || null)}
                       required
                       variant="cic"
                       helperText="Format Penamaan: Pas Foto_Nama Tim_Nama Lengkap"
@@ -294,49 +365,57 @@ export function Form() {
                     <Input
                       label="Nama Lengkap"
                       type="text"
-                      placeholder="Nama lengkap anggota 1"
+                      value={formData.members[0].full_name}
+                      onChange={(e) => handleMemberChange('member', 0, 'full_name', e.target.value)}
                       required
                     />
                     <Input
                       label="Jurusan"
                       type="text"
-                      placeholder="Masukkan jurusan anggota 1"
+                      value={formData.members[0].department}
+                      onChange={(e) => handleMemberChange('member', 0, 'department', e.target.value)}
                       required
                     />
                     <Input
                       label="Semester"
                       type="text"
-                      placeholder="Masukkan semester anggota 1"
+                      value={formData.members[0].batch}
+                      onChange={(e) => handleMemberChange('member', 0, 'batch', e.target.value)}
                       required
                     />
                     <Input
                       label="Email"
                       type="email"
-                      placeholder="Masukkan email anggota 1"
+                      value={formData.members[0].email}
+                      onChange={(e) => handleMemberChange('member', 0, 'email', e.target.value)}
                       required
                     />
                     <Input
                       label="Nomor Whatsapp"
                       type="text"
-                      placeholder="Masukkan nomor whatsapp anggota 1"
+                      value={formData.members[0].phone_number}
+                      onChange={(e) => handleMemberChange('member', 0, 'phone_number', e.target.value)}
                       required
                     />
                     <Input
                       label="ID Line"
                       type="text"
-                      placeholder="Masukkan ID Line anggota 1"
+                      value={formData.members[0].line_id}
+                      onChange={(e) => handleMemberChange('member', 0, 'line_id', e.target.value)}
                       required
                     />
-                     <Input
+                    <Input
                       label="Link Upload Twibbon"
                       type="text"
-                      placeholder="Masukkan link bukti upload twibbon anggota 1"
+                      value={formData.members[0].twibbon_link}
+                      onChange={(e) => handleMemberChange('member', 0, 'twibbon_link', e.target.value)}
                       helperText="Peserta harap tidak menggunakan private account"
                       required
                     />
                     <FileInput
                       label="Surat Keterangan Mahasiswa Aktif"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('member', 0, 'skma_file', e.target.files?.[0] || null)}
                       required
                       variant="cic"
                       helperText="Format Penamaan: SKMA_Nama Tim_Nama Lengkap"
@@ -344,6 +423,7 @@ export function Form() {
                     <FileInput
                       label="Kartu Tanda Mahasiswa"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('member', 0, 'ktm_file', e.target.files?.[0] || null)}
                       required
                       variant="cic"
                       helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
@@ -351,6 +431,7 @@ export function Form() {
                     <FileInput
                       label="Pas Foto 3x4"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('member', 0, 'photo_file', e.target.files?.[0] || null)}
                       required
                       variant="cic"
                       helperText="Format Penamaan: Pas Foto_Nama Tim_Nama Lengkap"
@@ -363,50 +444,57 @@ export function Form() {
                     <Input
                       label="Nama Lengkap"
                       type="text"
-                      placeholder="Nama lengkap anggota 2"
+                      value={formData.members[1].full_name}
+                      onChange={(e) => handleMemberChange('member', 1, 'full_name', e.target.value)}
                       required
                     />
                     <Input
                       label="Jurusan"
                       type="text"
-                      placeholder="Masukkan jurusan anggota 2"
+                      value={formData.members[1].department}
+                      onChange={(e) => handleMemberChange('member', 1, 'department', e.target.value)}
                       required
                     />
                     <Input
                       label="Semester"
                       type="text"
-                      placeholder="Masukkan semester anggota 2"
+                      value={formData.members[1].batch}
+                      onChange={(e) => handleMemberChange('member', 1, 'batch', e.target.value)}
                       required
                     />
                     <Input
                       label="Email"
                       type="email"
-                      placeholder="Masukkan email anggota 2"
+                      value={formData.members[1].email}
+                      onChange={(e) => handleMemberChange('member', 1, 'email', e.target.value)}
                       required
                     />
                     <Input
                       label="Nomor Whatsapp"
                       type="text"
-                      placeholder="Masukkan nomor whatsapp anggota 2"
+                      value={formData.members[1].phone_number}
+                      onChange={(e) => handleMemberChange('member', 1, 'phone_number', e.target.value)}
                       required
                     />
                     <Input
                       label="ID Line"
                       type="text"
-                      placeholder="Masukkan ID Line anggota 2"
+                      value={formData.members[1].line_id}
+                      onChange={(e) => handleMemberChange('member', 1, 'line_id', e.target.value)}
                       required
                     />
-                     <Input
+                    <Input
                       label="Link Upload Twibbon"
                       type="text"
-                      placeholder="Masukkan link bukti upload twibbon anggota 2"
+                      value={formData.members[1].twibbon_link}
+                      onChange={(e) => handleMemberChange('member', 1, 'twibbon_link', e.target.value)}
                       helperText="Peserta harap tidak menggunakan private account"
                       required
                     />
-
                     <FileInput
                       label="Surat Keterangan Mahasiswa Aktif"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('member', 1, 'skma_file', e.target.files?.[0] || null)}
                       required
                       variant="cic"
                       helperText="Format Penamaan: SKMA_Nama Tim_Nama Lengkap"
@@ -414,6 +502,7 @@ export function Form() {
                     <FileInput
                       label="Kartu Tanda Mahasiswa"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('member', 1, 'ktm_file', e.target.files?.[0] || null)}
                       required
                       variant="cic"
                       helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
@@ -421,6 +510,7 @@ export function Form() {
                     <FileInput
                       label="Pas Foto 3x4"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('member', 1, 'photo_file', e.target.files?.[0] || null)}
                       required
                       variant="cic"
                       helperText="Format Penamaan: Pas Foto_Nama Tim_Nama Lengkap"
@@ -433,55 +523,64 @@ export function Form() {
                     <Input
                       label="Nama Lengkap"
                       type="text"
-                      placeholder="Nama lengkap anggota 3"
+                      value={formData.members[2].full_name}
+                      onChange={(e) => handleMemberChange('member', 2, 'full_name', e.target.value)}
                     />
                     <Input
                       label="Jurusan"
                       type="text"
-                      placeholder="Masukkan jurusan anggota 3"
+                      value={formData.members[2].department}
+                      onChange={(e) => handleMemberChange('member', 2, 'department', e.target.value)}
                     />
                     <Input
                       label="Semester"
                       type="text"
-                      placeholder="Masukkan semester anggota 3"
+                      value={formData.members[2].batch}
+                      onChange={(e) => handleMemberChange('member', 2, 'batch', e.target.value)}
                     />
                     <Input
                       label="Email"
                       type="email"
-                      placeholder="Masukkan email anggota 3"
+                      value={formData.members[2].email}
+                      onChange={(e) => handleMemberChange('member', 2, 'email', e.target.value)}
                     />
                     <Input
                       label="Nomor Whatsapp"
                       type="text"
-                      placeholder="Masukkan nomor whatsapp anggota 3"
+                      value={formData.members[2].phone_number}
+                      onChange={(e) => handleMemberChange('member', 2, 'phone_number', e.target.value)}
                     />
                     <Input
                       label="ID Line"
                       type="text"
-                      placeholder="Masukkan ID Line anggota 3"
+                      value={formData.members[2].line_id}
+                      onChange={(e) => handleMemberChange('member', 2, 'line_id', e.target.value)}
                     />
-                   <Input
+                    <Input
                       label="Link Upload Twibbon"
                       type="text"
-                      placeholder="Masukkan link bukti upload twibbon anggota 3"
+                      value={formData.members[2].twibbon_link}
+                      onChange={(e) => handleMemberChange('member', 2, 'twibbon_link', e.target.value)}
                       helperText="Peserta harap tidak menggunakan private account"
-                      required
                     />
                     <FileInput
                       label="Surat Keterangan Mahasiswa Aktif"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('member', 2, 'skma_file', e.target.files?.[0] || null)}
                       variant="cic"
                       helperText="Format Penamaan: SKMA_Nama Tim_Nama Lengkap"
                     />
                     <FileInput
                       label="Kartu Tanda Mahasiswa"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('member', 2, 'ktm_file', e.target.files?.[0] || null)}
                       variant="cic"
                       helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
                     />
                     <FileInput
                       label="Pas Foto 3x4"
                       accept="application/pdf"
+                      onChange={(e) => handleFileChange('member', 2, 'photo_file', e.target.files?.[0] || null)}
                       variant="cic"
                       helperText="Format Penamaan: Pas Foto_Nama Tim_Nama Lengkap"
                     />
@@ -497,6 +596,7 @@ export function Form() {
               variant="cic-primary" 
               type="submit"
               disabled={loading}
+              onClick={handleSubmit}
             >
               {loading ? 'Mengirim...' : 'Kirim Formulir'}
             </Button>

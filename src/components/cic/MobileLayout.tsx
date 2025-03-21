@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Form } from "@/components/cic/Form";
+import { Footer } from "../layout/Footer";
 
 export const MobileLayout = () => {
   return (
@@ -15,7 +16,7 @@ export const MobileLayout = () => {
           />
           <div className="relative mt-32">
             <Image
-              src="/assets/ornament_star.png"
+              src="/assets/ornament_star_cic.png"
               alt="ornament"
               className="h-28 w-28 custom-580:h-36 custom-580:w-36 absolute left-5 -top-8 z-[2]"
               width={500}
@@ -84,6 +85,7 @@ export const MobileLayout = () => {
           />
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

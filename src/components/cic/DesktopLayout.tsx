@@ -1,9 +1,10 @@
 import Image from "next/image";
 import { Form } from "@/components/cic/Form";
 
+
 export const DesktopLayout = () => {
   return (
-    <div className="hidden md:flex flex-col w-full overflow-hidden relative">
+    <div className="hidden md:flex flex-col w-full overflow-hidden relative ">
       <div className="absolute top-0 w-full h-full z-[0]">
         <Image
           src="/assets/fcec/ornament_bg.png"
@@ -12,7 +13,7 @@ export const DesktopLayout = () => {
           fill
         />
       </div>
-      <div className="absolute -bottom-[50rem] 2xl:-bottom-[55rem]  w-full h-full z-[0]">
+      <div className="absolute -bottom-[50rem] 2xl:-bottom-[60rem]  w-full h-full z-[0]">
         <Image
           src="/assets/fcec/ornament_bg.png"
           alt="ornament"
@@ -23,7 +24,7 @@ export const DesktopLayout = () => {
       <div className="flex flex-col items-center w-full h-[50vh] hero">
         <div className="relative mt-48">
           <Image
-            src="/assets/ornament_star.png"
+            src="/assets/ornament_star_cic.png"
             alt="ornament"
             className="h-48 xl:h-[16rem] w-auto absolute -left-32 -top-20 z-[2]"
             width={500}
@@ -86,7 +87,8 @@ export const DesktopLayout = () => {
           />
         </div>
       </div>
-      <div className="w-full overflow-hidden"></div>
+      
+
     </div>
   );
 };
