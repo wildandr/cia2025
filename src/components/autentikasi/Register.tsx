@@ -2,7 +2,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   MailIcon,
   UserIcon,
@@ -10,6 +9,7 @@ import {
   EyeFilledIcon,
   EyeSlashFilledIcon,
 } from "@/components/icons";
+import { useAuth } from "@/lib/auth/useAuth"; // Sesuaikan path jika perlu
 
 export default function Register() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -19,36 +19,28 @@ export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [passwordMismatch, setPasswordMismatch] = useState(false); // State untuk validasi password
+  const { register, isLoading, error } = useAuth();
 
-  const handleRegister = async (e: any) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Reset pesan kesalahan sebelum validasi
+    setPasswordMismatch(false);
 
     // Validasi password
     if (password !== confirmPassword) {
-      setError("Password tidak cocok");
-      return;
+      setPasswordMismatch(true);
+      return; // Hentikan proses jika password tidak cocok
     }
 
-    try {
-      const response = await fetch("http://localhost:3000/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, username, password }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        router.push("/login");
-      } else {
-        setError(data.message);
-      }
-    } catch (error) {
-      console.error("An error occurred", error);
-      setError("Terjadi kesalahan saat mendaftar");
-    }
+    // Panggil fungsi register dari useAuth jika validasi lolos
+    await register({
+      email,
+      username,
+      password,
+      isAdmin: false, // Default false, sesuaikan jika perlu
+    });
   };
 
   const togglePasswordVisibility = () => {
@@ -93,7 +85,6 @@ export default function Register() {
               <h1 className="text-lg md:text-2xl 2xl:text-4xl font-medium text-white mb-1">
                 Daftar
               </h1>
-
               <p className="text-xs md:text-base 2xl:text-base text-white mb-3">
                 Sudah memiliki akun?{" "}
                 <a href="/login" className="font-semibold">
@@ -102,9 +93,17 @@ export default function Register() {
               </p>
             </div>
 
+            {/* Tampilkan pesan error dari useAuth */}
             {error && (
-              <div className="mb-4 text-red-300 text-sm font-medium">
+              <div className="mb-4 p-2 bg-red-500/20 border border-red-500 rounded text-white text-sm font-medium">
                 {error}
+              </div>
+            )}
+
+            {/* Tampilkan pesan kesalahan jika password tidak cocok */}
+            {passwordMismatch && (
+              <div className="mb-4 p-2 bg-red-500/20 border border-red-500 rounded text-white text-sm font-medium">
+                Password dan konfirmasi password tidak cocok
               </div>
             )}
 
@@ -225,9 +224,10 @@ export default function Register() {
 
               <button
                 type="submit"
-                className="w-full bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-full hover:bg-white transition duration-300"
+                className="w-full bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-full hover:bg-white transition duration-300 disabled:opacity-70"
+                disabled={isLoading}
               >
-                Daftar
+                {isLoading ? "Memproses..." : "Daftar"}
               </button>
             </form>
           </div>
