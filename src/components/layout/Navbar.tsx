@@ -3,6 +3,8 @@ import React, { useEffect, useState, useRef, cache } from "react";
 import Link from "next/link";
 import { useSelectedLayoutSegment, useRouter } from "next/navigation";
 import Image from "next/image";
+import { useAuth } from "@/lib/auth/useAuth";
+import Cookies from "js-cookie";
 
 export default function Nav() {
   const [isVisible, setIsVisible] = useState(true);
@@ -12,6 +14,20 @@ export default function Nav() {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
+  };
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { logout } = useAuth();
+
+  useEffect(() => {
+    // Check if user is logged in
+    const userCookie = Cookies.get("user");
+    setIsLoggedIn(!!userCookie);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    setIsDropdownVisible(false);
   };
 
   const controlNavbar = () => {
@@ -56,7 +72,13 @@ export default function Nav() {
       >
         <Link href="/">
           <div className="h-10 w-auto flex justify-center items-center">
-            LOGO
+            <Image
+              src="/assets/autentikasi/logo.svg"
+              alt="logo"
+              width={100}
+              height={100}
+              className="cursor-pointer p-[20%]"
+            />
           </div>
         </Link>
         <nav
@@ -174,6 +196,27 @@ export default function Nav() {
                       </svg>
                     </Link>
                   </li>
+                  <li className="py-1 ">
+                    <Link
+                      href="/craft"
+                      className="flex justify-between items-center hover:translate-x-1"
+                    >
+                      <span className={`text-black`}>
+                        Registrasi Peserta CRAFT{" "}
+                      </span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        x="0px"
+                        y="0px"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        className={` fill-black`}
+                      >
+                        <path d="M11.109,3L11.109,3C9.78,3,8.988,4.481,9.725,5.587L14,12l-4.275,6.413C8.988,19.519,9.78,21,11.109,21h0 c0.556,0,1.076-0.278,1.385-0.741l4.766-7.15c0.448-0.672,0.448-1.547,0-2.219l-4.766-7.15C12.185,3.278,11.666,3,11.109,3z"></path>
+                      </svg>
+                    </Link>
+                  </li>
                 </ul>
               </li>
             </ul>
@@ -185,6 +228,24 @@ export default function Nav() {
           >
             Contact
           </Link>
+          {isLoggedIn && (
+            <button
+              onClick={handleLogout}
+              className="ml-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+            >
+              Logout
+            </button>
+          )}
+
+          {/* Add login button when user is not logged in */}
+          {!isLoggedIn && (
+            <Link
+              href="/login"
+              className="ml-4 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            >
+              Login
+            </Link>
+          )}
         </nav>
         <div className="lg:hidden">
           <button
@@ -285,6 +346,27 @@ export default function Nav() {
                   >
                     <span className={`text-black`}>
                       Registrasi Peserta FCEC{" "}
+                    </span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      x="0px"
+                      y="0px"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      className={` fill-black`}
+                    >
+                      <path d="M11.109,3L11.109,3C9.78,3,8.988,4.481,9.725,5.587L14,12l-4.275,6.413C8.988,19.519,9.78,21,11.109,21h0 c0.556,0,1.076-0.278,1.385-0.741l4.766-7.15c0.448-0.672,0.448-1.547,0-2.219l-4.766-7.15C12.185,3.278,11.666,3,11.109,3z"></path>
+                    </svg>
+                  </Link>
+                </li>
+                <li className="py-1 ">
+                  <Link
+                    href="/craft"
+                    className="flex justify-between items-center hover:translate-x-1"
+                  >
+                    <span className={`text-black`}>
+                      Registrasi Peserta CRAFT{" "}
                     </span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
