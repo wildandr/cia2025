@@ -71,12 +71,13 @@ export default function Nav() {
         className={`flex w-full flex-row  my-3 px-4 lg:px-16 justify-between items-center`}
       >
         <Link href="/">
-          <div className="h-10 w-auto flex justify-center items-center p-[20%]">
+          <div className="h-10 w-auto flex justify-center items-center">
             <Image
               src="/assets/autentikasi/logo.svg"
               alt="logo"
               width={100}
               height={100}
+              className="cursor-pointer p-[20%]"
             />
           </div>
         </Link>
