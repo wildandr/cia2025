@@ -8,11 +8,11 @@ import { formInstructionsFcec } from "@/data/formInstructionsFcec";
 import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export function Form() {
-  const isAuthenticated = useAuthCheck();
+  // const isAuthenticated = useAuthCheck();
 
-  if (!isAuthenticated) {
-    return null; // Or loading spinner
-  }
+  // if (!isAuthenticated) {
+  //   return null; // Or loading spinner
+  // }
 
   const [activeTab, setActiveTab] = useState<"ketua" | "anggota1" | "anggota2">("ketua");
 

@@ -8,11 +8,15 @@ import { formInstructionsCraft } from "@/data/formInstructionsCraft";
 import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export function Form() {
-  const isAuthenticated = useAuthCheck();
+  // const { isAuthenticated, loading } = useAuthCheck();
 
-  if (!isAuthenticated) {
-    return null; // Or loading spinner
-  }
+  // if (loading) {
+  //   return <div className="text-white">Loading...</div>; // Or your loading spinner
+  // }
+
+  // if (!isAuthenticated) {
+  //   return null;
+  // }
 
   return (
     <div className="relative flex flex-col overflow-hidden sm:overflow-scroll max-w-5xl mx-auto font-openSans">

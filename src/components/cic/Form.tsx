@@ -1,18 +1,112 @@
-// components/Form.tsx
 "use client";
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
+import { useAuth } from "@/context/AuthContext"; // Assuming this exists
 import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
 import { Button } from "@/components/ui/Button";
 import { formInstructionsCic } from "@/data/formInstructionsCic";
-import { useAuthCheck } from '@/hooks/useAuthCheck';
+
+interface TeamMember {
+  full_name: string;
+  department: string;
+  batch: string;
+  phone_number: string;
+  line_id: string;
+  email: string;
+}
+
+interface FormData {
+  team: {
+    team_name: string;
+    institution_name: string;
+    payment_proof: string;
+    user_id: number;
+    email: string;
+    voucher?: string;
+  };
+  leader: TeamMember;
+  members: TeamMember[];
+}
 
 export function Form() {
-  const isAuthenticated = useAuthCheck();
+  const { user } = useAuth(); // Get current user
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    team: {
+      team_name: "",
+      institution_name: "",
+      payment_proof: "",
+      user_id: user?.id || 0,
+      email: "",
+      voucher: ""
+    },
+    leader: {
+      full_name: "",
+      department: "",
+      batch: "",
+      phone_number: "",
+      line_id: "",
+      email: ""
+    },
+    members: []
+  });
 
-  if (!isAuthenticated) {
-    return null; // Or loading spinner
-  }
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/teams/cic/new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
+      }
+
+      // Handle success
+      alert('Form submitted successfully!');
+      // Optionally redirect or clear form
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Failed to submit form. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTeamInfoChange = (field: keyof typeof formData.team, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      team: {
+        ...prev.team,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleMemberChange = (type: 'leader' | 'member', index: number, field: keyof TeamMember, value: string) => {
+    if (type === 'leader') {
+      setFormData(prev => ({
+        ...prev,
+        leader: {
+          ...prev.leader,
+          [field]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        members: prev.members.map((member, i) => 
+          i === index ? { ...member, [field]: value } : member
+        )
+      }));
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<"ketua" | "anggota1" | "anggota2" | "anggota3">("ketua");
 
@@ -46,18 +140,20 @@ export function Form() {
           </div>
 
           {/* Form Sections */}
-          <form className="w-full flex flex-col gap-4 font-openSans">
+          <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 font-openSans">
             {/* Team Info */}
             <Input
               label="Email"
               type="email"
-              placeholder="Email anda"
+              value={formData.team.email}
+              onChange={(e) => handleTeamInfoChange('email', e.target.value)}
               required
             />
             <Input
               label="Nama Tim"
               type="text"
-              placeholder="Nama tim anda"
+              value={formData.team.team_name}
+              onChange={(e) => handleTeamInfoChange('team_name', e.target.value)}
               required
             />
             <Input
@@ -127,7 +223,8 @@ export function Form() {
                     <Input
                       label="Nama Lengkap"
                       type="text"
-                      placeholder="Nama lengkap ketua tim"
+                      value={formData.leader.full_name}
+                      onChange={(e) => handleMemberChange('leader', 0, 'full_name', e.target.value)}
                       required
                     />
                     <Input
@@ -396,7 +493,13 @@ export function Form() {
 
           {/* Submit Button */}
           <div className="flex justify-center w-full mt-4 p-2">
-            <Button variant="cic-primary">Kirim Formulir</Button>
+            <Button 
+              variant="cic-primary" 
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? 'Mengirim...' : 'Kirim Formulir'}
+            </Button>
           </div>
         </div>
       </div>
