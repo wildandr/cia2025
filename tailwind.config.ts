@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
-        'custom-580': '580px', 
+        "custom-580": "580px",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
@@ -22,6 +22,11 @@ const config: Config = {
       },
       colors: {
         "sbc-primary": "#ED4F23",
+        "cia-dark": "#443F38",
+        "cia-primary": "#524D45",
+        "sbc-dark": "#B43C1A",
+        "fcec-dark": "#003B60",
+        "cic-dark": "#AD7727",
         "sbc-secondary": "#FF5F33",
         "sbc-third": "#B53B1A",
       },
