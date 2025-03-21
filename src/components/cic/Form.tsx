@@ -7,8 +7,7 @@ import { FileInput } from "@/components/ui/FileInput";
 import { Button } from "@/components/ui/Button";
 import { formInstructionsCic } from "@/data/formInstructionsCic";
 import { useAuthCheck } from '@/hooks/useAuthCheck';
-import Cookies from 'js-cookie'; // Add this import
-
+import Cookies from 'js-cookie'; 
 interface TeamMember {
   full_name: string;
   department: string;
@@ -71,7 +70,8 @@ export function Form() {
     setLoading(true);
 
     try {
-      const token = Cookies.get('token'); // Get token from cookies
+      const token = Cookies.get('token'); 
+      const user = Cookies.get('user');
       
       // Debug logs
       console.log('Form Data being submitted:', {

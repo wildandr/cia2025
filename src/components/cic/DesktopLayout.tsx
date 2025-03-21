@@ -7,17 +7,17 @@ export const DesktopLayout = () => {
     <div className="hidden md:flex flex-col w-full overflow-hidden relative ">
       <div className="absolute top-0 w-full h-full z-[0]">
         <Image
-          src="/assets/fcec/ornament_bg.png"
+          src="/assets/cic/ornament_bg.svg"
           alt="ornament"
-          className="object-cover w-full h-full opacity-25"
+          className="object-cover w-full h-full "
           fill
         />
       </div>
       <div className="absolute -bottom-[50rem] 2xl:-bottom-[60rem]  w-full h-full z-[0]">
         <Image
-          src="/assets/fcec/ornament_bg.png"
+          src="/assets/cic/ornament_bg.png"
           alt="ornament"
-          className="object-cover w-full h-full opacity-25"
+          className="object-cover w-full h-full "
           fill
         />
       </div>
@@ -27,23 +27,23 @@ export const DesktopLayout = () => {
             src="/assets/ornament_star_cic.png"
             alt="ornament"
             className="h-48 xl:h-[16rem] w-auto absolute -left-32 -top-20 z-[2]"
-            width={500}
-            height={500}
+            width={1000}
+            height={1000}
           />
           <Image
-            src="/assets/cic/title_cic.svg"
-            alt="FCEC Banner"
+            src="/assets/cic/title_cic.png"
+            alt="CIC Banner"
             className="h-64 xl:h-[20rem] 2xl:h-[24rem] w-auto relative z-[4]"
-            width={500}
-            height={500}
+            width={1000}
+            height={1000}
           />
         </div>
         <Image
-          src="/assets/ornament_bridge.png"
+          src="/assets/ornament_bridge_cic.png"
           alt="ornament"
           className="h-auto w-full absolute top-[15%] lg:top-[13%] 2xl:top-[13%] z-[3]"
-          width={500}
-          height={500}
+          width={1000}
+          height={1000}
         />
       </div>
       <div className="mt-44 xl:mt-56 2xl:mt-76 relative w-full form-sbc">
@@ -53,15 +53,15 @@ export const DesktopLayout = () => {
               src="/assets/cic/ornament_form_top.png"
               alt="ornament"
               className="h-[28rem] w-full z-[3]"
-              width={500}
-              height={500}
+              width={1000}
+              height={1000}
             />
             <Image
               src="/assets/title_form.png"
               alt="ornament"
               className="h-auto w-96 xl:w-[30rem] 2xl:w-[34rem] absolute top-2/3 -translate-y-1/2 z-[4]"
-              width={500}
-              height={500}
+              width={1000}
+              height={1000}
             />
           </div>
           <div className="w-full -mt-4 flex justify-center bg-cic-secondary px-6 z-[4]">
@@ -70,8 +70,8 @@ export const DesktopLayout = () => {
                 src="/assets/ornament_form_bg.png"
                 alt="ornament"
                 className="absolute -bottom-[1rem] -left-2 w-full z-[0]"
-                width={500}
-                height={500}
+                width={1000}
+                height={1000}
               />
               <div className="relative z-[3]">
                 <Form />
@@ -82,8 +82,8 @@ export const DesktopLayout = () => {
             src="/assets/cic/ornament_form_bot.png"
             alt="ornament"
             className="w-full h-[20rem] z-[3] -mt-3"
-            width={500}
-            height={500}
+            width={1000}
+            height={1000}
           />
         </div>
       </div>
