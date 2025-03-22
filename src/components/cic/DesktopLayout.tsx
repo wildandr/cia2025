@@ -15,7 +15,7 @@ export const DesktopLayout = () => {
       </div>
       <div className="absolute -bottom-[30rem]  2xl:-bottom-[60rem]  w-full h-full z-[0]">
         <Image
-          src="/assets/cic/ornament_bg.png"
+          src="/assets/cic/ornament_bg.svg"
           alt="ornament"
           className="object-cover w-full h-full "
           fill

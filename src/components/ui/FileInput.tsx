@@ -46,19 +46,8 @@ export const FileInput = ({
           required={required}
           {...props}
         />
-        <label
-          htmlFor={label}
-          className={`cursor-pointer inline-flex items-center px-4 py-2 rounded-md
-            ${variant === "cic" ? "bg-cic-secondary text-white" : ""}
-            ${variant === "sbc" ? "bg-sbc-secondary text-white" : ""}
-            ${variant === "fcec" ? "bg-fcec-secondary text-white" : ""}
-            ${variant === "craft" ? "bg-craft-secondary text-white" : ""}
-          `}
-        >
-          {fileName || "Pilih File"} {/* Show fileName if provided, otherwise show default text */}
-        </label>
       </div>
-      {helperText && <p className="text-gray-300 text-xs">{helperText}</p>}
+     
     </div>
   );
 };
