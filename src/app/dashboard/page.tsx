@@ -1,5 +1,6 @@
 "use client";
 
+import Dashboard from "@/components/dashboard/user/Dashboard";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
@@ -13,9 +14,8 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="flex flex-col bg-white text-black min-h-screen justify-center items-center">
-      <h1>Dashboard</h1>
-      <p>{userData}</p>
+    <div className="">
+      <Dashboard />
     </div>
   );
 }
