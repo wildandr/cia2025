@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import React, { useState, useEffect, use } from "react";
-import axios, { AxiosError } from "axios";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
-import axiosInstance from "@/lib/utlis/axiosInstance";
+import axiosInstance, { isAxiosError } from "@/lib/utlis/axiosInstance";
 
 interface UserEvent {
   user_id: number | null;
@@ -54,8 +53,12 @@ export default function Dashboard() {
 
   const [eventsData, setEventsData] = useState<UserEvent[]>([]);
   const [craftData, setCraftData] = useState<Craft | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedRegistration, setSelectedRegistration] = useState<
+    UserEvent | Craft | null
+  >(null);
+  const [confirmationInput, setConfirmationInput] = useState("");
   const combinedData = [...eventsData, craftData].filter(Boolean);
-
   const fetchData = async () => {
     try {
       const eventsResponse = await axiosInstance.get(
@@ -70,6 +73,7 @@ export default function Dashboard() {
           eventsResponse.data.message
         );
       }
+
       try {
         const craftResponse = await axiosInstance.get(
           `/user/${user?.user_id}/craft`
@@ -83,8 +87,8 @@ export default function Dashboard() {
         setCraftData(null);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
+      if (isAxiosError(error)) {
+        const axiosError = error as any;
         if (axiosError.response?.status === 401) {
           toast.error("Sesi anda telah berakhir, silakan login kembali");
           Cookies.remove("token");
@@ -107,21 +111,73 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const deleteTeam = async (eventName: string, teamId: number) => {
-    try {
-      console.log(`Deleting team ${teamId} from event ${eventName}`);
-    } catch (error) {
-      console.error("Error deleting team:", error);
-    }
+  const handleDeleteClick = (registration: UserEvent | Craft) => {
+    setSelectedRegistration(registration);
+    setShowModal(true);
+    setConfirmationInput("");
   };
 
-  const removeTeam = async (participantId: number) => {
+  const handleConfirmDelete = async () => {
+    if (!selectedRegistration) return;
+
+    const expectedName =
+      "event_name" in selectedRegistration
+        ? selectedRegistration.team_name
+        : selectedRegistration.full_name;
+
+    if (confirmationInput !== expectedName) {
+      toast.error("Nama yang dimasukkan tidak sesuai!");
+      return;
+    }
+
     try {
-      console.log(`Removing team with participant ID ${participantId}`);
-      toast.success("Tim Berhasil Dihapus");
-      fetchData();
+      let response;
+      if ("event_id" in selectedRegistration && selectedRegistration.team_id) {
+        const eventMap: { [key: number]: string } = {
+          1: "fcec",
+          3: "sbc",
+          4: "cic",
+        };
+        const eventName = eventMap[selectedRegistration.event_id];
+        if (!eventName) {
+          throw new Error("Event ID tidak valid");
+        }
+        response = await axiosInstance.delete(
+          `/teams/${eventName}/delete/${selectedRegistration.team_id}`
+        );
+        if (response.data.status === "success") {
+          toast.success(
+            `Tim ${selectedRegistration.team_name} berhasil dihapus`
+          );
+        }
+      } else if (
+        "participant_id" in selectedRegistration &&
+        selectedRegistration.participant_id
+      ) {
+        response = await axiosInstance.delete(
+          `/crafts/delete/${selectedRegistration.participant_id}`
+        );
+        if (response.data.success) {
+          toast.success(
+            `Peserta CRAFT ${selectedRegistration.full_name} berhasil dihapus`
+          );
+        }
+      }
+      await fetchData();
+      setShowModal(false);
+      setSelectedRegistration(null);
     } catch (error) {
-      console.error("Error deleting team:", error);
+      if (isAxiosError(error)) {
+        const axiosError = error as any;
+        toast.error(
+          `Gagal menghapus: ${
+            axiosError.response?.data?.message || "Terjadi kesalahan"
+          }`
+        );
+      } else {
+        toast.error("Terjadi kesalahan saat menghapus data");
+      }
+      console.error("Error deleting registration:", error);
     }
   };
 
@@ -145,7 +201,6 @@ export default function Dashboard() {
             height={1000}
             className="w-[10%] 2xl:w-[14%] h-auto hidden md:flex"
           />
-
           <Image
             src="/assets/home/title.svg"
             alt="logo"
@@ -211,7 +266,6 @@ export default function Dashboard() {
                           ? registration.event_name
                           : "CRAFT"}
                       </td>
-
                       <td
                         className="bg-white/20 font-semibold px-2 border-none"
                         style={{
@@ -262,28 +316,9 @@ export default function Dashboard() {
                           ) : null}
                           <button
                             className="bg-[#E25933] text-white text-[13px] lg:text-[16px] rounded-md px-1 py-1 w-full"
-                            onClick={() => {
-                              if (
-                                "event_name" in registration &&
-                                "team_id" in registration
-                              ) {
-                                deleteTeam(
-                                  registration.event_name,
-                                  registration.team_id
-                                );
-                              }
-                              if ("participant_id" in registration) {
-                                if (registration.participant_id !== null) {
-                                  removeTeam(registration.participant_id);
-                                }
-                              } else {
-                                console.error(
-                                  "Cannot delete team: registration is not a UserEvent"
-                                );
-                              }
-                            }}
+                            onClick={() => handleDeleteClick(registration)}
                           >
-                            Edit
+                            Delete
                           </button>
                         </div>
                       </td>
@@ -294,6 +329,44 @@ export default function Dashboard() {
             </tbody>
           </table>
         </div>
+        {/* Modal for confirmation */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg w-[90%] max-w-md text-black">
+              <h2 className="text-lg font-bold mb-4">Konfirmasi Penghapusan</h2>
+              <p className="mb-4">
+                Masukkan{" "}
+                <span className="font-semibold">
+                  {selectedRegistration && "event_name" in selectedRegistration
+                    ? selectedRegistration.team_name
+                    : selectedRegistration?.full_name}
+                </span>{" "}
+                untuk mengkonfirmasi penghapusan:
+              </p>
+              <input
+                type="text"
+                value={confirmationInput}
+                onChange={(e) => setConfirmationInput(e.target.value)}
+                className="w-full p-2 border rounded mb-4"
+                placeholder="Ketik nama tim/peserta"
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                  onClick={() => setShowModal(false)}
+                >
+                  Batal
+                </button>
+                <button
+                  className="bg-[#E25933] text-white px-4 py-2 rounded"
+                  onClick={handleConfirmDelete}
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="">
           <div className="p-4 rounded-xl mt-4">
             <p className="text-sm md:text-[20px] text-white text-center">

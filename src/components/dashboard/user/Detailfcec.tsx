@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import axiosInstance from "@/lib/utlis/axiosInstance";
 import Cookies from "js-cookie";
@@ -7,12 +6,24 @@ import { useRouter } from "next/navigation";
 import JSZip from "jszip";
 import { parse } from "json2csv";
 
+interface Team {
+  team_id: number;
+  event_id: number;
+  team_name: string;
+  institution_name: string;
+  payment_proof: string;
+  voucher: string | null;
+  user_id: number;
+  email: string | null;
+  isVerified: number;
+}
+
 interface Member {
   member_id: number;
   team_id: number;
   full_name: string;
-  department: string;
-  batch: null | string;
+  department: string | null;
+  batch: string | null;
   phone_number: string;
   line_id: string;
   email: string;
@@ -21,33 +32,49 @@ interface Member {
   photo: string;
   twibbon_and_poster_link: string;
   is_leader: number;
-  nim: null | string;
-  semester: null | string;
+  nim: string | null;
+  semester: string | null;
 }
 
-interface Team {
+interface Leader {
+  member_id: number;
   team_id: number;
-  event_id: number;
-  team_name: string;
-  institution_name: string;
-  payment_proof: string;
-  voucher: null | string;
-  user_id: number;
-  email: null | string;
-  isVerified: number;
+  full_name: string;
+  department: string | null;
+  batch: string | null;
+  phone_number: string;
+  line_id: string;
+  email: string;
+  ktm: string;
+  active_student_letter: string;
+  photo: string;
+  twibbon_and_poster_link: string;
+  is_leader: number;
+  nim: string | null;
+  semester: string | null;
+}
+
+interface Fcec {
+  team_id: number;
+  originality_statement: string;
+  abstract_title: string;
+  abstract_file: string;
+  abstract_video_link: string;
 }
 
 interface TeamData {
   team: Team[];
-  leader: Member;
+  leader: Leader;
   members: Member[];
+  fcec: Fcec[];
 }
 
 export default function DetailUser({ params }: { params: { id: string } }) {
   const [teamData, setTeamData] = useState<TeamData>({
     team: [],
-    leader: {} as Member,
+    leader: {} as Leader,
     members: [],
+    fcec: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +91,7 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await axiosInstance.get(`/teams/cic/${params.id}`);
+      const response = await axiosInstance.get(`/teams/fcec/${params.id}`);
       setTeamData(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -76,11 +103,8 @@ export default function DetailUser({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     const checkAdmin = () => {
-      const adminCookie = Cookies.get("user");
-      if (adminCookie) {
-        const user = JSON.parse(adminCookie);
-        setIsAdmin(user.isAdmin);
-      }
+      const adminCookie = Cookies.get("isAdmin");
+      setIsAdmin(adminCookie === "true");
     };
     checkAdmin();
     fetchData();
@@ -108,7 +132,7 @@ export default function DetailUser({ params }: { params: { id: string } }) {
   };
 
   const renderMemberSection = (
-    member: Member,
+    member: Leader | Member,
     title: string,
     index?: number
   ) => (
@@ -119,8 +143,6 @@ export default function DetailUser({ params }: { params: { id: string } }) {
       <p className="text-black text-lg font-semibold">{title}</p>
       {[
         { label: "Nama Lengkap", value: member.full_name },
-        { label: "Jurusan", value: member.department },
-        { label: "Semester", value: member.batch },
         { label: "Email", value: member.email },
         { label: "Nomor Whatsapp", value: member.phone_number },
         { label: "ID Line", value: member.line_id },
@@ -152,7 +174,6 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     </div>
   );
 
-  // Fungsi untuk mengunduh file dari backend dengan baseUrl
   async function downloadFile(url: string) {
     try {
       const fullUrl = `${baseUrl}${url}`;
@@ -166,12 +187,10 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     }
   }
 
-  // Fungsi untuk mengunduh semua data sebagai ZIP dengan nama file yang dimodifikasi
   async function downloadFilesAsZip() {
     const zip = new JSZip();
-    const teamName = teamData.team[0]?.team_name || "UnknownTeam"; // Fallback jika team_name tidak ada
+    const teamName = teamData.team[0]?.team_name || "UnknownTeam";
 
-    // Data anggota
     const membersData = teamData.members.map((member) => ({
       Nama_Lengkap: member.full_name || "",
       Departemen: member.department || "",
@@ -187,7 +206,6 @@ export default function DetailUser({ params }: { params: { id: string } }) {
       Link_Bukti_Upload_Twibbon: member.twibbon_and_poster_link || "",
     }));
 
-    // Data tim dan ketua
     const fieldsData = {
       Nama_Tim: teamName,
       Institusi: teamData.team[0]?.institution_name || "",
@@ -204,21 +222,21 @@ export default function DetailUser({ params }: { params: { id: string } }) {
       Link_Bukti_Upload_Twibbon: teamData.leader?.twibbon_and_poster_link || "",
       Payment_Proof: teamData.team[0]?.payment_proof || "",
       Voucher: teamData.team[0]?.voucher || "",
+      Originality_Statement: teamData.fcec[0]?.originality_statement || "",
+      Abstract_Title: teamData.fcec[0]?.abstract_title || "",
+      Abstract_File: teamData.fcec[0]?.abstract_file || "",
+      Abstract_Video_Link: teamData.fcec[0]?.abstract_video_link || "",
     };
 
     const allData = [fieldsData, ...membersData];
-
-    // Convert ke CSV
     const combinedCsv = parse(allData, { fields: Object.keys(fieldsData) });
     zip.file("data_all.csv", combinedCsv);
 
-    // Fungsi untuk mendapatkan ekstensi file dari URL
     const getFileExtension = (url: string) => {
       const parts = url.split(".");
       return parts.length > 1 ? `.${parts.pop()}` : "";
     };
 
-    // Unduh file ketua
     if (
       teamData.leader?.ktm &&
       teamData.leader?.active_student_letter &&
@@ -254,7 +272,6 @@ export default function DetailUser({ params }: { params: { id: string } }) {
         );
     }
 
-    // Unduh file anggota
     for (const member of teamData.members) {
       if (member.ktm && member.active_student_letter && member.photo) {
         const memberName =
@@ -285,7 +302,30 @@ export default function DetailUser({ params }: { params: { id: string } }) {
       }
     }
 
-    // Unduh file tim (payment_proof dan voucher)
+    if (teamData.fcec[0]?.abstract_file) {
+      const abstractData = await downloadFile(teamData.fcec[0].abstract_file);
+      if (abstractData)
+        zip.file(
+          `Abstract_${teamName}${getFileExtension(
+            teamData.fcec[0].abstract_file
+          )}`,
+          abstractData
+        );
+    }
+
+    if (teamData.fcec[0]?.originality_statement) {
+      const originalityData = await downloadFile(
+        teamData.fcec[0].originality_statement
+      );
+      if (originalityData)
+        zip.file(
+          `Originality_${teamName}${getFileExtension(
+            teamData.fcec[0].originality_statement
+          )}`,
+          originalityData
+        );
+    }
+
     if (teamData.team[0]?.payment_proof) {
       const paymentProofData = await downloadFile(
         teamData.team[0].payment_proof
@@ -298,6 +338,7 @@ export default function DetailUser({ params }: { params: { id: string } }) {
           paymentProofData
         );
     }
+
     if (teamData.team[0]?.voucher) {
       const voucherData = await downloadFile(teamData.team[0].voucher);
       if (voucherData)
@@ -311,7 +352,7 @@ export default function DetailUser({ params }: { params: { id: string } }) {
       const url = window.URL.createObjectURL(content);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${teamName}_data.zip`; // Nama file ZIP juga disesuaikan dengan nama tim
+      link.download = `${teamName}_data.zip`;
       link.click();
       window.URL.revokeObjectURL(url);
     });
@@ -325,11 +366,19 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     );
   }
 
+  if (error) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p className="text-red-500 text-xl">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-fixed bg-cia-primary bg-[url('/assets/autentikasi/teksture.svg')] font-plusJakarta">
       <div className="bg-white/80 p-4 rounded-xl w-[90%] mx-auto mt-28 mb-8">
         <p className="text-black text-center text-2xl font-semibold px-6 z-20">
-          Detail Tim
+          Detail Tim FCEC
         </p>
 
         {teamData.team[0] ? (
@@ -339,6 +388,22 @@ export default function DetailUser({ params }: { params: { id: string } }) {
             {
               label: "Nama Perguruan Tinggi",
               value: teamData.team[0].institution_name,
+            },
+            { label: "Judul Abstrak", value: teamData.fcec[0]?.abstract_title },
+            {
+              label: "File Abstrak",
+              value: teamData.fcec[0]?.abstract_file,
+              isLink: true,
+            },
+            {
+              label: "Link Video Abstrak",
+              value: teamData.fcec[0]?.abstract_video_link,
+              isLink: true,
+            },
+            {
+              label: "Surat Pernyataan Orisinalitas",
+              value: teamData.fcec[0]?.originality_statement,
+              isLink: true,
             },
             {
               label: "Bukti Pembayaran",
