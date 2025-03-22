@@ -12,10 +12,7 @@ interface Instruction {
 
 export const formInstructionsCraft: Instruction[] = [
   {
-    text: "Link Guidebook:",
-    links: [
-      { text: "https://bit.ly/GuidebookPendaftaranCRAFT", url: "https://bit.ly/GuidebookPendaftaranCRAFT" }
-    ]
+    text: "Link Guidebook: https://bit.ly/GuidebookPendaftaranCRAFT"
   },
   {
     text: "Peserta membaca Guidebook Pendaftaran CRAFT"
