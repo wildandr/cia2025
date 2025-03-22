@@ -63,8 +63,8 @@ export default function Login() {
               </h1>
 
               <p className="text-sm 2xl:text-base text-white mb-6">
-                Jika kamu belum memiliki akun, kamu dapat{" "}
-                <a href="/register" className="font-semibold">
+                Jika kamu belum memiliki akun, <br /> kamu dapat{" "}
+                <a href="/register" className="font-bold underline">
                   Daftar disini!
                 </a>
               </p>

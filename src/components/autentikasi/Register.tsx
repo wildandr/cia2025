@@ -85,9 +85,9 @@ export default function Register() {
               <h1 className="text-lg md:text-2xl 2xl:text-4xl font-medium text-white mb-1">
                 Daftar
               </h1>
-              <p className="text-xs md:text-base 2xl:text-base text-white mb-3">
-                Sudah memiliki akun?{" "}
-                <a href="/login" className="font-semibold">
+              <p className="text-xs md:text-sm 2xl:text-base text-white mb-3">
+                Sudah memiliki akun? <br /> kamu bisa{" "}
+                <a href="/login" className="font-bold underline">
                   Masuk disini!
                 </a>
               </p>

@@ -61,7 +61,7 @@ export default function Nav() {
           : activeSegment === "fcec"
           ? "bg-fcec-dark"
           : "bg-cia-dark"
-      } fixed  justify-between transition-transform  lg:flex lg:px-10 items-center font-LibreBaskerville ${
+      } fixed  justify-between transition-transform  lg:flex lg:px-10 items-center shadow-md font-plusJakarta ${
         isVisible
           ? "transition-transform"
           : "-translate-y-[300%] transition-transform"
