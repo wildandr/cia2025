@@ -56,7 +56,7 @@ export const formInstructionsFcec: Instruction[] = [
     ]
   },
   {
-    text: "Biaya Registrasi Rp150.000 bagi tiim yang dibayarkan jika lolos ke tahap paper. Pengumpulan abstrak tidak dipungut biaya pendaftaran."
+    text: "Biaya Registrasi Rp150.000 bagi tim yang dibayarkan jika lolos ke tahap paper. Pengumpulan abstrak tidak dipungut biaya pendaftaran."
   },
 
 ];

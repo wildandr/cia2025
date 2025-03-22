@@ -214,50 +214,6 @@ export function Form() {
       errors.push("Minimal 2 anggota (Anggota 1 dan Anggota 2) wajib diisi");
     }
 
-    if (!formData.members[0].full_name.trim()) {
-      errors.push("Nama Lengkap Anggota 1 wajib diisi");
-    }
-    if (!formData.members[0].department.trim()) {
-      errors.push("Jurusan Anggota 1 wajib diisi");
-    }
-    if (!formData.members[0].batch.trim()) {
-      errors.push("Semester Anggota 1 wajib diisi");
-    }
-    if (!formData.members[0].email.trim()) {
-      errors.push("Email Anggota 1 wajib diisi");
-    }
-    if (!formData.members[0].phone_number.trim()) {
-      errors.push("Nomor Whatsapp Anggota 1 wajib diisi");
-    }
-    if (!formData.members[0].line_id.trim()) {
-      errors.push("ID Line Anggota 1 wajib diisi");
-    }
-    if (!formData.members[0].twibbon_and_poster_link.trim()) {
-      errors.push("Link Upload Twibbon dan Poster Anggota 1 wajib diisi");
-    }
-
-    if (!formData.members[1].full_name.trim()) {
-      errors.push("Nama Lengkap Anggota 2 wajib diisi");
-    }
-    if (!formData.members[1].department.trim()) {
-      errors.push("Jurusan Anggota 2 wajib diisi");
-    }
-    if (!formData.members[1].batch.trim()) {
-      errors.push("Semester Anggota 2 wajib diisi");
-    }
-    if (!formData.members[1].email.trim()) {
-      errors.push("Email Anggota 2 wajib diisi");
-    }
-    if (!formData.members[1].phone_number.trim()) {
-      errors.push("Nomor Whatsapp Anggota 2 wajib diisi");
-    }
-    if (!formData.members[1].line_id.trim()) {
-      errors.push("ID Line Anggota 2 wajib diisi");
-    }
-    if (!formData.members[1].twibbon_and_poster_link.trim()) {
-      errors.push("Link Upload Twibbon dan Poster Anggota 2 wajib diisi");
-    }
-
     if (activeMembers >= 3) {
       if (!formData.members[2].full_name.trim()) {
         errors.push("Nama Lengkap Anggota 3 wajib diisi (karena beberapa data sudah diisi)");

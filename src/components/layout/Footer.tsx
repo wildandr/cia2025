@@ -44,9 +44,9 @@ export function Footer() {
           <h2 className="text-lg md:text-xl font-bold mb-2">Formulir</h2>
           <ul className="text-sm md:text-base space-y-1">
             <li>
-              <Link href="/craft" className="hover:underline">
-                Registrasi Peserta CRAFT &gt;
-              </Link>
+            <p  className="hover:underline text-white/70">
+                  Registrasi Peserta CRAFT(Coming Soon)
+                </p>
             </li>
             <li>
               <Link href="/cic" className="hover:underline">
@@ -143,18 +143,18 @@ export function Footer() {
             <p className="font-medium text-xl">Formulir</p>
             <div className="flex flex-wrap gap-4">
               <div className="flex flex-col gap-5">
-                <Link href="/form/craft" className="hover:underline ">
-                  Registrasi Peserta CRAFT &gt;
-                </Link>
-                <Link href="/form/cic" className="hover:underline ">
+                <p  className="hover:underline text-white/70">
+                  Registrasi Peserta CRAFT(Coming Soon)
+                </p>
+                <Link href="/cic" className="hover:underline ">
                   Registrasi Peserta CIC &gt;
                 </Link>
               </div>
               <div className="flex flex-col gap-5">
-                <Link href="/form/sbc" className="hover:underline">
+                <Link href="/sbc" className="hover:underline">
                   Registrasi Peserta SBC &gt;
                 </Link>
-                <Link href="/form/fcec" className="hover:underline">
+                <Link href="fcec" className="hover:underline">
                   Registrasi Peserta FCEC &gt;
                 </Link>
               </div>
