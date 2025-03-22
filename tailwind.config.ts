@@ -9,6 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
+        "custom-410": "410px",
         "custom-580": "580px",
       },
       backgroundImage: {
@@ -35,6 +36,7 @@ const config: Config = {
         'cic-primary': '#FFC974',
         'cic-secondary': '#FCB342',
         'cic-third': '#AC7828',
+        'cic-footer': '#D69500',
         'craft-primary': '#524D45',
         'craft-secondary': '#696155',
         'craft-third': '#463F35',

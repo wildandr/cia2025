@@ -26,23 +26,23 @@ export const DesktopLayout = () => {
             src="/assets/ornament_star.png"
             alt="ornament"
             className="h-48 xl:h-[16rem] w-auto absolute -left-32 -top-20 z-[2]"
-            width={500}
-            height={500}
+            width={1000}
+            height={1000}
           />
           <Image
             src="/assets/sbc/title_sbc.png"
             alt="SBC Banner"
             className="h-64 xl:h-[20rem] 2xl:h-[24rem] w-auto relative z-[4]"
-            width={500}
-            height={500}
+            width={1000}
+            height={1000}
           />
         </div>
         <Image
           src="/assets/ornament_bridge.png"
           alt="ornament"
           className="h-auto w-full absolute top-[15%] lg:top-[13%] 2xl:top-[13%] z-[3]"
-          width={500}
-          height={500}
+          width={1000}
+          height={1000}
         />
       </div>
       <div className="mt-44 xl:mt-56 2xl:mt-76 relative w-full form-sbc">
@@ -52,15 +52,15 @@ export const DesktopLayout = () => {
               src="/assets/sbc/ornament_form_top.png"
               alt="ornament"
               className="h-[28rem] w-full z-[3]"
-              width={500}
-              height={500}
+              width={1000}
+              height={1000}
             />
             <Image
               src="/assets/title_form.png"
               alt="ornament"
               className="h-auto w-96 xl:w-[30rem] 2xl:w-[34rem] absolute top-2/3 -translate-y-1/2 z-[4]"
-              width={500}
-              height={500}
+              width={1000}
+              height={1000}
             />
           </div>
           <div className="w-full -mt-4 flex justify-center bg-sbc-secondary px-6 z-[4]">
@@ -69,8 +69,8 @@ export const DesktopLayout = () => {
                 src="/assets/ornament_form_bg.png"
                 alt="ornament"
                 className="absolute -bottom-[1rem] -left-2 w-full z-[0]"
-                width={500}
-                height={500}
+                width={1000}
+                height={1000}
               />
               <div className="relative z-[3]">
                 <Form />
@@ -81,8 +81,8 @@ export const DesktopLayout = () => {
             src="/assets/sbc/ornament_form_bot.png"
             alt="ornament"
             className="w-full h-[20rem] z-[3] -mt-3"
-            width={500}
-            height={500}
+            width={1000}
+            height={1000}
           />
         </div>
       </div>
