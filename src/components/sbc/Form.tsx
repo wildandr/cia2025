@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
@@ -10,7 +9,6 @@ import { useAuthCheck } from "@/hooks/useAuthCheck";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { z } from "zod";
 
 interface TeamMember {
   full_name: string;
@@ -41,7 +39,7 @@ interface FormData {
   team_name: string;
   institution_name: string;
   user_id: number;
-  email: string; // Kept in formData for form input, but not sent in teamData
+  email: string;
   payment_proof?: File;
   voucher?: File;
   bridge_name: string;
@@ -52,12 +50,11 @@ interface FormData {
 
 export function Form() {
   const { user } = useAuth();
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     team_name: "",
     institution_name: "",
-    user_id: user?.id || 1,
+    user_id: user?.id || 1, // Default to 1 if user.id is not available
     email: "",
     payment_proof: undefined,
     voucher: undefined,
@@ -109,42 +106,14 @@ export function Form() {
     },
   });
 
-  // State to track file names for display
-  const [fileNames, setFileNames] = useState<{
-    payment_proof?: string;
-    voucher?: string;
-    leader: { ktm?: string; active_student_letter?: string; photo?: string };
-    members: Array<{ ktm?: string; active_student_letter?: string; photo?: string }>;
-    dosbim: { photo?: string };
-  }>({
-    payment_proof: undefined,
-    voucher: undefined,
-    leader: { ktm: undefined, active_student_letter: undefined, photo: undefined },
-    members: [
-      { ktm: undefined, active_student_letter: undefined, photo: undefined },
-      { ktm: undefined, active_student_letter: undefined, photo: undefined },
-    ],
-    dosbim: { photo: undefined },
-  });
-
-  // Regex for validation
-  const alphabeticOnlyRegex = /^[a-zA-Z\s]+$/; // Allows only letters and spaces
-  const numericOnlyRegex = /^\d+$/; // Allows only numbers
-
-  // Zod schema for URL validation
-  const urlSchema = z.string().url("Link Bukti Upload Twibbon harus berupa URL yang valid");
-
   const validateTextFields = () => {
     const errors: string[] = [];
 
-    // Validate Team Info
     if (!formData.team_name.trim()) {
       errors.push("Nama Tim wajib diisi");
     }
     if (!formData.institution_name.trim()) {
       errors.push("Nama Perguruan Tinggi wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.institution_name.trim())) {
-      errors.push("Nama Perguruan Tinggi hanya boleh berisi huruf dan spasi");
     }
     if (!formData.email.trim()) {
       errors.push("Email wajib diisi");
@@ -153,116 +122,74 @@ export function Form() {
       errors.push("Nama Jembatan wajib diisi");
     }
 
-    // Validate Leader
     if (!formData.leader.full_name.trim()) {
       errors.push("Nama Lengkap Ketua wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.leader.full_name.trim())) {
-      errors.push("Nama Lengkap Ketua hanya boleh berisi huruf dan spasi");
     }
     if (!formData.leader.nim.trim()) {
       errors.push("NIM Ketua wajib diisi");
     }
     if (!formData.leader.batch.trim()) {
       errors.push("Semester Ketua wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.leader.batch.trim())) {
-      errors.push("Semester Ketua hanya boleh berisi angka");
     }
     if (!formData.leader.email.trim()) {
       errors.push("Email Ketua wajib diisi");
     }
     if (!formData.leader.phone_number.trim()) {
       errors.push("Nomor Whatsapp Ketua wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.leader.phone_number.trim())) {
-      errors.push("Nomor Whatsapp Ketua hanya boleh berisi angka");
     }
     if (!formData.leader.line_id.trim()) {
       errors.push("ID Line Ketua wajib diisi");
     }
     if (!formData.leader.twibbon_and_poster_link.trim()) {
       errors.push("Link Bukti Upload Twibbon Ketua wajib diisi");
-    } else {
-      try {
-        urlSchema.parse(formData.leader.twibbon_and_poster_link.trim());
-      } catch (error) {
-        errors.push("Link Bukti Upload Twibbon Ketua harus berupa URL yang valid");
-      }
     }
 
-    // Validate Member 1
     if (!formData.members[0].full_name.trim()) {
       errors.push("Nama Lengkap Anggota 1 wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.members[0].full_name.trim())) {
-      errors.push("Nama Lengkap Anggota 1 hanya boleh berisi huruf dan spasi");
     }
     if (!formData.members[0].nim.trim()) {
       errors.push("NIM Anggota 1 wajib diisi");
     }
     if (!formData.members[0].batch.trim()) {
       errors.push("Semester Anggota 1 wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.members[0].batch.trim())) {
-      errors.push("Semester Anggota 1 hanya boleh berisi angka");
     }
     if (!formData.members[0].email.trim()) {
       errors.push("Email Anggota 1 wajib diisi");
     }
     if (!formData.members[0].phone_number.trim()) {
       errors.push("Nomor Whatsapp Anggota 1 wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.members[0].phone_number.trim())) {
-      errors.push("Nomor Whatsapp Anggota 1 hanya boleh berisi angka");
     }
     if (!formData.members[0].line_id.trim()) {
       errors.push("ID Line Anggota 1 wajib diisi");
     }
     if (!formData.members[0].twibbon_and_poster_link.trim()) {
       errors.push("Link Bukti Upload Twibbon Anggota 1 wajib diisi");
-    } else {
-      try {
-        urlSchema.parse(formData.members[0].twibbon_and_poster_link.trim());
-      } catch (error) {
-        errors.push("Link Bukti Upload Twibbon Anggota 1 harus berupa URL yang valid");
-      }
     }
 
-    // Validate Member 2
     if (!formData.members[1].full_name.trim()) {
       errors.push("Nama Lengkap Anggota 2 wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.members[1].full_name.trim())) {
-      errors.push("Nama Lengkap Anggota 2 hanya boleh berisi huruf dan spasi");
     }
     if (!formData.members[1].nim.trim()) {
       errors.push("NIM Anggota 2 wajib diisi");
     }
     if (!formData.members[1].batch.trim()) {
       errors.push("Semester Anggota 2 wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.members[1].batch.trim())) {
-      errors.push("Semester Anggota 2 hanya boleh berisi angka");
     }
     if (!formData.members[1].email.trim()) {
       errors.push("Email Anggota 2 wajib diisi");
     }
     if (!formData.members[1].phone_number.trim()) {
       errors.push("Nomor Whatsapp Anggota 2 wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.members[1].phone_number.trim())) {
-      errors.push("Nomor Whatsapp Anggota 2 hanya boleh berisi angka");
     }
     if (!formData.members[1].line_id.trim()) {
       errors.push("ID Line Anggota 2 wajib diisi");
     }
     if (!formData.members[1].twibbon_and_poster_link.trim()) {
       errors.push("Link Bukti Upload Twibbon Anggota 2 wajib diisi");
-    } else {
-      try {
-        urlSchema.parse(formData.members[1].twibbon_and_poster_link.trim());
-      } catch (error) {
-        errors.push("Link Bukti Upload Twibbon Anggota 2 harus berupa URL yang valid");
-      }
     }
 
-    // Validate Dosen Pembimbing
     if (!formData.dosbim.full_name.trim()) {
       errors.push("Nama Lengkap Dosen Pembimbing wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.dosbim.full_name.trim())) {
-      errors.push("Nama Lengkap Dosen Pembimbing hanya boleh berisi huruf dan spasi");
     }
     if (!formData.dosbim.nip.trim()) {
       errors.push("NIP Dosen Pembimbing wajib diisi");
@@ -272,8 +199,6 @@ export function Form() {
     }
     if (!formData.dosbim.phone_number.trim()) {
       errors.push("Nomor Whatsapp Dosen Pembimbing wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.dosbim.phone_number.trim())) {
-      errors.push("Nomor Whatsapp Dosen Pembimbing hanya boleh berisi angka");
     }
 
     if (errors.length > 0) {
@@ -390,11 +315,12 @@ export function Form() {
       const token = Cookies.get("token");
       console.log("Token:", token);
 
-      // Prepare the team data (excluding email as per response structure)
+      // Prepare the team data
       const teamData = {
         team_name: formData.team_name,
         institution_name: formData.institution_name,
         user_id: formData.user_id || 1,
+        email: formData.email,
       };
 
       // Prepare the leader data (excluding files)
@@ -432,13 +358,13 @@ export function Form() {
         bridge_name: formData.bridge_name,
       };
 
-      // Combine all data into a single object matching the response structure
+      // Combine all data into a single object
       const combinedData = {
         team: teamData,
         leader: leaderData,
         members: membersData,
-        dosbim: [dosbimData],
-        sbc: [sbcData],
+        dosbim: [dosbimData], // Wrap in array as per the data structure
+        sbc: [sbcData], // Wrap in array as per the data structure
       };
 
       // Log the data being sent
@@ -520,14 +446,11 @@ export function Form() {
 
       toast.success("Form submitted successfully!", {
         position: "top-right",
-        autoClose: 2000,
+        autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        onClose: () => {
-          router.push("/dashboard");
-        },
       });
     } catch (error: any) {
       console.error("Submission Error:", error.message);
@@ -601,10 +524,6 @@ export function Form() {
         ...prev,
         [field]: file,
       }));
-      setFileNames((prev) => ({
-        ...prev,
-        [field]: file.name,
-      }));
       console.log(`Team File Updated - ${field}:`, file.name);
     } else if (type === "leader") {
       setFormData((prev) => ({
@@ -612,13 +531,6 @@ export function Form() {
         leader: {
           ...prev.leader,
           [field]: file,
-        },
-      }));
-      setFileNames((prev) => ({
-        ...prev,
-        leader: {
-          ...prev.leader,
-          [field]: file.name,
         },
       }));
       console.log(`Leader File Updated - ${field}:`, file.name);
@@ -629,12 +541,6 @@ export function Form() {
           i === index ? { ...member, [field]: file } : member
         ),
       }));
-      setFileNames((prev) => ({
-        ...prev,
-        members: prev.members.map((member, i) =>
-          i === index ? { ...member, [field]: file.name } : member
-        ),
-      }));
       console.log(`Member ${index + 1} File Updated - ${field}:`, file.name);
     } else if (type === "dosbim") {
       setFormData((prev) => ({
@@ -642,13 +548,6 @@ export function Form() {
         dosbim: {
           ...prev.dosbim,
           [field]: file,
-        },
-      }));
-      setFileNames((prev) => ({
-        ...prev,
-        dosbim: {
-          ...prev.dosbim,
-          [field]: file.name,
         },
       }));
       console.log(`Dosen Pembimbing File Updated - ${field}:`, file.name);
@@ -736,14 +635,12 @@ export function Form() {
               onChange={(e) => handleFileChange("team", null, "payment_proof", e.target.files?.[0] || null)}
               required
               helperText="Format Penamaan: Bukti Pembayaran_Nama Tim"
-              fileName={fileNames.payment_proof}
             />
             <FileInput
               label="Bukti Voucher"
               accept="image/*"
               onChange={(e) => handleFileChange("team", null, "voucher", e.target.files?.[0] || null)}
               helperText="Format Penamaan: Bukti Voucher_Nama Tim"
-              fileName={fileNames.voucher}
             />
 
             {/* Tabs Section */}
@@ -854,7 +751,6 @@ export function Form() {
                         }
                         required
                         helperText="Format Penamaan: SKMA_Nama Tim_Nama Peserta"
-                        fileName={fileNames.leader.active_student_letter}
                       />
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
@@ -862,7 +758,6 @@ export function Form() {
                         onChange={(e) => handleFileChange("leader", null, "ktm", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
-                        fileName={fileNames.leader.ktm}
                       />
                       <FileInput
                         label="Pas Foto 3x4"
@@ -870,7 +765,6 @@ export function Form() {
                         onChange={(e) => handleFileChange("leader", null, "photo", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: Pasfoto_Nama Tim_Nama Peserta"
-                        fileName={fileNames.leader.photo}
                       />
                     </>
                   )}
@@ -943,7 +837,6 @@ export function Form() {
                         }
                         required
                         helperText="Format Penamaan: SKMA_Nama Tim_Nama Peserta"
-                        fileName={fileNames.members[0].active_student_letter}
                       />
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
@@ -951,7 +844,6 @@ export function Form() {
                         onChange={(e) => handleFileChange("member", 0, "ktm", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
-                        fileName={fileNames.members[0].ktm}
                       />
                       <FileInput
                         label="Pas Foto 3x4"
@@ -959,7 +851,6 @@ export function Form() {
                         onChange={(e) => handleFileChange("member", 0, "photo", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: Pasfoto_Nama Tim_Nama Peserta"
-                        fileName={fileNames.members[0].photo}
                       />
                     </>
                   )}
@@ -1032,7 +923,6 @@ export function Form() {
                         }
                         required
                         helperText="Format Penamaan: SKMA_Nama Tim_Nama Peserta"
-                        fileName={fileNames.members[1].active_student_letter}
                       />
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
@@ -1040,7 +930,6 @@ export function Form() {
                         onChange={(e) => handleFileChange("member", 1, "ktm", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
-                        fileName={fileNames.members[1].ktm}
                       />
                       <FileInput
                         label="Pas Foto 3x4"
@@ -1048,7 +937,6 @@ export function Form() {
                         onChange={(e) => handleFileChange("member", 1, "photo", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: Pasfoto_Nama Tim_Nama Peserta"
-                        fileName={fileNames.members[1].photo}
                       />
                     </>
                   )}
@@ -1093,7 +981,6 @@ export function Form() {
                         onChange={(e) => handleFileChange("dosbim", null, "photo", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: Pasfoto_Nama Tim_Nama Dosen Pembimbing"
-                        fileName={fileNames.dosbim.photo}
                       />
                     </>
                   )}

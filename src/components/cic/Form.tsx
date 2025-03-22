@@ -1,16 +1,14 @@
 "use client";
 import React, { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter for redirection
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
 import { Button } from "@/components/ui/Button";
 import { formInstructionsCic } from "@/data/formInstructionsCic";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
-import Cookies from "js-cookie";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { z } from "zod"; // Import Zod for URL validation
+import { useAuthCheck } from '@/hooks/useAuthCheck';
+import Cookies from 'js-cookie';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface TeamMember {
   full_name: string;
@@ -38,12 +36,11 @@ interface FormData {
 
 export function Form() {
   const { user } = useAuth();
-  const router = useRouter(); // Initialize useRouter for redirection
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     team_name: "",
     institution_name: "",
-    user_id: user?.id || 1,
+    user_id: user?.id || 1, // Set default user_id to 1 if user.id is not available
     email: "",
     payment_proof: undefined,
     voucher: undefined,
@@ -99,209 +96,121 @@ export function Form() {
     ],
   });
 
-  // State to track file names for display
-  const [fileNames, setFileNames] = useState<{
-    payment_proof?: string;
-    voucher?: string;
-    leader: { ktm?: string; active_student_letter?: string; photo?: string };
-    members: Array<{ ktm?: string; active_student_letter?: string; photo?: string }>;
-  }>({
-    payment_proof: undefined,
-    voucher: undefined,
-    leader: { ktm: undefined, active_student_letter: undefined, photo: undefined },
-    members: [
-      { ktm: undefined, active_student_letter: undefined, photo: undefined },
-      { ktm: undefined, active_student_letter: undefined, photo: undefined },
-      { ktm: undefined, active_student_letter: undefined, photo: undefined },
-    ],
-  });
-
-  // Regex for validation
-  const alphabeticOnlyRegex = /^[a-zA-Z\s]+$/; // Allows only letters and spaces
-  const numericOnlyRegex = /^\d+$/; // Allows only numbers
-
-  // Zod schema for URL validation
-  const urlSchema = z.string().url("Link Upload Twibbon dan Poster harus berupa URL yang valid");
-
   const validateTextFields = () => {
     const errors: string[] = [];
 
-    // Validate Team Info
     if (!formData.team_name.trim()) {
       errors.push("Nama Tim wajib diisi");
     }
     if (!formData.institution_name.trim()) {
       errors.push("Nama Perguruan Tinggi wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.institution_name.trim())) {
-      errors.push("Nama Perguruan Tinggi hanya boleh berisi huruf dan spasi");
     }
     if (!formData.email.trim()) {
       errors.push("Email wajib diisi");
     }
 
-    // Validate Leader
     if (!formData.leader.full_name.trim()) {
       errors.push("Nama Lengkap Ketua wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.leader.full_name.trim())) {
-      errors.push("Nama Lengkap Ketua hanya boleh berisi huruf dan spasi");
     }
     if (!formData.leader.department.trim()) {
       errors.push("Jurusan Ketua wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.leader.department.trim())) {
-      errors.push("Jurusan Ketua hanya boleh berisi huruf dan spasi");
     }
     if (!formData.leader.batch.trim()) {
       errors.push("Semester Ketua wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.leader.batch.trim())) {
-      errors.push("Semester Ketua hanya boleh berisi angka");
     }
     if (!formData.leader.email.trim()) {
       errors.push("Email Ketua wajib diisi");
     }
     if (!formData.leader.phone_number.trim()) {
       errors.push("Nomor Whatsapp Ketua wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.leader.phone_number.trim())) {
-      errors.push("Nomor Whatsapp Ketua hanya boleh berisi angka");
     }
     if (!formData.leader.line_id.trim()) {
       errors.push("ID Line Ketua wajib diisi");
     }
     if (!formData.leader.twibbon_and_poster_link.trim()) {
       errors.push("Link Upload Twibbon dan Poster Ketua wajib diisi");
-    } else {
-      try {
-        urlSchema.parse(formData.leader.twibbon_and_poster_link.trim());
-      } catch (error) {
-        errors.push("Link Upload Twibbon dan Poster Ketua harus berupa URL yang valid");
-      }
     }
 
-    // Validate Members
-    const activeMembers = formData.members.filter(
-      (member) => member.full_name || member.email || member.department
+    const activeMembers = formData.members.filter(member =>
+      member.full_name || member.email || member.department
     ).length;
 
-    console.log("Active Members Count:", activeMembers);
+    console.log('Active Members Count:', activeMembers);
 
     if (activeMembers < 2) {
       errors.push("Minimal 2 anggota (Anggota 1 dan Anggota 2) wajib diisi");
     }
 
-    // Member 1
     if (!formData.members[0].full_name.trim()) {
       errors.push("Nama Lengkap Anggota 1 wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.members[0].full_name.trim())) {
-      errors.push("Nama Lengkap Anggota 1 hanya boleh berisi huruf dan spasi");
     }
     if (!formData.members[0].department.trim()) {
       errors.push("Jurusan Anggota 1 wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.members[0].department.trim())) {
-      errors.push("Jurusan Anggota 1 hanya boleh berisi huruf dan spasi");
     }
     if (!formData.members[0].batch.trim()) {
       errors.push("Semester Anggota 1 wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.members[0].batch.trim())) {
-      errors.push("Semester Anggota 1 hanya boleh berisi angka");
     }
     if (!formData.members[0].email.trim()) {
       errors.push("Email Anggota 1 wajib diisi");
     }
     if (!formData.members[0].phone_number.trim()) {
       errors.push("Nomor Whatsapp Anggota 1 wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.members[0].phone_number.trim())) {
-      errors.push("Nomor Whatsapp Anggota 1 hanya boleh berisi angka");
     }
     if (!formData.members[0].line_id.trim()) {
       errors.push("ID Line Anggota 1 wajib diisi");
     }
     if (!formData.members[0].twibbon_and_poster_link.trim()) {
       errors.push("Link Upload Twibbon dan Poster Anggota 1 wajib diisi");
-    } else {
-      try {
-        urlSchema.parse(formData.members[0].twibbon_and_poster_link.trim());
-      } catch (error) {
-        errors.push("Link Upload Twibbon dan Poster Anggota 1 harus berupa URL yang valid");
-      }
     }
 
-    // Member 2
     if (!formData.members[1].full_name.trim()) {
       errors.push("Nama Lengkap Anggota 2 wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.members[1].full_name.trim())) {
-      errors.push("Nama Lengkap Anggota 2 hanya boleh berisi huruf dan spasi");
     }
     if (!formData.members[1].department.trim()) {
       errors.push("Jurusan Anggota 2 wajib diisi");
-    } else if (!alphabeticOnlyRegex.test(formData.members[1].department.trim())) {
-      errors.push("Jurusan Anggota 2 hanya boleh berisi huruf dan spasi");
     }
     if (!formData.members[1].batch.trim()) {
       errors.push("Semester Anggota 2 wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.members[1].batch.trim())) {
-      errors.push("Semester Anggota 2 hanya boleh berisi angka");
     }
     if (!formData.members[1].email.trim()) {
       errors.push("Email Anggota 2 wajib diisi");
     }
     if (!formData.members[1].phone_number.trim()) {
       errors.push("Nomor Whatsapp Anggota 2 wajib diisi");
-    } else if (!numericOnlyRegex.test(formData.members[1].phone_number.trim())) {
-      errors.push("Nomor Whatsapp Anggota 2 hanya boleh berisi angka");
     }
     if (!formData.members[1].line_id.trim()) {
       errors.push("ID Line Anggota 2 wajib diisi");
     }
     if (!formData.members[1].twibbon_and_poster_link.trim()) {
       errors.push("Link Upload Twibbon dan Poster Anggota 2 wajib diisi");
-    } else {
-      try {
-        urlSchema.parse(formData.members[1].twibbon_and_poster_link.trim());
-      } catch (error) {
-        errors.push("Link Upload Twibbon dan Poster Anggota 2 harus berupa URL yang valid");
-      }
     }
 
-    // Member 3 (if active)
     if (activeMembers >= 3) {
       if (!formData.members[2].full_name.trim()) {
         errors.push("Nama Lengkap Anggota 3 wajib diisi (karena beberapa data sudah diisi)");
-      } else if (!alphabeticOnlyRegex.test(formData.members[2].full_name.trim())) {
-        errors.push("Nama Lengkap Anggota 3 hanya boleh berisi huruf dan spasi");
       }
       if (!formData.members[2].department.trim()) {
         errors.push("Jurusan Anggota 3 wajib diisi (karena beberapa data sudah diisi)");
-      } else if (!alphabeticOnlyRegex.test(formData.members[2].department.trim())) {
-        errors.push("Jurusan Anggota 3 hanya boleh berisi huruf dan spasi");
       }
       if (!formData.members[2].batch.trim()) {
         errors.push("Semester Anggota 3 wajib diisi (karena beberapa data sudah diisi)");
-      } else if (!numericOnlyRegex.test(formData.members[2].batch.trim())) {
-        errors.push("Semester Anggota 3 hanya boleh berisi angka");
       }
       if (!formData.members[2].email.trim()) {
         errors.push("Email Anggota 3 wajib diisi (karena beberapa data sudah diisi)");
       }
       if (!formData.members[2].phone_number.trim()) {
         errors.push("Nomor Whatsapp Anggota 3 wajib diisi (karena beberapa data sudah diisi)");
-      } else if (!numericOnlyRegex.test(formData.members[2].phone_number.trim())) {
-        errors.push("Nomor Whatsapp Anggota 3 hanya boleh berisi angka");
       }
       if (!formData.members[2].line_id.trim()) {
         errors.push("ID Line Anggota 3 wajib diisi (karena beberapa data sudah diisi)");
       }
       if (!formData.members[2].twibbon_and_poster_link.trim()) {
         errors.push("Link Upload Twibbon dan Poster Anggota 3 wajib diisi (karena beberapa data sudah diisi)");
-      } else {
-        try {
-          urlSchema.parse(formData.members[2].twibbon_and_poster_link.trim());
-        } catch (error) {
-          errors.push("Link Upload Twibbon dan Poster Anggota 3 harus berupa URL yang valid");
-        }
       }
     }
 
     if (errors.length > 0) {
-      console.log("Text Field Validation Errors:", errors);
+      console.log('Text Field Validation Errors:', errors);
       toast.error(`Silakan lengkapi data berikut:\n${errors.join("\n")}`, {
         position: "top-right",
         autoClose: 5000,
@@ -317,8 +226,8 @@ export function Form() {
   };
 
   const validateFiles = () => {
-    const activeMembers = formData.members.filter(
-      (member) => member.full_name || member.email || member.department
+    const activeMembers = formData.members.filter(member =>
+      member.full_name || member.email || member.department
     ).length;
 
     const errors: string[] = [];
@@ -372,7 +281,7 @@ export function Form() {
     }
 
     if (errors.length > 0) {
-      console.log("File Validation Errors:", errors);
+      console.log('File Validation Errors:', errors);
       toast.error(`Silakan periksa dokumen berikut:\n${errors.join("\n")}`, {
         position: "top-right",
         autoClose: 5000,
@@ -389,36 +298,36 @@ export function Form() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log("Form submission triggered");
+    console.log('Form submission triggered');
     setLoading(true);
 
     try {
-      console.log("Starting form submission...");
+      console.log('Starting form submission...');
       if (!validateTextFields()) {
-        console.log("Text field validation failed. Submission stopped.");
+        console.log('Text field validation failed. Submission stopped.');
         setLoading(false);
         return;
       }
 
       if (!validateFiles()) {
-        console.log("File validation failed. Submission stopped.");
+        console.log('File validation failed. Submission stopped.');
         setLoading(false);
         return;
       }
 
-      const token = Cookies.get("token");
-      console.log("Token:", token);
+      const token = Cookies.get('token');
+      console.log('Token:', token);
 
       // Prepare the team data
       const teamData = {
         team_name: formData.team_name,
         institution_name: formData.institution_name,
-        user_id: formData.user_id || 1,
+        user_id: formData.user_id || 1, // Ensure user_id defaults to 1
         email: formData.email,
       };
 
       // Log the user_id explicitly for debugging
-      console.log("User ID being sent:", teamData.user_id);
+      console.log('User ID being sent:', teamData.user_id);
 
       // Prepare the leader data (excluding files)
       const leaderData = {
@@ -432,7 +341,7 @@ export function Form() {
       };
 
       // Prepare the members data (excluding files)
-      const membersData = formData.members.map((member) => ({
+      const membersData = formData.members.map(member => ({
         full_name: member.full_name,
         department: member.department,
         batch: member.batch,
@@ -450,36 +359,36 @@ export function Form() {
       };
 
       // Log the data being sent
-      console.log("Combined Data:", combinedData);
+      console.log('Combined Data:', combinedData);
 
       // Create FormData object
       const formDataToSend = new FormData();
 
       // Append the combined data as a single JSON string under the 'data' key
-      formDataToSend.append("data", JSON.stringify(combinedData));
+      formDataToSend.append('data', JSON.stringify(combinedData));
 
       // Append team files
       if (formData.payment_proof) {
-        formDataToSend.append("payment_proof", formData.payment_proof);
-        console.log("Payment Proof File:", formData.payment_proof.name);
+        formDataToSend.append('payment_proof', formData.payment_proof);
+        console.log('Payment Proof File:', formData.payment_proof.name);
       }
       if (formData.voucher) {
-        formDataToSend.append("voucher", formData.voucher);
-        console.log("Voucher File:", formData.voucher.name);
+        formDataToSend.append('voucher', formData.voucher);
+        console.log('Voucher File:', formData.voucher.name);
       }
 
       // Append leader files with updated naming
       if (formData.leader.ktm) {
-        formDataToSend.append("leader_ktm", formData.leader.ktm);
-        console.log("Leader KTM File:", formData.leader.ktm.name);
+        formDataToSend.append('leader_ktm', formData.leader.ktm);
+        console.log('Leader KTM File:', formData.leader.ktm.name);
       }
       if (formData.leader.active_student_letter) {
-        formDataToSend.append("leader_active_student_letter", formData.leader.active_student_letter);
-        console.log("Leader Active Student Letter File:", formData.leader.active_student_letter.name);
+        formDataToSend.append('leader_active_student_letter', formData.leader.active_student_letter);
+        console.log('Leader Active Student Letter File:', formData.leader.active_student_letter.name);
       }
       if (formData.leader.photo) {
-        formDataToSend.append("leader_photo", formData.leader.photo);
-        console.log("Leader Photo File:", formData.leader.photo.name);
+        formDataToSend.append('leader_photo', formData.leader.photo);
+        console.log('Leader Photo File:', formData.leader.photo.name);
       }
 
       // Append member files with updated naming
@@ -499,40 +408,37 @@ export function Form() {
       });
 
       // Log the FormData contents (for debugging)
-      console.log("Submitting to:", `${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/new`);
+      console.log('Submitting to:', `${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/new`);
       Array.from(formDataToSend.entries()).forEach(([key, value]) => {
         console.log(`FormData Entry - ${key}:`, value);
       });
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/new`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: formDataToSend,
       });
 
-      console.log("Response status:", response.status);
+      console.log('Response status:', response.status);
       const responseData = await response.json();
-      console.log("Response data:", responseData);
+      console.log('Response data:', responseData);
 
       if (!response.ok) {
-        throw new Error(responseData.message || "Unknown error occurred during submission");
+        throw new Error(responseData.message || 'Unknown error occurred during submission');
       }
 
-      toast.success("Form submitted successfully!", {
+      toast.success('Form submitted successfully!', {
         position: "top-right",
-        autoClose: 2000, // Shorten autoClose to redirect sooner
+        autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        onClose: () => {
-          router.push("/dashboard"); // Redirect to /dashboard after toast closes
-        },
       });
     } catch (error: any) {
-      console.error("Submission Error:", error.message);
+      console.error('Submission Error:', error.message);
       toast.error(`Failed to submit form: ${error.message}`, {
         position: "top-right",
         autoClose: 5000,
@@ -543,90 +449,73 @@ export function Form() {
       });
     } finally {
       setLoading(false);
-      console.log("Submission process completed. Loading state:", loading);
+      console.log('Submission process completed. Loading state:', loading);
     }
   };
 
   const handleTeamInfoChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [field]: value,
+      [field]: value
     }));
     console.log(`Team Info Updated - ${field}:`, value);
   };
 
   const handleMemberChange = (
-    type: "leader" | "member",
+    type: 'leader' | 'member',
     index: number,
     field: keyof TeamMember,
     value: string
   ) => {
-    if (type === "leader") {
-      setFormData((prev) => ({
+    if (type === 'leader') {
+      setFormData(prev => ({
         ...prev,
         leader: {
           ...prev.leader,
-          [field]: value,
-        },
+          [field]: value
+        }
       }));
       console.log(`Leader Updated - ${field}:`, value);
     } else {
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
         members: prev.members.map((member, i) =>
           i === index ? { ...member, [field]: value } : member
-        ),
+        )
       }));
       console.log(`Member ${index + 1} Updated - ${field}:`, value);
     }
   };
 
   const handleFileChange = (
-    type: "team" | "leader" | "member",
+    type: 'team' | 'leader' | 'member',
     index: number | null,
     field: string,
     file: File | null
   ) => {
     if (!file) return;
 
-    if (type === "team") {
-      setFormData((prev) => ({
+    if (type === 'team') {
+      setFormData(prev => ({
         ...prev,
-        [field]: file,
-      }));
-      setFileNames((prev) => ({
-        ...prev,
-        [field]: file.name,
+        [field]: file
       }));
       console.log(`Team File Updated - ${field}:`, file.name);
-    } else if (type === "leader") {
-      setFormData((prev) => ({
+    } else if (type === 'leader') {
+      setFormData(prev => ({
         ...prev,
         leader: {
           ...prev.leader,
-          [field]: file,
-        },
-      }));
-      setFileNames((prev) => ({
-        ...prev,
-        leader: {
-          ...prev.leader,
-          [field]: file.name,
-        },
+          [field]: file
+        }
       }));
       console.log(`Leader File Updated - ${field}:`, file.name);
-    } else if (type === "member" && index !== null) {
-      setFormData((prev) => ({
+    } else if (type === 'member' && index !== null) {
+      setFormData(prev => ({
         ...prev,
         members: prev.members.map((member, i) =>
           i === index ? { ...member, [field]: file } : member
-        ),
-      }));
-      setFileNames((prev) => ({
-        ...prev,
-        members: prev.members.map((member, i) =>
-          i === index ? { ...member, [field]: file.name } : member
-        ),
+        )
       }));
       console.log(`Member ${index + 1} File Updated - ${field}:`, file.name);
     }
@@ -635,7 +524,7 @@ export function Form() {
   const isAuthenticated = useAuthCheck();
 
   if (!isAuthenticated) {
-    console.log("User not authenticated. Rendering null.");
+    console.log('User not authenticated. Rendering null.');
     return null;
   }
 
@@ -643,7 +532,7 @@ export function Form() {
 
   const handleTabChange = (tab: "ketua" | "anggota1" | "anggota2" | "anggota3") => {
     setActiveTab(tab);
-    console.log("Active Tab Changed:", tab);
+    console.log('Active Tab Changed:', tab);
   };
 
   return (
@@ -679,39 +568,37 @@ export function Form() {
               label="Email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleTeamInfoChange("email", e.target.value)}
+              onChange={(e) => handleTeamInfoChange('email', e.target.value)}
               required
             />
             <Input
               label="Nama Tim"
               type="text"
               value={formData.team_name}
-              onChange={(e) => handleTeamInfoChange("team_name", e.target.value)}
+              onChange={(e) => handleTeamInfoChange('team_name', e.target.value)}
               required
             />
             <Input
               label="Nama Perguruan Tinggi"
               type="text"
               value={formData.institution_name}
-              onChange={(e) => handleTeamInfoChange("institution_name", e.target.value)}
+              onChange={(e) => handleTeamInfoChange('institution_name', e.target.value)}
               required
             />
             <FileInput
               label="Bukti Pembayaran"
               accept="application/pdf"
-              onChange={(e) => handleFileChange("team", null, "payment_proof", e.target.files?.[0] || null)}
+              onChange={(e) => handleFileChange('team', null, 'payment_proof', e.target.files?.[0] || null)}
               required
               variant="cic"
               helperText="Format Penamaan: Bukti Pembayaran_Nama Tim"
-              fileName={fileNames.payment_proof} // Pass the file name for display
             />
             <FileInput
               label="Voucher"
               accept="application/pdf"
-              onChange={(e) => handleFileChange("team", null, "voucher", e.target.files?.[0] || null)}
+              onChange={(e) => handleFileChange('team', null, 'voucher', e.target.files?.[0] || null)}
               variant="cic"
               helperText="Format Penamaan: Voucher_Nama Tim"
-              fileName={fileNames.voucher} // Pass the file name for display
             />
 
             {/* Tabs Section */}
@@ -760,14 +647,14 @@ export function Form() {
                         label="Nama Lengkap"
                         type="text"
                         value={formData.leader.full_name}
-                        onChange={(e) => handleMemberChange("leader", 0, "full_name", e.target.value)}
+                        onChange={(e) => handleMemberChange('leader', 0, 'full_name', e.target.value)}
                         required
                       />
                       <Input
                         label="Jurusan"
                         type="text"
                         value={formData.leader.department}
-                        onChange={(e) => handleMemberChange("leader", 0, "department", e.target.value)}
+                        onChange={(e) => handleMemberChange('leader', 0, 'department', e.target.value)}
                         helperText="Ketua wajib berasal dari teknik sipil"
                         required
                       />
@@ -775,68 +662,61 @@ export function Form() {
                         label="Semester"
                         type="text"
                         value={formData.leader.batch}
-                        onChange={(e) => handleMemberChange("leader", 0, "batch", e.target.value)}
+                        onChange={(e) => handleMemberChange('leader', 0, 'batch', e.target.value)}
                         required
                       />
                       <Input
                         label="Email"
                         type="email"
                         value={formData.leader.email}
-                        onChange={(e) => handleMemberChange("leader", 0, "email", e.target.value)}
+                        onChange={(e) => handleMemberChange('leader', 0, 'email', e.target.value)}
                         required
                       />
                       <Input
                         label="Nomor Whatsapp"
                         type="text"
                         value={formData.leader.phone_number}
-                        onChange={(e) => handleMemberChange("leader", 0, "phone_number", e.target.value)}
+                        onChange={(e) => handleMemberChange('leader', 0, 'phone_number', e.target.value)}
                         required
                       />
                       <Input
                         label="ID Line"
                         type="text"
                         value={formData.leader.line_id}
-                        onChange={(e) => handleMemberChange("leader", 0, "line_id", e.target.value)}
+                        onChange={(e) => handleMemberChange('leader', 0, 'line_id', e.target.value)}
                         required
                       />
                       <Input
                         label="Link Upload Twibbon dan Poster"
                         type="text"
                         value={formData.leader.twibbon_and_poster_link}
-                        onChange={(e) =>
-                          handleMemberChange("leader", 0, "twibbon_and_poster_link", e.target.value)
-                        }
+                        onChange={(e) => handleMemberChange('leader', 0, 'twibbon_and_poster_link', e.target.value)}
                         helperText="Peserta harap tidak menggunakan private account"
                         required
                       />
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
                         accept="application/pdf"
-                        onChange={(e) => handleFileChange("leader", 0, "ktm", e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange('leader', 0, 'ktm', e.target.files?.[0] || null)}
                         required
                         variant="cic"
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.leader.ktm} // Pass the file name for display
                       />
                       <FileInput
                         label="Surat Keterangan Mahasiswa Aktif"
                         accept="application/pdf"
-                        onChange={(e) =>
-                          handleFileChange("leader", 0, "active_student_letter", e.target.files?.[0] || null)
-                        }
+                        onChange={(e) => handleFileChange('leader', 0, 'active_student_letter', e.target.files?.[0] || null)}
                         required
                         variant="cic"
                         helperText="Format Penamaan: SKMA_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.leader.active_student_letter} // Pass the file name for display
                       />
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="image/*"
-                        onChange={(e) => handleFileChange("leader", 0, "photo", e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange('leader', 0, 'photo', e.target.files?.[0] || null)}
                         required
                         variant="cic"
                         helperText="Format Penamaan: Foto_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.leader.photo} // Pass the file name for display
                       />
                     </>
                   )}
@@ -847,82 +727,75 @@ export function Form() {
                         label="Nama Lengkap"
                         type="text"
                         value={formData.members[0].full_name}
-                        onChange={(e) => handleMemberChange("member", 0, "full_name", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 0, 'full_name', e.target.value)}
                         required
                       />
                       <Input
                         label="Jurusan"
                         type="text"
                         value={formData.members[0].department}
-                        onChange={(e) => handleMemberChange("member", 0, "department", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 0, 'department', e.target.value)}
                         required
                       />
                       <Input
                         label="Semester"
                         type="text"
                         value={formData.members[0].batch}
-                        onChange={(e) => handleMemberChange("member", 0, "batch", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 0, 'batch', e.target.value)}
                         required
                       />
                       <Input
                         label="Email"
                         type="email"
                         value={formData.members[0].email}
-                        onChange={(e) => handleMemberChange("member", 0, "email", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 0, 'email', e.target.value)}
                         required
                       />
                       <Input
                         label="Nomor Whatsapp"
                         type="text"
                         value={formData.members[0].phone_number}
-                        onChange={(e) => handleMemberChange("member", 0, "phone_number", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 0, 'phone_number', e.target.value)}
                         required
                       />
                       <Input
                         label="ID Line"
                         type="text"
                         value={formData.members[0].line_id}
-                        onChange={(e) => handleMemberChange("member", 0, "line_id", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 0, 'line_id', e.target.value)}
                         required
                       />
                       <Input
                         label="Link Upload Twibbon dan Poster"
                         type="text"
                         value={formData.members[0].twibbon_and_poster_link}
-                        onChange={(e) =>
-                          handleMemberChange("member", 0, "twibbon_and_poster_link", e.target.value)
-                        }
+                        onChange={(e) => handleMemberChange('member', 0, 'twibbon_and_poster_link', e.target.value)}
                         helperText="Peserta harap tidak menggunakan private account"
                         required
                       />
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
                         accept="application/pdf"
-                        onChange={(e) => handleFileChange("member", 0, "ktm", e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange('member', 0, 'ktm', e.target.files?.[0] || null)}
                         required
                         variant="cic"
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.members[0].ktm} // Pass the file name for display
                       />
                       <FileInput
                         label="Surat Keterangan Mahasiswa Aktif"
                         accept="application/pdf"
-                        onChange={(e) =>
-                          handleFileChange("member", 0, "active_student_letter", e.target.files?.[0] || null)
-                        }
+                        onChange={(e) => handleFileChange('member', 0, 'active_student_letter', e.target.files?.[0] || null)}
                         required
                         variant="cic"
                         helperText="Format Penamaan: SKMA_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.members[0].active_student_letter} // Pass the file name for display
                       />
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="image/*"
-                        onChange={(e) => handleFileChange("member", 0, "photo", e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange('member', 0, 'photo', e.target.files?.[0] || null)}
                         required
                         variant="cic"
                         helperText="Format Penamaan: Foto_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.members[0].photo} // Pass the file name for display
                       />
                     </>
                   )}
@@ -933,82 +806,75 @@ export function Form() {
                         label="Nama Lengkap"
                         type="text"
                         value={formData.members[1].full_name}
-                        onChange={(e) => handleMemberChange("member", 1, "full_name", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 1, 'full_name', e.target.value)}
                         required
                       />
                       <Input
                         label="Jurusan"
                         type="text"
                         value={formData.members[1].department}
-                        onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 1, 'department', e.target.value)}
                         required
                       />
                       <Input
                         label="Semester"
                         type="text"
                         value={formData.members[1].batch}
-                        onChange={(e) => handleMemberChange("member", 1, "batch", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 1, 'batch', e.target.value)}
                         required
                       />
                       <Input
                         label="Email"
                         type="email"
                         value={formData.members[1].email}
-                        onChange={(e) => handleMemberChange("member", 1, "email", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 1, 'email', e.target.value)}
                         required
                       />
                       <Input
                         label="Nomor Whatsapp"
                         type="text"
                         value={formData.members[1].phone_number}
-                        onChange={(e) => handleMemberChange("member", 1, "phone_number", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 1, 'phone_number', e.target.value)}
                         required
                       />
                       <Input
                         label="ID Line"
                         type="text"
                         value={formData.members[1].line_id}
-                        onChange={(e) => handleMemberChange("member", 1, "line_id", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 1, 'line_id', e.target.value)}
                         required
                       />
                       <Input
                         label="Link Upload Twibbon dan Poster"
                         type="text"
                         value={formData.members[1].twibbon_and_poster_link}
-                        onChange={(e) =>
-                          handleMemberChange("member", 1, "twibbon_and_poster_link", e.target.value)
-                        }
+                        onChange={(e) => handleMemberChange('member', 1, 'twibbon_and_poster_link', e.target.value)}
                         helperText="Peserta harap tidak menggunakan private account"
                         required
                       />
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
                         accept="application/pdf"
-                        onChange={(e) => handleFileChange("member", 1, "ktm", e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange('member', 1, 'ktm', e.target.files?.[0] || null)}
                         required
                         variant="cic"
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.members[1].ktm} // Pass the file name for display
                       />
                       <FileInput
                         label="Surat Keterangan Mahasiswa Aktif"
                         accept="application/pdf"
-                        onChange={(e) =>
-                          handleFileChange("member", 1, "active_student_letter", e.target.files?.[0] || null)
-                        }
+                        onChange={(e) => handleFileChange('member', 1, 'active_student_letter', e.target.files?.[0] || null)}
                         required
                         variant="cic"
                         helperText="Format Penamaan: SKMA_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.members[1].active_student_letter} // Pass the file name for display
                       />
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="image/*"
-                        onChange={(e) => handleFileChange("member", 1, "photo", e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange('member', 1, 'photo', e.target.files?.[0] || null)}
                         required
                         variant="cic"
                         helperText="Format Penamaan: Foto_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.members[1].photo} // Pass the file name for display
                       />
                     </>
                   )}
@@ -1019,72 +885,65 @@ export function Form() {
                         label="Nama Lengkap"
                         type="text"
                         value={formData.members[2].full_name}
-                        onChange={(e) => handleMemberChange("member", 2, "full_name", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 2, 'full_name', e.target.value)}
                       />
                       <Input
                         label="Jurusan"
                         type="text"
                         value={formData.members[2].department}
-                        onChange={(e) => handleMemberChange("member", 2, "department", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 2, 'department', e.target.value)}
                       />
                       <Input
                         label="Semester"
                         type="text"
                         value={formData.members[2].batch}
-                        onChange={(e) => handleMemberChange("member", 2, "batch", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 2, 'batch', e.target.value)}
                       />
                       <Input
                         label="Email"
                         type="email"
                         value={formData.members[2].email}
-                        onChange={(e) => handleMemberChange("member", 2, "email", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 2, 'email', e.target.value)}
                       />
                       <Input
                         label="Nomor Whatsapp"
                         type="text"
                         value={formData.members[2].phone_number}
-                        onChange={(e) => handleMemberChange("member", 2, "phone_number", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 2, 'phone_number', e.target.value)}
                       />
                       <Input
                         label="ID Line"
                         type="text"
                         value={formData.members[2].line_id}
-                        onChange={(e) => handleMemberChange("member", 2, "line_id", e.target.value)}
+                        onChange={(e) => handleMemberChange('member', 2, 'line_id', e.target.value)}
                       />
                       <Input
                         label="Link Upload Twibbon dan Poster"
                         type="text"
                         value={formData.members[2].twibbon_and_poster_link}
-                        onChange={(e) =>
-                          handleMemberChange("member", 2, "twibbon_and_poster_link", e.target.value)
-                        }
+                        onChange={(e) => handleMemberChange('member', 2, 'twibbon_and_poster_link', e.target.value)}
                         helperText="Peserta harap tidak menggunakan private account"
                       />
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
                         accept="application/pdf"
-                        onChange={(e) => handleFileChange("member", 2, "ktm", e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange('member', 2, 'ktm', e.target.files?.[0] || null)}
                         variant="cic"
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.members[2].ktm} // Pass the file name for display
                       />
                       <FileInput
                         label="Surat Keterangan Mahasiswa Aktif"
                         accept="application/pdf"
-                        onChange={(e) =>
-                          handleFileChange("member", 2, "active_student_letter", e.target.files?.[0] || null)
-                        }
+                        onChange={(e) => handleFileChange('member', 2, 'active_student_letter', e.target.files?.[0] || null)}
                         variant="cic"
                         helperText="Format Penamaan: SKMA_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.members[2].active_student_letter} // Pass the file name for display
                       />
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="image/*"
-                        onChange={(e) => handleFileChange("member", 2, "photo", e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange('member', 2, 'photo', e.target.files?.[0] || null)}
                         variant="cic"
                         helperText="Format Penamaan: Foto_Nama Tim_Nama Lengkap"
-                        fileName={fileNames.members[2].photo} // Pass the file name for display
                       />
                     </>
                   )}
@@ -1098,9 +957,9 @@ export function Form() {
                 variant="cic-primary"
                 type="submit"
                 disabled={loading}
-                onClick={() => console.log("Submit button clicked")}
+                onClick={() => console.log('Submit button clicked')}
               >
-                {loading ? "Mengirim..." : "Kirim Formulir"}
+                {loading ? 'Mengirim...' : 'Kirim Formulir'}
               </Button>
             </div>
           </form>
