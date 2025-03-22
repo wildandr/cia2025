@@ -12,10 +12,7 @@ interface Instruction {
 
 export const formInstructionsCraft: Instruction[] = [
   {
-    text: "Link Guidebook:",
-    links: [
-      { text: "https://bit.ly/GuidebookPendaftaranCRAFT", url: "https://bit.ly/GuidebookPendaftaranCRAFT" }
-    ]
+    text: "Link Guidebook: https://bit.ly/GuidebookPendaftaranCRAFT"
   },
   {
     text: "Peserta membaca Guidebook Pendaftaran CRAFT"
@@ -56,7 +53,7 @@ export const formInstructionsCraft: Instruction[] = [
     ]
   },
   {
-    text: "Peserta menyerahkan bukti pembayaran pada formulir (PDF).\n\nFormat penamaan file: Bukti Pembayaran_Nama Peserta\nContoh: Bukti Pembayaran_Dimas Apta\n\nBiaya pendaftaran yang harus dibayarkan sejumlah berikut:\nTiket Early Bird (18-24 Maret 2024)\nUmum offline: Rp 40.000\nUmum online: Rp 30.000\nMahasiswa DTSL FT UGM (Coming Soon)\n\nPembayaran ditambah dengan kode unik (+Rp 233)\nContoh: Rp 40.233,00\nPembayaran dilakukan melalui rekening 1800013302668 (Mandiri) a.n Balqis Sybil Buanawati",
+    text: "Peserta menyerahkan bukti pembayaran pada formulir (PDF).\n\nFormat penamaan file: Bukti Pembayaran_Nama Peserta\nContoh: Bukti Pembayaran_Dimas Apta\n\nBiaya pendaftaran yang harus dibayarkan sejumlah berikut:\nTiket Early Bird(60k) [10 tiket]\nBunding [60 tiket]\n •⁠  ⁠1 orang (80k)\n•⁠  ⁠3 orang (70k)\n•⁠  ⁠5 orang (65k)\nPembayaran ditambah dengan kode unik (+Rp 13)\nContoh: Rp 40.233,00\nPembayaran dilakukan melalui rekening 1370022414649 (Mandiri) a.n NAOMI ELLENA MANURUN",
     documents: [
       {
         description: "Bukti Pembayaran (PDF)",
@@ -66,9 +63,6 @@ export const formInstructionsCraft: Instruction[] = [
     ]
   },
   {
-    text: "Apabila terdapat kendala dan kesalahan dalam mengisi google form dapat menghubungi Contact Person:\nApta: 081329845585\nMaul: 085157861966"
+    text: "Apabila terdapat kendala dan kesalahan dalam mengisi google form dapat menghubungi Contact Person:\n(081225449240) Anggito\n(081341316170) Nandita"
   },
-  {
-    text: "Konfirmasi registrasi berhasil akan dikirimkan melalui email balasan."
-  }
 ];

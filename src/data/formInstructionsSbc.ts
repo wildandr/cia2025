@@ -11,13 +11,13 @@ interface Instruction {
 
 export const formInstructions: Instruction[] = [
   {
-    text: "Periode pendaftaran dimulai pada tanggal 17 Februari 2024 pukul 08.00 hingga 17 Maret 2024 pukul 23.59 dan TOR soal akan rilis pada tanggal 18 Maret 2024;"
+    text: "Periode pendaftaran dimulai pada tanggal 22 Maret 2025 - 30 April 2025"
   },
   {
-    text: "Peserta diharapkan untuk membayar biaya pendaftaran sebesar Rp350.000/tim yang dapat dilakukan dengan cara transfer ke rekening 1800013302668 Bank Mandiri atas nama BALQIS SYBIL BUANAWAT dengan menambahkan kode unik 213 (nominal yang dibayarkan menjadi Rp350.213,00);"
+    text: "Peserta diharapkan untuk membayar biaya pendaftaran sebesar Rp300.000/tim yang dapat dilakukan dengan cara transfer ke rekening 1370022414649 Bank Mandiri atas nama NAOMI ELLENA MANURUN dengan menambahkan kode unik 13 (nominal yang dibayarkan menjadi Rp300.013,00)"
   },
   {
-    text: 'Dalam proses transaksi/transfer, peserta diharapkan untuk menambahkan keterangan "Registrasi SBC 2024" pada kolom keterangan/catatan pembayaran;'
+    text: 'Dalam proses transaksi/transfer, peserta diharapkan untuk menambahkan keterangan "Registrasi SBC 2025" pada kolom keterangan/catatan pembayaran;'
   },
   {
     text: "Peserta diharapkan mengisi formulir pendaftaran dengan teliti."
@@ -51,5 +51,9 @@ export const formInstructions: Instruction[] = [
         example: "Bukti Voucher_All Stars"
       }
     ]
+  },
+  {
+    text: "Contact Person yang dapat dihubungi:\na. Muhammad Chairul Nusantara (Nusa)\nWhatsApp: 081311783896\nLine: 24042006_\nb. Michelle Moody Hadhinoto (Moody)\nWhatsApp: 0895397075008\nLine: michellemoody"
   }
+  
 ];

@@ -11,16 +11,16 @@ interface Instruction {
 
 export const formInstructionsFcec: Instruction[] = [
   {
-    text: "FCEC (Future Civil Engineer Challenge) merupakan salah satu rangkaian acara 12th Civil in Action yang berfokus pada karya tulis ilmiah di bidang teknik sipil, lingkungan, dan sumber daya air untuk tingkatan SMA dan/atau sederajat."
+    text: "FCEC (Future Civil Engineer Challenge) merupakan salah satu rangkaian acara 13th Civil In Action yang berfokus pada karya tulis ilmiah di bidang teknik sipil, lingkungan, dan sumber daya air untuk tingkatan SMA dan/atau sederajat."
   },
   {
-    text: "FCEC 2024 mengusung tema \"Strategi generasi muda dalam menciptakan pembangunan berwawasan lingkungan dan pemanfaatan sumberdaya berkelanjutan\"."
+    text: "FCEC 2025 mengusung tema \"Perwujudan Pembangunan Berkelanjutan: Akselerasi Transisi Energi dan Infrastruktur Ramah Lingkugan\"."
   },
   {
-    text: "Periode pendaftaran dimulai dari 17 Februari 2024 hingga 10 Maret 2024 pukul 23:59 WIB."
+    text: "Periode pendaftaran dimulai dari 22 Maret 2025 hingga 25 April 2025 pukul 23:59 WIB."
   },
   {
-    text: "Contact Person yang dapat dihubungi:\nAra (WA: 08971243798)\nHaya (WA: 085643172448)"
+    text: "Contact Person yang dapat dihubungi:\nNaiwa (WA:081346158069, Line:naiwaaa)  \nAlma (WA:08211601749, Line:aalmaaulian)"
   },
   {
     text: "Ikuti akun sosial media kami untuk informasi lebih lanjut:\nInstagram: @civilinaction\nTiktok: @cia.ugm\nLinkedin: Civil in Action\nYoutube: Civil in Action"
@@ -54,5 +54,9 @@ export const formInstructionsFcec: Instruction[] = [
         example: "Eco Warriors_Pas Foto_John Doe"
       }
     ]
-  }
+  },
+  {
+    text: "Biaya Registrasi Rp150.000 bagi tim yang dibayarkan jika lolos ke tahap paper. Pengumpulan abstrak tidak dipungut biaya pendaftaran."
+  },
+
 ];
