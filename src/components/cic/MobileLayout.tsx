@@ -18,14 +18,14 @@ export const MobileLayout = () => {
             <Image
               src="/assets/ornament_star_cic.png"
               alt="ornament"
-              className="h-28 w-28 custom-580:h-36 custom-580:w-36 absolute left-5 -top-8 z-[2]"
+              className="h-28 w-28 custom-410:mt-20  custom-580:h-36 custom-580:w-36 absolute left-5 -top-8 z-[2]"
               width={1000}
               height={1000}
             />
             <Image
-              src="/assets/fcec/title_fcec.svg"
-              alt="FCEC Banner"
-              className="h-32 custom-580:h-36 w-auto relative z-[4]"
+              src="/assets/cic/title_cic.png"
+              alt="CIC Banner"
+              className="h-32 custom-410:mt-20 custom-580:h-36 w-auto relative z-[4]"
               width={1000}
               height={1000}
             />

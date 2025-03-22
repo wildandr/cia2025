@@ -22,7 +22,7 @@ export const MobileLayout = () => {
               height={1000}
             />
             <Image
-              src="/assets/craft/title_craft.svg"
+              src="/assets/craft/title_craft.png"
               alt="CRAFT Banner"
               className="h-32 custom-580:h-36 w-auto relative z-[4]"
               width={1000}

@@ -44,23 +44,23 @@ export function Footer() {
           <h2 className="text-lg md:text-xl font-bold mb-2">Formulir</h2>
           <ul className="text-sm md:text-base space-y-1">
             <li>
-              <Link href="/form/craft" className="hover:underline">
+              <Link href="/craft" className="hover:underline">
                 Registrasi Peserta CRAFT &gt;
               </Link>
             </li>
             <li>
-              <Link href="/form/cic" className="hover:underline">
+              <Link href="/cic" className="hover:underline">
                 Registrasi Peserta CIC &gt;
               </Link>
             </li>
             <li>
-              <Link href="/form/sbc" className="hover:underline">
+              <Link href="/sbc" className="hover:underline">
                 Registrasi Peserta SBC &gt;
               </Link>
             </li>
             <li>
-              <Link href="/form/pece" className="hover:underline">
-                Registrasi Peserta PCEC &gt;
+              <Link href="/fcec" className="hover:underline">
+                Registrasi Peserta FCEC &gt;
               </Link>
             </li>
           </ul>

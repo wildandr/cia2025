@@ -231,7 +231,16 @@ export function Form() {
     ).length;
 
     const errors: string[] = [];
+    const maxFileSize = 500 * 1024; // 500KB in bytes
 
+    // Helper function to check file size
+    const checkFileSize = (file: File | undefined, fileLabel: string) => {
+      if (file && file.size > maxFileSize) {
+        errors.push(`${fileLabel} melebihi ukuran maksimum 500KB`);
+      }
+    };
+
+    // Check for missing required files
     if (!formData.leader.ktm) {
       errors.push("KTM Ketua Tim wajib diupload");
     }
@@ -258,9 +267,22 @@ export function Form() {
       errors.push("Bukti pembayaran wajib diupload");
     }
 
+    // Check file sizes for all uploaded files
+    checkFileSize(formData.payment_proof, "Bukti Pembayaran");
+    checkFileSize(formData.voucher, "Voucher");
+    checkFileSize(formData.leader.ktm, "KTM Ketua Tim");
+    checkFileSize(formData.leader.active_student_letter, "SKMA Ketua Tim");
+    checkFileSize(formData.leader.photo, "Foto Ketua Tim");
+
+    for (let i = 0; i < formData.members.length; i++) {
+      checkFileSize(formData.members[i].ktm, `KTM Anggota ${i + 1}`);
+      checkFileSize(formData.members[i].active_student_letter, `SKMA Anggota ${i + 1}`);
+      checkFileSize(formData.members[i].photo, `Foto Anggota ${i + 1}`);
+    }
+
     if (errors.length > 0) {
       console.log('File Validation Errors:', errors);
-      toast.error(`Silakan lengkapi dokumen berikut:\n${errors.join("\n")}`, {
+      toast.error(`Silakan periksa dokumen berikut:\n${errors.join("\n")}`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -296,7 +318,7 @@ export function Form() {
       const token = Cookies.get('token');
       console.log('Token:', token);
 
-      // Prepare the team data as a JSON string, ensuring user_id defaults to 1
+      // Prepare the team data
       const teamData = {
         team_name: formData.team_name,
         institution_name: formData.institution_name,
@@ -307,7 +329,7 @@ export function Form() {
       // Log the user_id explicitly for debugging
       console.log('User ID being sent:', teamData.user_id);
 
-      // Prepare the leader data (excluding files) as a JSON string
+      // Prepare the leader data (excluding files)
       const leaderData = {
         full_name: formData.leader.full_name,
         department: formData.leader.department,
@@ -318,7 +340,7 @@ export function Form() {
         twibbon_and_poster_link: formData.leader.twibbon_and_poster_link,
       };
 
-      // Prepare the members data (excluding files) as a JSON string
+      // Prepare the members data (excluding files)
       const membersData = formData.members.map(member => ({
         full_name: member.full_name,
         department: member.department,
@@ -329,18 +351,21 @@ export function Form() {
         twibbon_and_poster_link: member.twibbon_and_poster_link,
       }));
 
+      // Combine team, leader, and members into a single data object
+      const combinedData = {
+        team: teamData,
+        leader: leaderData,
+        members: membersData,
+      };
+
       // Log the data being sent
-      console.log('Team Data:', teamData);
-      console.log('Leader Data:', leaderData);
-      console.log('Members Data:', membersData);
+      console.log('Combined Data:', combinedData);
 
       // Create FormData object
       const formDataToSend = new FormData();
 
-      // Append JSON strings
-      formDataToSend.append('team', JSON.stringify(teamData));
-      formDataToSend.append('leader', JSON.stringify(leaderData));
-      formDataToSend.append('members', JSON.stringify(membersData));
+      // Append the combined data as a single JSON string under the 'data' key
+      formDataToSend.append('data', JSON.stringify(combinedData));
 
       // Append team files
       if (formData.payment_proof) {
@@ -352,37 +377,37 @@ export function Form() {
         console.log('Voucher File:', formData.voucher.name);
       }
 
-      // Append leader files
+      // Append leader files with updated naming
       if (formData.leader.ktm) {
-        formDataToSend.append('ktm_leader', formData.leader.ktm);
+        formDataToSend.append('leader_ktm', formData.leader.ktm);
         console.log('Leader KTM File:', formData.leader.ktm.name);
       }
       if (formData.leader.active_student_letter) {
-        formDataToSend.append('active_student_letter_leader', formData.leader.active_student_letter);
+        formDataToSend.append('leader_active_student_letter', formData.leader.active_student_letter);
         console.log('Leader Active Student Letter File:', formData.leader.active_student_letter.name);
       }
       if (formData.leader.photo) {
-        formDataToSend.append('photo_leader', formData.leader.photo);
+        formDataToSend.append('leader_photo', formData.leader.photo);
         console.log('Leader Photo File:', formData.leader.photo.name);
       }
 
-      // Append member files
+      // Append member files with updated naming
       formData.members.forEach((member, index) => {
         if (member.ktm) {
-          formDataToSend.append(`ktm_member${index + 1}`, member.ktm);
+          formDataToSend.append(`member${index + 1}_ktm`, member.ktm);
           console.log(`Member ${index + 1} KTM File:`, member.ktm.name);
         }
         if (member.active_student_letter) {
-          formDataToSend.append(`active_student_letter_member${index + 1}`, member.active_student_letter);
+          formDataToSend.append(`member${index + 1}_active_student_letter`, member.active_student_letter);
           console.log(`Member ${index + 1} Active Student Letter File:`, member.active_student_letter.name);
         }
         if (member.photo) {
-          formDataToSend.append(`photo_member${index + 1}`, member.photo);
+          formDataToSend.append(`member${index + 1}_photo`, member.photo);
           console.log(`Member ${index + 1} Photo File:`, member.photo.name);
         }
       });
 
-      // Log the FormData contents (for debugging, since FormData can't be logged directly)
+      // Log the FormData contents (for debugging)
       console.log('Submitting to:', `${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/new`);
       Array.from(formDataToSend.entries()).forEach(([key, value]) => {
         console.log(`FormData Entry - ${key}:`, value);
@@ -512,7 +537,7 @@ export function Form() {
 
   return (
     <div className="relative flex flex-col overflow-hidden max-w-5xl mx-auto font-openSans">
-      <ToastContainer />
+      <ToastContainer style={{ marginTop: "20px" }} />
       <div className="flex flex-col lg:justify-center items-center relative min-w-full">
         <div className="z-[10] min-h-screen flex flex-col">
           {/* Instructions */}
