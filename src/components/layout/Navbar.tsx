@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef, cache } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useSelectedLayoutSegment, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -18,6 +18,8 @@ export default function Nav() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { logout } = useAuth();
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Check if user is logged in
@@ -51,6 +53,19 @@ export default function Nav() {
     }
   }, [lastScrollY]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <div
       className={`w-full z-[9999] ${
@@ -66,6 +81,7 @@ export default function Nav() {
           ? "transition-transform"
           : "-translate-y-[300%] transition-transform"
       }`}
+      ref={dropdownRef}
     >
       <div
         className={`flex w-full flex-row  my-3 px-4 lg:px-16 justify-between items-center`}

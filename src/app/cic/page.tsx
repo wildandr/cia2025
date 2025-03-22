@@ -5,7 +5,7 @@ export default function CIC() {
   return (
     <main className="relative min-h-screen flex flex-col items-center bg-cic-primary">
       <MobileLayout />
-      <DesktopLayout />
+      <DesktopLayout  />
     </main>
   );
 }

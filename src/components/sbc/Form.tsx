@@ -21,7 +21,7 @@ export function Form() {
   };
 
   return (
-    <div className="relative flex flex-col overflow-hidden sm:overflow-scroll max-w-5xl mx-auto font-openSans">
+    <div className="relative flex flex-col overflow-hidden  max-w-5xl mx-auto font-openSans">
       <div className="flex flex-col lg:justify-center items-center relative min-w-full">
         <div className="z-[10] min-h-screen flex flex-col">
           {/* Instructions */}
@@ -91,7 +91,7 @@ export function Form() {
               {/* Tab Headers */}
               <div className="flex items-center border-b-2 border-white">
                 <div
-                  className={`flex-1 text-center py-2 rounded-tl-md text-[10px] md:text-sm lg:text-lg cursor-pointer ${
+                  className={`flex-1 text-center py-4 w-full  h-full rounded-tl-md text-[10px] md:text-sm lg:text-lg cursor-pointer ${
                     activeTab === "ketua" ? "bg-white text-black" : "text-white"
                   }`}
                   onClick={() => handleTabChange("ketua")}
@@ -99,7 +99,7 @@ export function Form() {
                   <p>Ketua</p>
                 </div>
                 <div
-                  className={`flex-1 text-center py-2 text-[10px] md:text-sm lg:text-lg cursor-pointer ${
+                  className={`flex-1 text-center py-4 text-[10px] md:text-sm lg:text-lg cursor-pointer ${
                     activeTab === "anggota1" ? "bg-white text-black" : "text-white"
                   }`}
                   onClick={() => handleTabChange("anggota1")}
@@ -107,7 +107,7 @@ export function Form() {
                   <p>Anggota 1</p>
                 </div>
                 <div
-                  className={`flex-1 text-center py-2 text-[10px] md:text-sm lg:text-lg cursor-pointer ${
+                  className={`flex-1 text-center py-4 text-[10px] md:text-sm lg:text-lg cursor-pointer ${
                     activeTab === "anggota2" ? "bg-white text-black" : "text-white"
                   }`}
                   onClick={() => handleTabChange("anggota2")}
@@ -115,7 +115,7 @@ export function Form() {
                   <p>Anggota 2</p>
                 </div>
                 <div
-                  className={`flex-1 text-center py-2 text-[10px] md:text-sm lg:text-lg cursor-pointer ${
+                  className={`flex-1 text-center py-2 text-[10px] md:text-sm rounded-tr-md lg:text-lg cursor-pointer ${
                     activeTab === "dosbim" ? "bg-white text-black" : "text-white"
                   }`}
                   onClick={() => handleTabChange("dosbim")}

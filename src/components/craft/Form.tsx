@@ -19,7 +19,7 @@ export function Form() {
   // }
 
   return (
-    <div className="relative flex flex-col overflow-hidden sm:overflow-scroll max-w-5xl mx-auto font-openSans">
+    <div className="relative flex flex-col overflow-hidden  max-w-5xl mx-auto font-openSans">
       <div className="flex flex-col lg:justify-center items-center relative min-w-full">
         <div className="z-[10] min-h-screen flex flex-col">
           {/* Instructions */}
@@ -143,21 +143,21 @@ export function Form() {
               helperText="Format Penamaan: Bukti Pembayaran_Nama Peserta"
             />
             <FileInput
-              label="Bukti Follow Instagram"
+              label="Bukti Follow Instagram PKTSL"
               accept="application/pdf"
               required
               variant="craft"
               helperText="Format Penamaan: Bukti Follow PKTSL_Nama Peserta"
             />
             <FileInput
-              label="Bukti Follow Instagram"
+              label="Bukti Follow Instagram CIA"
               accept="application/pdf"
               required
               variant="craft"
               helperText="Format Penamaan: Bukti Follow CIA_Nama Peserta"
             />
             <FileInput
-              label="Bukti Story Instagram"
+              label="Bukti Story Instagram CRAFT"
               accept="application/pdf"
               required
               variant="craft"
