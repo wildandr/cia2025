@@ -40,7 +40,7 @@ export function Form() {
   const [formData, setFormData] = useState<FormData>({
     team_name: "",
     institution_name: "",
-    user_id: user?.id || 0,
+    user_id: user?.id || 1, // Set default user_id to 1 if user.id is not available
     email: "",
     payment_proof: undefined,
     voucher: undefined,
@@ -276,7 +276,7 @@ export function Form() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log('Form submission triggered'); // Debug log
+    console.log('Form submission triggered');
     setLoading(true);
 
     try {
@@ -294,22 +294,55 @@ export function Form() {
       }
 
       const token = Cookies.get('token');
-      console.log('Form Data being submitted:', {
-        team_name: formData.team_name,
-        institution_name: formData.institution_name,
-        user_id: formData.user_id,
-        email: formData.email,
-        leader: formData.leader,
-        members: formData.members,
-      });
       console.log('Token:', token);
 
-      const formDataToSend = new FormData();
-      formDataToSend.append('team_name', formData.team_name);
-      formDataToSend.append('institution_name', formData.institution_name);
-      formDataToSend.append('user_id', formData.user_id.toString());
-      formDataToSend.append('email', formData.email);
+      // Prepare the team data as a JSON string, ensuring user_id defaults to 1
+      const teamData = {
+        team_name: formData.team_name,
+        institution_name: formData.institution_name,
+        user_id: formData.user_id || 1, // Ensure user_id defaults to 1
+        email: formData.email,
+      };
 
+      // Log the user_id explicitly for debugging
+      console.log('User ID being sent:', teamData.user_id);
+
+      // Prepare the leader data (excluding files) as a JSON string
+      const leaderData = {
+        full_name: formData.leader.full_name,
+        department: formData.leader.department,
+        batch: formData.leader.batch,
+        phone_number: formData.leader.phone_number,
+        line_id: formData.leader.line_id,
+        email: formData.leader.email,
+        twibbon_and_poster_link: formData.leader.twibbon_and_poster_link,
+      };
+
+      // Prepare the members data (excluding files) as a JSON string
+      const membersData = formData.members.map(member => ({
+        full_name: member.full_name,
+        department: member.department,
+        batch: member.batch,
+        phone_number: member.phone_number,
+        line_id: member.line_id,
+        email: member.email,
+        twibbon_and_poster_link: member.twibbon_and_poster_link,
+      }));
+
+      // Log the data being sent
+      console.log('Team Data:', teamData);
+      console.log('Leader Data:', leaderData);
+      console.log('Members Data:', membersData);
+
+      // Create FormData object
+      const formDataToSend = new FormData();
+
+      // Append JSON strings
+      formDataToSend.append('team', JSON.stringify(teamData));
+      formDataToSend.append('leader', JSON.stringify(leaderData));
+      formDataToSend.append('members', JSON.stringify(membersData));
+
+      // Append team files
       if (formData.payment_proof) {
         formDataToSend.append('payment_proof', formData.payment_proof);
         console.log('Payment Proof File:', formData.payment_proof.name);
@@ -319,12 +352,7 @@ export function Form() {
         console.log('Voucher File:', formData.voucher.name);
       }
 
-      const leaderData = { ...formData.leader };
-      delete leaderData.ktm;
-      delete leaderData.active_student_letter;
-      delete leaderData.photo;
-      formDataToSend.append('leader', JSON.stringify(leaderData));
-
+      // Append leader files
       if (formData.leader.ktm) {
         formDataToSend.append('ktm_leader', formData.leader.ktm);
         console.log('Leader KTM File:', formData.leader.ktm.name);
@@ -338,15 +366,7 @@ export function Form() {
         console.log('Leader Photo File:', formData.leader.photo.name);
       }
 
-      const membersData = formData.members.map(member => {
-        const memberData = { ...member };
-        delete memberData.ktm;
-        delete memberData.active_student_letter;
-        delete memberData.photo;
-        return memberData;
-      });
-      formDataToSend.append('members', JSON.stringify(membersData));
-
+      // Append member files
       formData.members.forEach((member, index) => {
         if (member.ktm) {
           formDataToSend.append(`ktm_member${index + 1}`, member.ktm);
@@ -362,7 +382,11 @@ export function Form() {
         }
       });
 
-      console.log('Submitting payload:', formDataToSend);
+      // Log the FormData contents (for debugging, since FormData can't be logged directly)
+      console.log('Submitting to:', `${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/new`);
+      Array.from(formDataToSend.entries()).forEach(([key, value]) => {
+        console.log(`FormData Entry - ${key}:`, value);
+      });
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/new`, {
         method: 'POST',
@@ -487,7 +511,7 @@ export function Form() {
   };
 
   return (
-    <div className="relative flex flex-col overflow-hidden  max-w-5xl mx-auto font-openSans">
+    <div className="relative flex flex-col overflow-hidden max-w-5xl mx-auto font-openSans">
       <ToastContainer />
       <div className="flex flex-col lg:justify-center items-center relative min-w-full">
         <div className="z-[10] min-h-screen flex flex-col">
@@ -908,7 +932,7 @@ export function Form() {
                 variant="cic-primary"
                 type="submit"
                 disabled={loading}
-                onClick={() => console.log('Submit button clicked')} // Debug log
+                onClick={() => console.log('Submit button clicked')}
               >
                 {loading ? 'Mengirim...' : 'Kirim Formulir'}
               </Button>
