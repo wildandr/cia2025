@@ -50,7 +50,11 @@ export const useAuth = (): UseAuthReturn => {
       if (data.message === "User logged in successfully") {
         Cookies.set("token", data.token, { expires: 7 });
         Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
-        router.push("/dashboard");
+        if (data.user.isAdmin) {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
       } else {
         setError(data.message || "Login gagal");
       }
@@ -89,7 +93,11 @@ export const useAuth = (): UseAuthReturn => {
         if (data.token) {
           Cookies.set("token", data.token, { expires: 7 });
           Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
-          router.push("/dashboard");
+          if (credentials.isAdmin) {
+            router.push("/admin");
+          } else {
+            router.push("/dashboard");
+          }
         } else {
           router.push("/login");
         }

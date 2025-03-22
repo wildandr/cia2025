@@ -185,7 +185,7 @@ export default function Dashboard() {
     <div
       className={`bg-cia-primary bg-[url('/assets/autentikasi/teksture.svg')] h-[100vh] xl:px-24 font-plusJakarta`}
     >
-      <div className="flex w-full h-full flex-col items-center justify-center bg-[url('/assets/dashboard/bg_dashboard-mobile.svg')] md:bg-[url('/assets/dashboard/bg_dashboard-tab.svg')] lg:bg-[url('/assets/dashboard/bg_dashboard.svg')] bg-contain bg-no-repeat bg-center px-8 lg:p-0 lg:px-[10%]">
+      <div className="flex w-full h-full flex-col items-center justify-center bg-[url('/assets/dashboard/bg_dashboard-mobile.svg')] sm:bg-[url('/assets/dashboard/bg_dashboard-tab.svg')] lg:bg-[url('/assets/dashboard/bg_dashboard.svg')] bg-contain bg-no-repeat bg-center px-8 lg:p-0 lg:px-[10%]">
         <div className="flex items-center justify-center w-full z-20 mb-4">
           <Image
             src="/assets/dashboard/icon2Mobile.png"
@@ -368,22 +368,22 @@ export default function Dashboard() {
           </div>
         )}
         <div className="">
-          <div className="p-4 rounded-xl mt-4">
+          <div className="rounded-xl mt-4">
             <p className="text-sm md:text-[20px] text-white text-center">
-              Untuk ToR SOAL CIC dapat diakses pada{" "}
+              Untuk ToR dapat diakses pada{" "}
               <a
-                href="https://drive.google.com/drive/folders/1ao2GBpO-OVcbg8kuXG8GrSfoCxkdMf7l?usp=drive_link"
-                className="font-bold"
+                href="https://drive.google.com/drive/folders/1BIPbxrMwFPct-onz0vY670BoVGjQFChi"
+                className="font-bold underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Link ini.
+                Link berikut ini.
               </a>
             </p>
-            <p className="text-xs md:text-[14px] text-white text-center">
+            <p className="text-xs md:text-[14px] text-white text-center mt-1">
               {" "}
-              jika ada pertanyaan lebih lanjut kontak kami melalui instagram
-              @civilinaction{" "}
+              jika ada pertanyaan lebih lanjut kontak kami melalui instagram{" "}
+              <Link href={"/"}>@civilinaction</Link>
             </p>
           </div>
         </div>

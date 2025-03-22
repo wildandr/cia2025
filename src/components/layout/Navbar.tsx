@@ -9,6 +9,8 @@ import Cookies from "js-cookie";
 export default function Nav() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [userCookie, setUserCookie] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const activeSegment = useSelectedLayoutSegment();
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -22,10 +24,11 @@ export default function Nav() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check if user is logged in
-    const userCookie = Cookies.get("user");
-    setIsLoggedIn(!!userCookie);
-  }, []);
+    const cookieValue = Cookies.get("user");
+    setUserCookie(cookieValue || null);
+    setIsAdmin(cookieValue ? JSON.parse(cookieValue).isAdmin : false);
+    setIsLoggedIn(!!cookieValue);
+  }, [logout]);
 
   const handleLogout = () => {
     logout();
@@ -55,20 +58,25 @@ export default function Nav() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownVisible(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   return (
     <div
-      className={`w-full z-[9999] ${
+      className={`w-full z-[999] ${
+        activeSegment === "login" ? "translate-y-[-300px]" : undefined
+      } ${
         activeSegment === "cic"
           ? "bg-cic-dark"
           : activeSegment === "sbc"
@@ -103,6 +111,12 @@ export default function Nav() {
           <Link className={"text-white hover:underline"} href="/">
             Home
           </Link>
+          <Link
+            className={"text-white hover:underline ms-3"}
+            href={isAdmin ? "/admin" : "/dashboard"}
+          >
+            Dashboard
+          </Link>
 
           <div className={`group  menu1 `}>
             <button
@@ -134,7 +148,10 @@ export default function Nav() {
               }`}
             >
               <li className={`py-2 border-b border-black`}>
-                <div className="flex items-center">
+                <Link
+                  href={"/"}
+                  className="flex items-center hover:translate-x-1"
+                >
                   <span className={`text-black`}>Civil in Action </span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -147,7 +164,7 @@ export default function Nav() {
                   >
                     <path d="M11.109,3L11.109,3C9.78,3,8.988,4.481,9.725,5.587L14,12l-4.275,6.413C8.988,19.519,9.78,21,11.109,21h0 c0.556,0,1.076-0.278,1.385-0.741l4.766-7.15c0.448-0.672,0.448-1.547,0-2.219l-4.766-7.15C12.185,3.278,11.666,3,11.109,3z"></path>
                   </svg>
-                </div>
+                </Link>
                 <ul className="pl-2 text-sm text-cia-green">
                   <li className="py-1 ">
                     <Link
@@ -238,7 +255,7 @@ export default function Nav() {
             </ul>
           </div>
           <Link
-            href={`/contact`}
+            href={`/#contact`}
             className={`-ml-2 text-white hover:underline
             `}
           >
@@ -298,7 +315,27 @@ export default function Nav() {
             }`}
           >
             <li className={`py-2 border-b border-black`}>
-              <div className="flex items-center">
+              <Link
+                href={isAdmin ? "/admin" : "/dashboard"}
+                className="flex items-center hover:translate-x-1"
+              >
+                <span className={`text-black`}>Dashboard </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  x="0px"
+                  y="0px"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  className={`ml-3 fill-black`}
+                >
+                  <path d="M11.109,3L11.109,3C9.78,3,8.988,4.481,9.725,5.587L14,12l-4.275,6.413C8.988,19.519,9.78,21,11.109,21h0 c0.556,0,1.076-0.278,1.385-0.741l4.766-7.15c0.448-0.672,0.448-1.547,0-2.219l-4.766-7.15C12.185,3.278,11.666,3,11.109,3z"></path>
+                </svg>
+              </Link>
+              <Link
+                href={"/"}
+                className="flex items-center hover:translate-x-1"
+              >
                 <span className={`text-black`}>Civil in Action </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -311,7 +348,7 @@ export default function Nav() {
                 >
                   <path d="M11.109,3L11.109,3C9.78,3,8.988,4.481,9.725,5.587L14,12l-4.275,6.413C8.988,19.519,9.78,21,11.109,21h0 c0.556,0,1.076-0.278,1.385-0.741l4.766-7.15c0.448-0.672,0.448-1.547,0-2.219l-4.766-7.15C12.185,3.278,11.666,3,11.109,3z"></path>
                 </svg>
-              </div>
+              </Link>
               <ul className="pl-2 text-sm text-cia-green">
                 <li className="py-1 ">
                   <Link
@@ -398,6 +435,23 @@ export default function Nav() {
                   </Link>
                 </li>
               </ul>
+              <Link
+                href={"/#contact"}
+                className="flex items-center hover:translate-x-1"
+              >
+                <span className={`text-black`}>Contact</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  x="0px"
+                  y="0px"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  className={`ml-3 fill-black`}
+                >
+                  <path d="M11.109,3L11.109,3C9.78,3,8.988,4.481,9.725,5.587L14,12l-4.275,6.413C8.988,19.519,9.78,21,11.109,21h0 c0.556,0,1.076-0.278,1.385-0.741l4.766-7.15c0.448-0.672,0.448-1.547,0-2.219l-4.766-7.15C12.185,3.278,11.666,3,11.109,3z"></path>
+                </svg>
+              </Link>
             </li>
           </ul>
         </div>

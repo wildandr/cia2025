@@ -41,7 +41,7 @@ export default function Login() {
           <Image
             alt="title"
             src="/assets/autentikasi/star.svg"
-            className="w-2/5 md:w-3/5 lg:w-4/5 h-auto z-10"
+            className="w-2/5 md:w-3/5 xl:w-4/5 h-auto z-10"
             width={500}
             height={500}
           />
@@ -49,14 +49,14 @@ export default function Login() {
         <Image
           alt="title"
           src="/assets/autentikasi/title.svg"
-          className="w-3/5 md:w-2/5 lg:w-3/5 h-auto z-10"
+          className="w-3/5 md:w-2/5 xl:w-3/5 h-auto z-10"
           width={500}
           height={500}
         />
       </div>
       <div className="h-4/5 lg:h-full w-full xl:w-4/5 flex flex-col py-[4%]">
-        <div className="flex flex-col h-full bg-[url('/assets/autentikasi/bg-form-mobile.svg')] md:bg-[url('/assets/autentikasi/bg-form-md.svg')] lg:bg-[url('/assets/autentikasi/bg-form.svg')] bg-contain lg:bg-cover bg-center lg:bg-left bg-no-repeat justify-center items-center lg:items-start lg:ps-[10%] z-10">
-          <div className="w-full h-full flex flex-col justify-center px-[20%] lg:px-8 lg:ps-[10%]">
+        <div className="flex flex-col h-full bg-[url('/assets/autentikasi/bg-form-mobile.svg')] md:bg-[url('/assets/autentikasi/bg-form-md.svg')] lg:bg-[url('/assets/autentikasi/bg-form.svg')] bg-contain lg:bg-cover bg-center lg:bg-left bg-no-repeat justify-center items-center xl:items-start xl:ps-[10%] z-10">
+          <div className="w-full h-full flex flex-col justify-center px-[20%] xl:px-8 xl:ps-[10%]">
             <div className="flex flex-col w-full">
               <h1 className="text-xl md:text-2xl 2xl:text-4xl font-medium text-white mb-3">
                 Masuk
