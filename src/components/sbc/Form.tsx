@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
@@ -105,6 +105,73 @@ export function Form() {
       photo: undefined,
     },
   });
+
+  // Deteksi autofill menggunakan animationstart (khusus untuk browser seperti Chrome)
+  useEffect(() => {
+    const handleAutofill = (e: Event) => {
+      if (e.type === "animationstart" && (e as AnimationEvent).animationName === "autofill") {
+        const input = e.target as HTMLInputElement;
+        const name = input.name;
+        const value = input.value;
+
+        console.log(`Autofill detected on input: ${name}, value: ${value}`);
+
+        // Update state berdasarkan nama input
+        if (name === "email") {
+          handleTeamInfoChange("email", value);
+        } else if (name === "team_name") {
+          handleTeamInfoChange("team_name", value);
+        } else if (name === "institution_name") {
+          handleTeamInfoChange("institution_name", value);
+        } else if (name === "bridge_name") {
+          handleTeamInfoChange("bridge_name", value);
+        } else if (name === "leader_full_name") {
+          handleMemberChange("leader", null, "full_name", value);
+        } else if (name === "leader_nim") {
+          handleMemberChange("leader", null, "nim", value);
+        } else if (name === "leader_batch") {
+          handleMemberChange("leader", null, "batch", value);
+        } else if (name === "leader_email") {
+          handleMemberChange("leader", null, "email", value);
+        } else if (name === "leader_phone_number") {
+          handleMemberChange("leader", null, "phone_number", value);
+        } else if (name === "leader_line_id") {
+          handleMemberChange("leader", null, "line_id", value);
+        } else if (name === "leader_twibbon_and_poster_link") {
+          handleMemberChange("leader", null, "twibbon_and_poster_link", value);
+        } else if (name === "dosbim_full_name") {
+          handleMemberChange("dosbim", null, "full_name", value);
+        } else if (name === "dosbim_nip") {
+          handleMemberChange("dosbim", null, "nip", value);
+        } else if (name === "dosbim_email") {
+          handleMemberChange("dosbim", null, "email", value);
+        } else if (name === "dosbim_phone_number") {
+          handleMemberChange("dosbim", null, "phone_number", value);
+        } else {
+          formData.members.forEach((_, index) => {
+            if (name === `member${index}_full_name`) {
+              handleMemberChange("member", index, "full_name", value);
+            } else if (name === `member${index}_nim`) {
+              handleMemberChange("member", index, "nim", value);
+            } else if (name === `member${index}_batch`) {
+              handleMemberChange("member", index, "batch", value);
+            } else if (name === `member${index}_email`) {
+              handleMemberChange("member", index, "email", value);
+            } else if (name === `member${index}_phone_number`) {
+              handleMemberChange("member", index, "phone_number", value);
+            } else if (name === `member${index}_line_id`) {
+              handleMemberChange("member", index, "line_id", value);
+            } else if (name === `member${index}_twibbon_and_poster_link`) {
+              handleMemberChange("member", index, "twibbon_and_poster_link", value);
+            }
+          });
+        }
+      }
+    };
+
+    document.addEventListener("animationstart", handleAutofill);
+    return () => document.removeEventListener("animationstart", handleAutofill);
+  }, [formData]);
 
   const validateTextFields = () => {
     const errors: string[] = [];
@@ -471,7 +538,7 @@ export function Form() {
   const handleTeamInfoChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: value || "",
     }));
     console.log(`Team Info Updated - ${field}:`, value);
   };
@@ -487,7 +554,7 @@ export function Form() {
         ...prev,
         leader: {
           ...prev.leader,
-          [field]: value,
+          [field]: value || "",
         },
       }));
       console.log(`Leader Updated - ${field}:`, value);
@@ -495,7 +562,7 @@ export function Form() {
       setFormData((prev) => ({
         ...prev,
         members: prev.members.map((member, i) =>
-          i === index ? { ...member, [field]: value } : member
+          i === index ? { ...member, [field]: value || "" } : member
         ),
       }));
       console.log(`Member ${index + 1} Updated - ${field}:`, value);
@@ -504,7 +571,7 @@ export function Form() {
         ...prev,
         dosbim: {
           ...prev.dosbim,
-          [field]: value,
+          [field]: value || "",
         },
       }));
       console.log(`Dosen Pembimbing Updated - ${field}:`, value);
@@ -577,7 +644,7 @@ export function Form() {
           <div className="text-white mx-4 mt-[3%] lg:mb-[1%] md:text-base lg:text-xl text-[0.7rem]">
             <ol className="list-decimal pl-2">
               {formInstructions.map((instruction, index) => (
-                <li key={index} className="mb-1">
+                <li key={index} className="mb-1 whitespace-pre-line">
                   {instruction.text}
                   {instruction.documents && (
                     <ol className="list-[lower-alpha] pl-5">
@@ -600,38 +667,43 @@ export function Form() {
             <Input
               label="Email"
               type="email"
+              name="email"
+              autoComplete="email"
               value={formData.email}
               onChange={(e) => handleTeamInfoChange("email", e.target.value)}
-              placeholder="Email anda"
               required
             />
             <Input
               label="Nama Tim"
               type="text"
+              name="team_name"
+              autoComplete="organization"
               value={formData.team_name}
               onChange={(e) => handleTeamInfoChange("team_name", e.target.value)}
-              placeholder="Nama tim anda"
               required
             />
             <Input
               label="Nama Perguruan Tinggi"
               type="text"
+              name="institution_name"
+              autoComplete="organization"
               value={formData.institution_name}
               onChange={(e) => handleTeamInfoChange("institution_name", e.target.value)}
-              placeholder="Nama perguruan tinggi anda"
               required
             />
             <Input
               label="Nama Jembatan"
               type="text"
+              name="bridge_name"
+              autoComplete="off"
               value={formData.bridge_name}
               onChange={(e) => handleTeamInfoChange("bridge_name", e.target.value)}
-              placeholder="Nama jembatan anda"
               required
             />
             <FileInput
               label="Bukti Pembayaran"
               accept="image/*"
+              name="payment_proof"
               onChange={(e) => handleFileChange("team", null, "payment_proof", e.target.files?.[0] || null)}
               required
               helperText="Format Penamaan: Bukti Pembayaran_Nama Tim"
@@ -639,6 +711,7 @@ export function Form() {
             <FileInput
               label="Bukti Voucher"
               accept="image/*"
+              name="voucher"
               onChange={(e) => handleFileChange("team", null, "voucher", e.target.files?.[0] || null)}
               helperText="Format Penamaan: Bukti Voucher_Nama Tim"
             />
@@ -688,64 +761,72 @@ export function Form() {
                       <Input
                         label="Nama Lengkap"
                         type="text"
+                        name="leader_full_name"
+                        autoComplete="name"
                         value={formData.leader.full_name}
                         onChange={(e) => handleMemberChange("leader", null, "full_name", e.target.value)}
-                        placeholder="Nama lengkap ketua tim"
                         required
                       />
                       <Input
                         label="NIM"
                         type="text"
+                        name="leader_nim"
+                        autoComplete="off"
                         value={formData.leader.nim}
                         onChange={(e) => handleMemberChange("leader", null, "nim", e.target.value)}
-                        placeholder="Masukkan NIM ketua tim"
                         required
                       />
                       <Input
                         label="Semester"
                         type="text"
+                        name="leader_batch"
+                        autoComplete="off"
                         value={formData.leader.batch}
                         onChange={(e) => handleMemberChange("leader", null, "batch", e.target.value)}
-                        placeholder="Masukkan semester ketua tim"
                         required
                       />
                       <Input
                         label="Email"
                         type="email"
+                        name="leader_email"
+                        autoComplete="email"
                         value={formData.leader.email}
                         onChange={(e) => handleMemberChange("leader", null, "email", e.target.value)}
-                        placeholder="Masukkan email ketua tim"
                         required
                       />
                       <Input
                         label="Nomor Whatsapp"
                         type="text"
+                        name="leader_phone_number"
+                        autoComplete="tel"
                         value={formData.leader.phone_number}
                         onChange={(e) => handleMemberChange("leader", null, "phone_number", e.target.value)}
-                        placeholder="Masukkan nomor whatsapp ketua tim"
                         required
                       />
                       <Input
                         label="ID Line"
                         type="text"
+                        name="leader_line_id"
+                        autoComplete="off"
                         value={formData.leader.line_id}
                         onChange={(e) => handleMemberChange("leader", null, "line_id", e.target.value)}
-                        placeholder="Masukkan ID Line ketua tim"
                         required
                       />
                       <Input
                         label="Link Bukti Upload Twibbon"
                         type="text"
+                        name="leader_twibbon_and_poster_link"
+                        autoComplete="url"
                         value={formData.leader.twibbon_and_poster_link}
                         onChange={(e) =>
                           handleMemberChange("leader", null, "twibbon_and_poster_link", e.target.value)
                         }
-                        placeholder="Masukkan link bukti upload twibbon ketua tim"
                         required
                       />
                       <FileInput
                         label="Surat Keterangan Mahasiswa Aktif"
                         accept="image/*"
+                        name="leader_active_student_letter"
                         onChange={(e) =>
                           handleFileChange("leader", null, "active_student_letter", e.target.files?.[0] || null)
                         }
@@ -755,6 +836,7 @@ export function Form() {
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
                         accept="image/*"
+                        name="leader_ktm"
                         onChange={(e) => handleFileChange("leader", null, "ktm", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
@@ -762,6 +844,7 @@ export function Form() {
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="image/*"
+                        name="leader_photo"
                         onChange={(e) => handleFileChange("leader", null, "photo", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: Pasfoto_Nama Tim_Nama Peserta"
@@ -774,64 +857,72 @@ export function Form() {
                       <Input
                         label="Nama Lengkap"
                         type="text"
+                        name="member0_full_name"
+                        autoComplete="name"
                         value={formData.members[0].full_name}
                         onChange={(e) => handleMemberChange("member", 0, "full_name", e.target.value)}
-                        placeholder="Nama lengkap Anggota 1"
                         required
                       />
                       <Input
                         label="NIM"
                         type="text"
+                        name="member0_nim"
+                        autoComplete="off"
                         value={formData.members[0].nim}
                         onChange={(e) => handleMemberChange("member", 0, "nim", e.target.value)}
-                        placeholder="Masukkan NIM Anggota 1"
                         required
                       />
                       <Input
                         label="Semester"
                         type="text"
+                        name="member0_batch"
+                        autoComplete="off"
                         value={formData.members[0].batch}
                         onChange={(e) => handleMemberChange("member", 0, "batch", e.target.value)}
-                        placeholder="Masukkan semester Anggota 1"
                         required
                       />
                       <Input
                         label="Email"
                         type="email"
+                        name="member0_email"
+                        autoComplete="email"
                         value={formData.members[0].email}
                         onChange={(e) => handleMemberChange("member", 0, "email", e.target.value)}
-                        placeholder="Masukkan email Anggota 1"
                         required
                       />
                       <Input
                         label="Nomor Whatsapp"
                         type="text"
+                        name="member0_phone_number"
+                        autoComplete="tel"
                         value={formData.members[0].phone_number}
                         onChange={(e) => handleMemberChange("member", 0, "phone_number", e.target.value)}
-                        placeholder="Masukkan nomor whatsapp Anggota 1"
                         required
                       />
                       <Input
                         label="ID Line"
                         type="text"
+                        name="member0_line_id"
+                        autoComplete="off"
                         value={formData.members[0].line_id}
                         onChange={(e) => handleMemberChange("member", 0, "line_id", e.target.value)}
-                        placeholder="Masukkan ID Line Anggota 1"
                         required
                       />
                       <Input
                         label="Link Bukti Upload Twibbon"
                         type="text"
+                        name="member0_twibbon_and_poster_link"
+                        autoComplete="url"
                         value={formData.members[0].twibbon_and_poster_link}
                         onChange={(e) =>
                           handleMemberChange("member", 0, "twibbon_and_poster_link", e.target.value)
                         }
-                        placeholder="Masukkan link bukti upload twibbon Anggota 1"
                         required
                       />
                       <FileInput
                         label="Surat Keterangan Mahasiswa Aktif"
                         accept="image/*"
+                        name="member0_active_student_letter"
                         onChange={(e) =>
                           handleFileChange("member", 0, "active_student_letter", e.target.files?.[0] || null)
                         }
@@ -841,6 +932,7 @@ export function Form() {
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
                         accept="image/*"
+                        name="member0_ktm"
                         onChange={(e) => handleFileChange("member", 0, "ktm", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
@@ -848,6 +940,7 @@ export function Form() {
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="image/*"
+                        name="member0_photo"
                         onChange={(e) => handleFileChange("member", 0, "photo", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: Pasfoto_Nama Tim_Nama Peserta"
@@ -860,64 +953,72 @@ export function Form() {
                       <Input
                         label="Nama Lengkap"
                         type="text"
+                        name="member1_full_name"
+                        autoComplete="name"
                         value={formData.members[1].full_name}
                         onChange={(e) => handleMemberChange("member", 1, "full_name", e.target.value)}
-                        placeholder="Nama lengkap Anggota 2"
                         required
                       />
                       <Input
                         label="NIM"
                         type="text"
+                        name="member1_nim"
+                        autoComplete="off"
                         value={formData.members[1].nim}
                         onChange={(e) => handleMemberChange("member", 1, "nim", e.target.value)}
-                        placeholder="Masukkan NIM Anggota 2"
                         required
                       />
                       <Input
                         label="Semester"
                         type="text"
+                        name="member1_batch"
+                        autoComplete="off"
                         value={formData.members[1].batch}
                         onChange={(e) => handleMemberChange("member", 1, "batch", e.target.value)}
-                        placeholder="Masukkan semester Anggota 2"
                         required
                       />
                       <Input
                         label="Email"
                         type="email"
+                        name="member1_email"
+                        autoComplete="email"
                         value={formData.members[1].email}
                         onChange={(e) => handleMemberChange("member", 1, "email", e.target.value)}
-                        placeholder="Masukkan email Anggota 2"
                         required
                       />
                       <Input
                         label="Nomor Whatsapp"
                         type="text"
+                        name="member1_phone_number"
+                        autoComplete="tel"
                         value={formData.members[1].phone_number}
                         onChange={(e) => handleMemberChange("member", 1, "phone_number", e.target.value)}
-                        placeholder="Masukkan nomor whatsapp Anggota 2"
                         required
                       />
                       <Input
                         label="ID Line"
                         type="text"
+                        name="member1_line_id"
+                        autoComplete="off"
                         value={formData.members[1].line_id}
                         onChange={(e) => handleMemberChange("member", 1, "line_id", e.target.value)}
-                        placeholder="Masukkan ID Line Anggota 2"
                         required
                       />
                       <Input
                         label="Link Bukti Upload Twibbon"
                         type="text"
+                        name="member1_twibbon_and_poster_link"
+                        autoComplete="url"
                         value={formData.members[1].twibbon_and_poster_link}
                         onChange={(e) =>
                           handleMemberChange("member", 1, "twibbon_and_poster_link", e.target.value)
                         }
-                        placeholder="Masukkan link bukti upload twibbon Anggota 2"
                         required
                       />
                       <FileInput
                         label="Surat Keterangan Mahasiswa Aktif"
                         accept="image/*"
+                        name="member1_active_student_letter"
                         onChange={(e) =>
                           handleFileChange("member", 1, "active_student_letter", e.target.files?.[0] || null)
                         }
@@ -927,6 +1028,7 @@ export function Form() {
                       <FileInput
                         label="Kartu Tanda Mahasiswa"
                         accept="image/*"
+                        name="member1_ktm"
                         onChange={(e) => handleFileChange("member", 1, "ktm", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: KTM_Nama Tim_Nama Peserta"
@@ -934,6 +1036,7 @@ export function Form() {
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="image/*"
+                        name="member1_photo"
                         onChange={(e) => handleFileChange("member", 1, "photo", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: Pasfoto_Nama Tim_Nama Peserta"
@@ -946,38 +1049,43 @@ export function Form() {
                       <Input
                         label="Nama Lengkap"
                         type="text"
+                        name="dosbim_full_name"
+                        autoComplete="name"
                         value={formData.dosbim.full_name}
                         onChange={(e) => handleMemberChange("dosbim", null, "full_name", e.target.value)}
-                        placeholder="Nama lengkap dosen pembimbing"
                         required
                       />
                       <Input
                         label="NIP"
                         type="text"
+                        name="dosbim_nip"
+                        autoComplete="off"
                         value={formData.dosbim.nip}
                         onChange={(e) => handleMemberChange("dosbim", null, "nip", e.target.value)}
-                        placeholder="Masukkan NIP dosen pembimbing"
                         required
                       />
                       <Input
                         label="Email"
                         type="email"
+                        name="dosbim_email"
+                        autoComplete="email"
                         value={formData.dosbim.email}
                         onChange={(e) => handleMemberChange("dosbim", null, "email", e.target.value)}
-                        placeholder="Masukkan email dosen pembimbing"
                         required
                       />
                       <Input
                         label="Nomor Whatsapp"
                         type="text"
+                        name="dosbim_phone_number"
+                        autoComplete="tel"
                         value={formData.dosbim.phone_number}
                         onChange={(e) => handleMemberChange("dosbim", null, "phone_number", e.target.value)}
-                        placeholder="Masukkan nomor whatsapp dosen pembimbing"
                         required
                       />
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="image/*"
+                        name="dosbim_photo"
                         onChange={(e) => handleFileChange("dosbim", null, "photo", e.target.files?.[0] || null)}
                         required
                         helperText="Format Penamaan: Pasfoto_Nama Tim_Nama Dosen Pembimbing"

@@ -47,40 +47,28 @@ export const formInstructionsCic: Instruction[] = [
       {
         description: "Gelombang 1: Rp200.000",
         format: "22 Maret - 27 April",
-        example: "Contoh: 200.013"
+        example: "Contoh: 200.025"
       },
       {
         description: "Gelombang 2: Rp250.000",
         format: "27 April - 4 Mei",
-        example: "Contoh: 250.013"
+        example: "Contoh: 250.025"
       },
       {
         description: "Gelombang 3: Rp300.000",
         format: "5 Mei - 12 Mei",
-        example: "Contoh: 300.013"
+        example: "Contoh: 300.025"
       }
     ]
   },
   {
-    text: "Jangan lupa untuk menambahkan kode unik berupa 13 rupiah di akhir digit"
+    text: "Jangan lupa untuk menambahkan kode unik berupa 25 rupiah di akhir digit"
   },
   {
     text: "Pembayaran dilakukan ke rekening berikut : \n\ NAOMI ELLENA MANURUN Bank Mandiri 1370022414649"
   },
   {
-    text: "Apabila terjadi kendala dan kesalahan pada saat mengisi form, segera hubungi CP:",
-    documents: [
-      {
-        description: "Nabila Puspita Rena",
-        format: "WhatsApp (089636977055)",
-        example: "Line (nabila_rena)"
-      },
-      {
-        description: "Ni Made Jiesta Pradnya Gauri",
-        format: "WhatsApp (081339168272)",
-        example: "Line (jiiesta24)"
-      }
-    ]
+   text: "Apabila terjadi kendala dan kesalahan pada saat mengisi form, segera hubungi CP:\na. Nabila Puspita Rena\nWhatsApp: 089636977055\nLine: nabila_rena\nb. ⁠Ni Made Jiesta Pradnya Gauri \nWhatsApp: 081339168272\nLine: jiiesta24"
   },
   {
     text: "Email balasan akan dikirimkan ke email team leader."
