@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import axios from "axios";
+import axiosInstance from "@/lib/utlis/axiosInstance"; // Ganti axios dengan axiosInstance untuk konsistensi
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import {
@@ -20,10 +20,11 @@ import { parse } from "json2csv";
 
 export default function DashboardAdmin() {
   const [registrations, setRegistrations] = useState<any[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false); // Tambah state untuk loading download
   const token = Cookies.get("token");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [rejectMessage, setRejectMessage] = useState("");
-  const [currentTeamId, setCurrentTeamId] = useState(null);
+  const [currentTeamId, setCurrentTeamId] = useState<number | null>(null);
   const router = useRouter();
 
   const handleRejectMessageChange: React.ChangeEventHandler<
@@ -34,12 +35,9 @@ export default function DashboardAdmin() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axiosInstance.get("/teams/cic/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setRegistrations(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -50,65 +48,115 @@ export default function DashboardAdmin() {
     fetchData();
   }, []);
 
-  async function downloadFile(url: string) {
+  async function downloadFile(
+    url: string
+  ): Promise<{ url: string; data: ArrayBuffer | null }> {
     try {
-      const response = await axios.get(url, { responseType: "arraybuffer" });
-      return response.data;
+      const response = await axiosInstance.get(url, {
+        responseType: "arraybuffer",
+      });
+      return { url, data: response.data };
     } catch (error) {
       console.error(`Error downloading file from ${url}:`, error);
-      return null;
+      return { url, data: null };
     }
   }
 
   async function downloadFilesAsZip() {
+    setIsDownloading(true);
     const zip = new JSZip();
-    const combinedData = registrations.flatMap((registration) => {
-      const teamData = registration.team;
-      const leaderData = {
-        ...teamData,
-        ...registration.leader,
-        is_leader: true,
-      };
-      const membersData = registration.members.map((member: any) => ({
-        ...teamData,
-        ...member,
-        is_leader: false,
-      }));
-      return [leaderData, ...membersData];
-    });
 
-    const combinedCsv = parse(combinedData, {
-      fields: Object.keys(combinedData[0]),
-    });
-    zip.file("data_cic.csv", combinedCsv);
+    try {
+      // Persiapan data CSV secara sinkron
+      const combinedData = registrations.flatMap((registration) => {
+        const teamData = registration.team;
+        const leaderData = {
+          ...teamData,
+          ...registration.leader,
+          is_leader: true,
+        };
+        const membersData = registration.members.map((member: any) => ({
+          ...teamData,
+          ...member,
+          is_leader: false,
+        }));
+        return [leaderData, ...membersData];
+      });
 
-    for (const data of combinedData) {
-      const { ktm, active_student_letter, photo } = data;
-      const files = [
-        { data: await downloadFile(ktm), name: ktm?.split("/").pop() },
-        {
-          data: await downloadFile(active_student_letter),
-          name: active_student_letter?.split("/").pop(),
-        },
-        { data: await downloadFile(photo), name: photo?.split("/").pop() },
-      ];
-      files.forEach((file) => file.data && zip.file(file.name, file.data));
-    }
+      const combinedCsv = parse(combinedData, {
+        fields: Object.keys(combinedData[0]),
+      });
+      zip.file("data_cic.csv", combinedCsv);
 
-    zip.generateAsync({ type: "blob" }).then((content: Blob) => {
+      // Kumpulkan semua URL file untuk diunduh secara paralel
+      const filePromises: Promise<{
+        url: string;
+        data: ArrayBuffer | null;
+        name: string;
+      }>[] = [];
+      const getFileName = (url: string) => url?.split("/").pop() || "unknown";
+
+      combinedData.forEach((data) => {
+        const { ktm, active_student_letter, photo } = data;
+        if (ktm) {
+          filePromises.push(
+            downloadFile(ktm).then((result) => ({
+              ...result,
+              name: getFileName(ktm),
+            }))
+          );
+        }
+        if (active_student_letter) {
+          filePromises.push(
+            downloadFile(active_student_letter).then((result) => ({
+              ...result,
+              name: getFileName(active_student_letter),
+            }))
+          );
+        }
+        if (photo) {
+          filePromises.push(
+            downloadFile(photo).then((result) => ({
+              ...result,
+              name: getFileName(photo),
+            }))
+          );
+        }
+      });
+
+      // Unduh semua file secara paralel
+      const fileResults = await Promise.all(filePromises);
+
+      // Tambahkan file ke ZIP
+      fileResults.forEach(({ name, data }) => {
+        if (data) zip.file(name, data);
+      });
+
+      // Generate ZIP dengan kompresi cepat
+      const content = await zip.generateAsync({
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: { level: 1 },
+      });
+
       const url = window.URL.createObjectURL(content);
       const link = document.createElement("a");
       link.href = url;
       link.download = "files_cic.zip";
       link.click();
       window.URL.revokeObjectURL(url);
-    });
+    } catch (error) {
+      console.error("Error during ZIP generation:", error);
+      toast.error("Gagal mengunduh data. Silakan coba lagi.");
+    } finally {
+      setIsDownloading(false);
+    }
   }
 
   const verifyTeam = async (teamId: string) => {
     try {
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/teams/${teamId}/verify`,
+      const response = await axiosInstance.put(
+        `/teams/${teamId}/verify`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -121,28 +169,27 @@ export default function DashboardAdmin() {
       }
     } catch (error) {
       console.error("Error verifying team:", error);
+      toast.error("Terjadi kesalahan saat memverifikasi tim.");
     }
   };
 
   const handleReject = async (team_id: number, rejectMessage: string) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/teams/${team_id}/reject`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ rejectMessage }),
-        }
+      const response = await axiosInstance.put(
+        `/teams/${team_id}/reject`,
+        { rejectMessage },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (!response.ok) throw new Error("Network response was not ok");
-      toast.success("Tim berhasil ditolak");
-      fetchData();
+      if (response.status === 200) {
+        toast.success("Tim berhasil ditolak");
+        fetchData();
+      } else {
+        throw new Error("Gagal menolak tim");
+      }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error rejecting team:", error);
+      toast.error("Gagal menolak tim. Silakan coba lagi.");
     }
   };
 
@@ -194,7 +241,7 @@ export default function DashboardAdmin() {
                       <div className="flex-col flex gap-2 md:flex-row">
                         <Link
                           href={`/admin/cic/${registration.team.team_id}`}
-                          className="bg-green-600/80 text-white text-[13px] lg:text-[16px] text-center rounded-md px-3 py-1 w-full"
+                          className="bg-green-600/80 text-white text-[13px] lg:text-[16px] text-center rounded-md px-teredmd py-1 w-full"
                         >
                           Lihat Detail
                         </Link>
@@ -242,9 +289,38 @@ export default function DashboardAdmin() {
           <div className="flex justify-end pt-10">
             <button
               onClick={downloadFilesAsZip}
-              className="bg-[#18AB8E] shadow-xl text-white px-6 py-2 rounded-2xl font-sans"
+              disabled={isDownloading}
+              className={`bg-[#18AB8E] shadow-xl text-white px-6 py-2 rounded-2xl font-sans flex items-center gap-2 ${
+                isDownloading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Unduh Semua Data
+              {isDownloading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Sedang Mengunduh...
+                </>
+              ) : (
+                "Unduh Semua Data"
+              )}
             </button>
           </div>
 
