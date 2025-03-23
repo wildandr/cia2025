@@ -56,7 +56,7 @@ export function Form() {
     user_id: user?.id || 1, // Default to 1 if user.id is not available
     email: "",
     abstract_title: "",
-    abstract_video_link: "",
+    abstract_video_link: "no_video", // Set default value here
     abstract_file: undefined,
     originality_statement: undefined,
     leader: {
@@ -67,9 +67,9 @@ export function Form() {
       twibbon_and_poster_link: "",
       is_leader: 1,
       department: "",
-      batch: "",
-      nim: "",
-      semester: 0,
+      batch: "no",
+      nim: "no",
+      semester: 2,
       ktm: undefined, // Ubah dari identity_card menjadi ktm
       active_student_letter: undefined,
       photo: undefined,
@@ -83,9 +83,9 @@ export function Form() {
         twibbon_and_poster_link: "",
         is_leader: 0,
         department: "",
-        batch: "",
-        nim: "",
-        semester: 0,
+        batch: "no",
+        nim: "no",
+        semester: 2,
         ktm: undefined, // Ubah dari identity_card menjadi ktm
         active_student_letter: undefined,
         photo: undefined,
@@ -98,9 +98,9 @@ export function Form() {
         twibbon_and_poster_link: "",
         is_leader: 0,
         department: "",
-        batch: "",
-        nim: "",
-        semester: 0,
+        batch: "no",
+        nim: "no",
+        semester: 2,
         ktm: undefined, // Ubah dari identity_card menjadi ktm
         active_student_letter: undefined,
         photo: undefined,
@@ -329,7 +329,7 @@ export function Form() {
       errors.push("Surat Pernyataan Orisinalitas wajib diupload");
     }
     if (!formData.leader.ktm) { // Ubah dari identity_card menjadi ktm
-      errors.push("KTM Ketua wajib diupload");
+      errors.push("Kartu Tanda Pengal Ketua wajib diupload");
     }
     if (!formData.leader.active_student_letter) {
       errors.push("Surat Pernyataan Siswa Aktif Ketua wajib diupload");
@@ -338,7 +338,7 @@ export function Form() {
       errors.push("Pas Foto Ketua wajib diupload");
     }
     if (!formData.members[0].ktm) { // Ubah dari identity_card menjadi ktm
-      errors.push("KTM Anggota 1 wajib diupload");
+      errors.push("Kartu Tanda Pengenal Anggota 1 wajib diupload");
     }
     if (!formData.members[0].active_student_letter) {
       errors.push("Surat Pernyataan Siswa Aktif Anggota 1 wajib diupload");
@@ -360,7 +360,7 @@ export function Form() {
       formData.members[1].semester > 0;
     if (member2HasData) {
       if (!formData.members[1].ktm) { // Ubah dari identity_card menjadi ktm
-        errors.push("KTM Anggota 2 wajib diupload jika data Anggota 2 diisi");
+        errors.push("Kartu Tanda Pengenal Anggota 2 wajib diupload jika data Anggota 2 diisi");
       }
       if (!formData.members[1].active_student_letter) {
         errors.push("Surat Pernyataan Siswa Aktif Anggota 2 wajib diupload jika data Anggota 2 diisi");
@@ -373,13 +373,13 @@ export function Form() {
     // Check file sizes for all uploaded files
     checkFileSize(formData.abstract_file, "File Abstrak");
     checkFileSize(formData.originality_statement, "Surat Pernyataan Orisinalitas");
-    checkFileSize(formData.leader.ktm, "KTM Ketua"); // Ubah dari identity_card menjadi ktm
+    checkFileSize(formData.leader.ktm, "Kartu Tanda Pengenal Ketua"); // Ubah dari identity_card menjadi ktm
     checkFileSize(formData.leader.active_student_letter, "Surat Pernyataan Siswa Aktif Ketua");
     checkFileSize(formData.leader.photo, "Pas Foto Ketua");
-    checkFileSize(formData.members[0].ktm, "KTM Anggota 1"); // Ubah dari identity_card menjadi ktm
+    checkFileSize(formData.members[0].ktm, "Kartu Tanda Pengenal Anggota 1"); // Ubah dari identity_card menjadi ktm
     checkFileSize(formData.members[0].active_student_letter, "Surat Pernyataan Siswa Aktif Anggota 1");
     checkFileSize(formData.members[0].photo, "Pas Foto Anggota 1");
-    checkFileSize(formData.members[1].ktm, "KTM Anggota 2"); // Ubah dari identity_card menjadi ktm
+    checkFileSize(formData.members[1].ktm, "Kartu Tanda Pengenal Anggota 2"); // Ubah dari identity_card menjadi ktm
     checkFileSize(formData.members[1].active_student_letter, "Surat Pernyataan Siswa Aktif Anggota 2");
     checkFileSize(formData.members[1].photo, "Pas Foto Anggota 2");
 
@@ -727,15 +727,6 @@ export function Form() {
               variant="fcec"
               helperText="Format Penamaan: Nama Tim_Abstrak"
             />
-            <Input
-              label="Link Video Abstrak"
-              type="text"
-              name="abstract_video_link"
-              autoComplete="url"
-              value={formData.abstract_video_link}
-              onChange={(e) => handleTeamInfoChange("abstract_video_link", e.target.value)}
-              required
-            />
             <FileInput
               label="Surat Pernyataan Orisinalitas"
               accept="application/pdf, image/*"
@@ -826,50 +817,23 @@ export function Form() {
                         onChange={(e) => handleMemberChange("leader", null, "twibbon_and_poster_link", e.target.value)}
                         required
                       />
-                      <Input
-                        label="Jurusan"
+                        <Input
+                        label="Asal Sekolah"
                         type="text"
                         name="leader_department"
                         autoComplete="off"
-                        value={formData.leader.department}
-                        onChange={(e) => handleMemberChange("leader", null, "department", e.target.value)}
-                        required
+                        value={formData.members[1].department}
+                        onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
                       />
-                      <Input
-                        label="Angkatan"
-                        type="text"
-                        name="leader_batch"
-                        autoComplete="off"
-                        value={formData.leader.batch}
-                        onChange={(e) => handleMemberChange("leader", null, "batch", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="NIM"
-                        type="text"
-                        name="leader_nim"
-                        autoComplete="off"
-                        value={formData.leader.nim}
-                        onChange={(e) => handleMemberChange("leader", null, "nim", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="Semester"
-                        type="number"
-                        name="leader_semester"
-                        autoComplete="off"
-                        value={formData.leader.semester.toString()}
-                        onChange={(e) => handleMemberChange("leader", null, "semester", parseInt(e.target.value) || 0)}
-                        required
-                      />
+                     
                       <FileInput
-                        label="KTM" // Ubah label menjadi KTM
+                        label="Kartu Tanda Pengenal" // Ubah label menjadi KTM
                         accept="application/pdf, image/*"
                         name="leader_ktm" // Ubah name menjadi leader_ktm
                         onChange={(e) => handleFileChange("leader", null, "ktm", e.target.files?.[0] || null)} // Ubah field menjadi ktm
                         required
                         variant="fcec"
-                        helperText="Format Penamaan: Nama Tim_KTM_Nama Lengkap" // Ubah helperText
+                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap" // Ubah helperText
                       />
                       <FileInput
                         label="Surat Pernyataan Siswa Aktif"
@@ -941,50 +905,22 @@ export function Form() {
                         onChange={(e) => handleMemberChange("member", 0, "twibbon_and_poster_link", e.target.value)}
                         required
                       />
-                      <Input
-                        label="Jurusan"
+                       <Input
+                        label="Asal Sekolah"
                         type="text"
                         name="member0_department"
                         autoComplete="off"
                         value={formData.members[0].department}
-                        onChange={(e) => handleMemberChange("member", 0, "department", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="Angkatan"
-                        type="text"
-                        name="member0_batch"
-                        autoComplete="off"
-                        value={formData.members[0].batch}
-                        onChange={(e) => handleMemberChange("member", 0, "batch", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="NIM"
-                        type="text"
-                        name="member0_nim"
-                        autoComplete="off"
-                        value={formData.members[0].nim}
-                        onChange={(e) => handleMemberChange("member", 0, "nim", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="Semester"
-                        type="number"
-                        name="member0_semester"
-                        autoComplete="off"
-                        value={formData.members[0].semester.toString()}
-                        onChange={(e) => handleMemberChange("member", 0, "semester", parseInt(e.target.value) || 0)}
-                        required
+                        onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
                       />
                       <FileInput
-                        label="KTM" // Ubah label menjadi KTM
+                        label="Kartu Tanda Pengenal" // Ubah label menjadi KTM
                         accept="application/pdf, image/*"
                         name="member0_ktm" // Ubah name menjadi member0_ktm
                         onChange={(e) => handleFileChange("member", 0, "ktm", e.target.files?.[0] || null)} // Ubah field menjadi ktm
                         required
                         variant="fcec"
-                        helperText="Format Penamaan: Nama Tim_KTM_Nama Lengkap" // Ubah helperText
+                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap" // Ubah helperText
                       />
                       <FileInput
                         label="Surat Pernyataan Siswa Aktif"
@@ -1052,44 +988,20 @@ export function Form() {
                         onChange={(e) => handleMemberChange("member", 1, "twibbon_and_poster_link", e.target.value)}
                       />
                       <Input
-                        label="Jurusan"
+                        label="Asal Sekolah"
                         type="text"
                         name="member1_department"
                         autoComplete="off"
                         value={formData.members[1].department}
                         onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
                       />
-                      <Input
-                        label="Angkatan"
-                        type="text"
-                        name="member1_batch"
-                        autoComplete="off"
-                        value={formData.members[1].batch}
-                        onChange={(e) => handleMemberChange("member", 1, "batch", e.target.value)}
-                      />
-                      <Input
-                        label="NIM"
-                        type="text"
-                        name="member1_nim"
-                        autoComplete="off"
-                        value={formData.members[1].nim}
-                        onChange={(e) => handleMemberChange("member", 1, "nim", e.target.value)}
-                      />
-                      <Input
-                        label="Semester"
-                        type="number"
-                        name="member1_semester"
-                        autoComplete="off"
-                        value={formData.members[1].semester.toString()}
-                        onChange={(e) => handleMemberChange("member", 1, "semester", parseInt(e.target.value) || 0)}
-                      />
                       <FileInput
-                        label="KTM" // Ubah label menjadi KTM
+                        label="Kartu Tanda Pengenal" // Ubah label menjadi KTM
                         accept="application/pdf, image/*"
                         name="member1_ktm" // Ubah name menjadi member1_ktm
                         onChange={(e) => handleFileChange("member", 1, "ktm", e.target.files?.[0] || null)} // Ubah field menjadi ktm
                         variant="fcec"
-                        helperText="Format Penamaan: Nama Tim_KTM_Nama Lengkap" // Ubah helperText
+                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap" // Ubah helperText
                       />
                       <FileInput
                         label="Surat Pernyataan Siswa Aktif"

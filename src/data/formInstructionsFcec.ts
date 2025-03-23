@@ -14,7 +14,7 @@ export const formInstructionsFcec: Instruction[] = [
     text: "FCEC (Future Civil Engineer Challenge) merupakan salah satu rangkaian acara 13th Civil In Action yang berfokus pada karya tulis ilmiah di bidang teknik sipil, lingkungan, dan sumber daya air untuk tingkatan SMA dan/atau sederajat."
   },
   {
-    text: "FCEC 2025 mengusung tema \"Perwujudan Pembangunan Berkelanjutan: Akselerasi Transisi Energi dan Infrastruktur Ramah Lingkugan\"."
+    text: "FCEC 2025 mengusung tema \"Perwujudan Pembangunan Berkelanjutan: Peran Generasi Muda dalam Akselerasi Transisi Energi dan Infrastruktur Ramah Lingkungan\"."
   },
   {
     text: "Periode pendaftaran dimulai dari 22 Maret 2025 hingga 25 April 2025 pukul 23:59 WIB."

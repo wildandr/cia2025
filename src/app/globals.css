@@ -26,65 +26,45 @@ body {
     rgb(var(--background-start-rgb));
 }
 
-/* Styling untuk input saat autofill */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  /* Samakan dengan background .input-form */
+/* Styling untuk input saat autofill - khusus .input-form
+.input-form:-webkit-autofill,
+.input-form:-webkit-autofill:hover,
+.input-form:-webkit-autofill:focus,
+.input-form:-webkit-autofill:active {
   background-color: #FFFFFF !important;
-
-  /* Samakan warna teks dengan body (hitam di light mode, putih di dark mode) */
   -webkit-text-fill-color: #000 !important;
-
-  /* Samakan border dengan .input-form */
   border: 1.5px solid #000 !important;
-
-  /* Samakan border-radius dengan .input-form */
   border-radius: 0.5rem !important;
-
-  /* Samakan box-shadow dengan .input-form */
   -webkit-box-shadow: 2.5px 3px 0 #000, 0 0 0 1000px #FFFFFF inset !important;
   box-shadow: 2.5px 3px 0 #000, 0 0 0 1000px #FFFFFF inset !important;
-
-  /* Samakan padding dengan .input-form (default untuk mobile) */
   padding: 0.5rem !important;
-
-  /* Samakan font-size dengan .input-form (default untuk mobile) */
   font-size: 0.75rem !important;
-
-  /* Samakan outline dengan .input-form */
   outline: none !important;
-
-  /* Samakan transisi dengan .input-form */
   transition: ease 0.25s !important;
-
-  /* Pastikan background-clip sesuai */
   background-clip: content-box !important;
 }
 
-/* Responsif: Samakan padding dan font-size untuk layar lebih besar */
+
 @media (min-width: 768px) {
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  input:-webkit-autofill:active {
-    color: #000000 !important;
+  .input-form:-webkit-autofill,
+  .input-form:-webkit-autofill:hover,
+  .input-form:-webkit-autofill:focus,
+  .input-form:-webkit-autofill:active {
     padding: 0.875rem !important;
     font-size: 1rem !important;
   }
 }
 
-/* Styling saat fokus untuk autofill */
-input:-webkit-autofill:focus {
+
+.input-form:-webkit-autofill:focus {
   -webkit-box-shadow: 5.5px 7px 0 black, 0 0 0 1000px #FFFFFF inset !important;
   box-shadow: 5.5px 7px 0 black, 0 0 0 1000px #FFFFFF inset !important;
 }
 
-/* Untuk browser lain seperti Firefox (opsional) */
-input:-moz-autofill {
+
+.input-form:-moz-autofill {
   background-color: #FFFFFF !important;
-  color: rgb(var(--foreground-rgb)) !important;
+  color: #000 !important;
   border: 1.5px solid #000 !important;
   border-radius: 0.5rem !important;
   box-shadow: 2.5px 3px 0 #000 !important;
@@ -93,11 +73,11 @@ input:-moz-autofill {
 }
 
 @media (min-width: 768px) {
-  input:-moz-autofill {
+  .input-form:-moz-autofill {
     padding: 0.875rem !important;
     font-size: 1rem !important;
   }
-}
+} */
 
 /* Custom Input Styles */
 .input-form {
