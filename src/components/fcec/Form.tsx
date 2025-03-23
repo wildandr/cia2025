@@ -66,7 +66,7 @@ export function Form() {
       email: "",
       twibbon_and_poster_link: "",
       is_leader: 1,
-      department: "no",
+      department: "",
       batch: "no",
       nim: "no",
       semester: 2,
@@ -82,7 +82,7 @@ export function Form() {
         email: "",
         twibbon_and_poster_link: "",
         is_leader: 0,
-        department: "no",
+        department: "",
         batch: "no",
         nim: "no",
         semester: 2,
@@ -97,7 +97,7 @@ export function Form() {
         email: "",
         twibbon_and_poster_link: "",
         is_leader: 0,
-        department: "no",
+        department: "",
         batch: "no",
         nim: "no",
         semester: 2,
@@ -817,6 +817,14 @@ export function Form() {
                         onChange={(e) => handleMemberChange("leader", null, "twibbon_and_poster_link", e.target.value)}
                         required
                       />
+                        <Input
+                        label="Asal Sekolah"
+                        type="text"
+                        name="leader_department"
+                        autoComplete="off"
+                        value={formData.members[1].department}
+                        onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
+                      />
                      
                       <FileInput
                         label="Kartu Tanda Pengenal" // Ubah label menjadi KTM
@@ -897,7 +905,14 @@ export function Form() {
                         onChange={(e) => handleMemberChange("member", 0, "twibbon_and_poster_link", e.target.value)}
                         required
                       />
-                     
+                       <Input
+                        label="Asal Sekolah"
+                        type="text"
+                        name="member0_department"
+                        autoComplete="off"
+                        value={formData.members[0].department}
+                        onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
+                      />
                       <FileInput
                         label="KTM" // Ubah label menjadi KTM
                         accept="application/pdf, image/*"
@@ -971,6 +986,14 @@ export function Form() {
                         autoComplete="url"
                         value={formData.members[1].twibbon_and_poster_link}
                         onChange={(e) => handleMemberChange("member", 1, "twibbon_and_poster_link", e.target.value)}
+                      />
+                      <Input
+                        label="Asal Sekolah"
+                        type="text"
+                        name="member1_department"
+                        autoComplete="off"
+                        value={formData.members[1].department}
+                        onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
                       />
                       <FileInput
                         label="KTM" // Ubah label menjadi KTM
