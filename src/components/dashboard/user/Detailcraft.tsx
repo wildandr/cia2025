@@ -7,48 +7,28 @@ import { useRouter } from "next/navigation";
 import JSZip from "jszip";
 import { parse } from "json2csv";
 
-interface Member {
-  member_id: number;
-  team_id: number;
+interface Participant {
+  participant_id: number;
+  user_id: number | null;
   full_name: string;
-  department: string;
-  batch: null | string;
-  phone_number: string;
-  line_id: string;
-  email: string;
-  ktm: string;
-  active_student_letter: string;
-  photo: string;
-  twibbon_and_poster_link: string;
-  is_leader: number;
-  nim: null | string;
-  semester: null | string;
-}
-
-interface Team {
-  team_id: number;
-  event_id: number;
-  team_name: string;
   institution_name: string;
+  activity_choice: string;
+  whatsapp_number: string;
+  isMahasiswaDTSL: boolean;
+  ktm: string | null;
   payment_proof: string;
-  voucher: null | string;
-  user_id: number;
-  email: null | string;
-  isVerified: number;
-}
-
-interface TeamData {
-  team: Team[];
-  leader: Member;
-  members: Member[];
+  isVerified: boolean;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  bukti_follow_pktsl: string;
+  bukti_follow_cia: string;
+  bukti_story: string;
+  bundling_member: string;
 }
 
 export default function DetailUser({ params }: { params: { id: string } }) {
-  const [teamData, setTeamData] = useState<TeamData>({
-    team: [],
-    leader: {} as Member,
-    members: [],
-  });
+  const [participant, setParticipant] = useState<Participant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,11 +45,11 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await axiosInstance.get(`/teams/cic/${params.id}`);
-      setTeamData(response.data);
+      const response = await axiosInstance.get(`/crafts/user/${params.id}`);
+      setParticipant(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setError("Gagal mengambil data tim. Silakan coba lagi nanti.");
+      setError("Gagal mengambil data peserta. Silakan coba lagi nanti.");
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +79,6 @@ export default function DetailUser({ params }: { params: { id: string } }) {
         value.toLowerCase().endsWith(".png") ||
         value.toLowerCase().endsWith(".jpg") ||
         value.toLowerCase().endsWith(".jpeg");
-
       if (isPng) {
         return (
           <div className="flex flex-col gap-2">
@@ -125,7 +104,6 @@ export default function DetailUser({ params }: { params: { id: string } }) {
           </div>
         );
       }
-
       return (
         <a
           href={`${baseUrl}${value}`}
@@ -143,51 +121,6 @@ export default function DetailUser({ params }: { params: { id: string } }) {
       </p>
     );
   };
-
-  const renderMemberSection = (
-    member: Member,
-    title: string,
-    index?: number
-  ) => (
-    <div
-      key={`member-section-${member.member_id || index}`}
-      className="mt-4 flex flex-col gap-2"
-    >
-      <p className="text-black text-lg font-semibold">{title}</p>
-      {[
-        { label: "Nama Lengkap", value: member.full_name },
-        { label: "Jurusan", value: member.department },
-        { label: "Semester", value: member.batch },
-        { label: "Email", value: member.email },
-        { label: "Nomor Whatsapp", value: member.phone_number },
-        { label: "ID Line", value: member.line_id },
-        {
-          label: "Link Bukti Upload Twibbon",
-          value: member.twibbon_and_poster_link,
-          isLink: true,
-        },
-        {
-          label: "Surat Keterangan Mahasiswa Aktif",
-          value: member.active_student_letter,
-          isLink: true,
-        },
-        { label: "Kartu Tanda Mahasiswa", value: member.ktm, isLink: true },
-        { label: "Pas Foto 3x4", value: member.photo, isLink: true },
-      ].map((field, idx) => (
-        <div
-          key={`member-${member.member_id || index}-field-${idx}`}
-          className="flex flex-col w-full"
-        >
-          <p className="text-black text-left text-lg font-medium px-6">
-            {field.label}
-          </p>
-          <div className="px-6 py-2 rounded-xl bg-cia-primary">
-            {renderField(field.value, field.isLink)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
 
   async function downloadFile(
     url: string
@@ -207,139 +140,112 @@ export default function DetailUser({ params }: { params: { id: string } }) {
   async function downloadFilesAsZip() {
     setIsDownloading(true);
     const zip = new JSZip();
-    const teamName = teamData.team[0]?.team_name || "UnknownTeam";
+    if (!participant) {
+      console.error("Participant data is null");
+      setError("Data peserta tidak tersedia untuk diunduh.");
+      setIsDownloading(false);
+      return;
+    }
+
+    const participantName = participant.full_name || "UnknownParticipant";
 
     try {
-      const membersData = teamData.members.map((member) => ({
-        Nama_Lengkap: member.full_name || "",
-        Departemen: member.department || "",
-        Batch: member.batch || "",
-        Nomor_Whatsapp: member.phone_number || "",
-        ID_Line: member.line_id || "",
-        Email: member.email || "",
-        KTM: member.ktm || "",
-        Nim: member.nim || "",
-        Semester: member.semester || "",
-        Surat_Keterangan_Siswa_Aktif: member.active_student_letter || "",
-        Pas_Foto_3x4: member.photo || "",
-        Link_Bukti_Upload_Twibbon: member.twibbon_and_poster_link || "",
-      }));
-
-      const fieldsData = {
-        Nama_Tim: teamName,
-        Institusi: teamData.team[0]?.institution_name || "",
-        Nama_Lengkap: teamData.leader?.full_name || "",
-        Departemen: teamData.leader?.department || "",
-        Batch: teamData.leader?.batch || "",
-        Nomor_Whatsapp: teamData.leader?.phone_number || "",
-        ID_Line: teamData.leader?.line_id || "",
-        Email: teamData.leader?.email || "",
-        KTM: teamData.leader?.ktm || "",
-        Surat_Keterangan_Siswa_Aktif:
-          teamData.leader?.active_student_letter || "",
-        Pas_Foto_3x4: teamData.leader?.photo || "",
-        Link_Bukti_Upload_Twibbon:
-          teamData.leader?.twibbon_and_poster_link || "",
-        Payment_Proof: teamData.team[0]?.payment_proof || "",
-        Voucher: teamData.team[0]?.voucher || "",
+      const participantData = {
+        Nama_Lengkap: participant.full_name || "",
+        Institusi: participant.institution_name || "",
+        Pilihan_Kegiatan: participant.activity_choice || "",
+        Nomor_Whatsapp: participant.whatsapp_number || "",
+        Mahasiswa_DTSL: participant.isMahasiswaDTSL ? "Ya" : "Tidak",
+        KTM: participant.ktm || "",
+        Bukti_Pembayaran: participant.payment_proof || "",
+        Email: participant.email || "",
+        Status_Verifikasi: participant.isVerified
+          ? "Terverifikasi"
+          : "Belum Terverifikasi",
+        Tanggal_Pendaftaran: participant.createdAt || "",
+        Tanggal_Pembaruan: participant.updatedAt || "",
+        Bukti_Follow_PKTSL: participant.bukti_follow_pktsl || "",
+        Bukti_Follow_CIA: participant.bukti_follow_cia || "",
+        Bukti_Story: participant.bukti_story || "",
+        Bundling_Member: participant.bundling_member || "",
       };
 
-      const allData = [fieldsData, ...membersData];
-      const combinedCsv = parse(allData, { fields: Object.keys(fieldsData) });
-      zip.file("data_all.csv", combinedCsv);
+      const combinedCsv = parse([participantData], {
+        fields: Object.keys(participantData),
+      });
+      zip.file("participant_data.csv", combinedCsv);
 
       const filePromises: Promise<{
         url: string;
         data: ArrayBuffer | null;
         name: string;
       }>[] = [];
-
       const getFileExtension = (url: string) => {
         const parts = url.split(".");
         return parts.length > 1 ? `.${parts.pop()}` : "";
       };
 
-      if (
-        teamData.leader?.ktm &&
-        teamData.leader?.active_student_letter &&
-        teamData.leader?.photo
-      ) {
-        const leaderName = teamData.leader.full_name || "UnknownLeader";
+      if (participant.ktm) {
         filePromises.push(
-          downloadFile(teamData.leader.ktm).then((result) => ({
+          downloadFile(participant.ktm).then((result) => ({
             ...result,
-            name: `KTM_${teamName}_${leaderName}${getFileExtension(
-              teamData.leader.ktm
-            )}`,
-          }))
-        );
-        filePromises.push(
-          downloadFile(teamData.leader.active_student_letter).then(
-            (result) => ({
-              ...result,
-              name: `SKMA_${teamName}_${leaderName}${getFileExtension(
-                teamData.leader.active_student_letter
-              )}`,
-            })
-          )
-        );
-        filePromises.push(
-          downloadFile(teamData.leader.photo).then((result) => ({
-            ...result,
-            name: `Photo_${teamName}_${leaderName}${getFileExtension(
-              teamData.leader.photo
+            name: `KTM_${participantName}${getFileExtension(
+              participant.ktm || ""
             )}`,
           }))
         );
       }
 
-      teamData.members.forEach((member) => {
-        if (member.ktm && member.active_student_letter && member.photo) {
-          const memberName =
-            member.full_name || `UnknownMember_${member.member_id}`;
-          filePromises.push(
-            downloadFile(member.ktm).then((result) => ({
-              ...result,
-              name: `KTM_${teamName}_${memberName}${getFileExtension(
-                member.ktm
-              )}`,
-            }))
-          );
-          filePromises.push(
-            downloadFile(member.active_student_letter).then((result) => ({
-              ...result,
-              name: `SKMA_${teamName}_${memberName}${getFileExtension(
-                member.active_student_letter
-              )}`,
-            }))
-          );
-          filePromises.push(
-            downloadFile(member.photo).then((result) => ({
-              ...result,
-              name: `Photo_${teamName}_${memberName}${getFileExtension(
-                member.photo
-              )}`,
-            }))
-          );
-        }
-      });
-
-      if (teamData.team[0]?.payment_proof) {
+      if (participant.payment_proof) {
         filePromises.push(
-          downloadFile(teamData.team[0].payment_proof).then((result) => ({
+          downloadFile(participant.payment_proof).then((result) => ({
             ...result,
-            name: `PaymentProof_${teamName}${getFileExtension(
-              teamData.team[0].payment_proof
+            name: `PaymentProof_${participantName}${getFileExtension(
+              participant.payment_proof
             )}`,
           }))
         );
       }
-      if (teamData.team[0]?.voucher) {
+
+      if (participant.bukti_follow_pktsl) {
         filePromises.push(
-          downloadFile(teamData.team[0].voucher).then((result) => ({
+          downloadFile(participant.bukti_follow_pktsl).then((result) => ({
             ...result,
-            name: `Voucher_${teamName}${getFileExtension(
-              teamData.team[0].voucher || ""
+            name: `FollowPKTSL_${participantName}${getFileExtension(
+              participant.bukti_follow_pktsl
+            )}`,
+          }))
+        );
+      }
+
+      if (participant.bukti_follow_cia) {
+        filePromises.push(
+          downloadFile(participant.bukti_follow_cia).then((result) => ({
+            ...result,
+            name: `FollowCIA_${participantName}${getFileExtension(
+              participant.bukti_follow_cia
+            )}`,
+          }))
+        );
+      }
+
+      if (participant.bukti_story) {
+        filePromises.push(
+          downloadFile(participant.bukti_story).then((result) => ({
+            ...result,
+            name: `Story_${participantName}${getFileExtension(
+              participant.bukti_story
+            )}`,
+          }))
+        );
+      }
+
+      if (participant.bundling_member) {
+        filePromises.push(
+          downloadFile(participant.bundling_member).then((result) => ({
+            ...result,
+            name: `Bundling_${participantName}${getFileExtension(
+              participant.bundling_member
             )}`,
           }))
         );
@@ -360,7 +266,7 @@ export default function DetailUser({ params }: { params: { id: string } }) {
       const url = window.URL.createObjectURL(content);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${teamName}_data.zip`;
+      link.download = `${participantName}_data.zip`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -379,34 +285,65 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     );
   }
 
+  if (error) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p className="text-red-500 text-xl">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-fixed bg-cia-primary bg-[url('/assets/autentikasi/teksture.svg')] font-plusJakarta">
       <div className="bg-white/80 p-4 rounded-xl w-[90%] mx-auto mt-28 mb-8">
         <p className="text-black text-center text-2xl font-semibold px-6 z-20">
-          Detail Tim
+          Detail Peserta
         </p>
 
-        {teamData.team[0] ? (
+        {participant ? (
           [
-            { label: "Email", value: teamData.team[0].email },
-            { label: "Nama Tim", value: teamData.team[0].team_name },
+            { label: "Email", value: participant.email },
+            { label: "Nama Peserta", value: participant.full_name },
+            { label: "Pilihan Kegiatan", value: participant.activity_choice },
             {
-              label: "Nama Perguruan Tinggi",
-              value: teamData.team[0].institution_name,
+              label: "Apakah Mahasiswa DTSL FT UGM?",
+              value: participant.isMahasiswaDTSL ? "Ya" : "Tidak",
             },
+            { label: "Asal Instansi", value: participant.institution_name },
+            { label: "Nomor Whatsapp", value: participant.whatsapp_number },
             {
-              label: "Bukti Pembayaran",
-              value: teamData.team[0].payment_proof,
+              label: "Kartu Tanda Mahasiswa",
+              value: participant.ktm,
               isLink: true,
             },
             {
-              label: "Bukti Voucher",
-              value: teamData.team[0].voucher,
+              label: "Bukti Pembayaran",
+              value: participant.payment_proof,
+              isLink: true,
+            },
+            {
+              label: "Bukti Follow Instagram PKTSL",
+              value: participant.bukti_follow_pktsl,
+              isLink: true,
+            },
+            {
+              label: "Bukti Follow Instagram CIA",
+              value: participant.bukti_follow_cia,
+              isLink: true,
+            },
+            {
+              label: "Bukti Story Instagram",
+              value: participant.bukti_story,
+              isLink: true,
+            },
+            {
+              label: "Bukti Bundling Member",
+              value: participant.bundling_member,
               isLink: true,
             },
           ].map((field, index) => (
             <div
-              key={`team-field-${index}`}
+              key={`participant-field-${index}`}
               className="flex flex-col w-full mt-4"
             >
               <p className="text-black text-left text-lg font-medium px-6">
@@ -418,16 +355,8 @@ export default function DetailUser({ params }: { params: { id: string } }) {
             </div>
           ))
         ) : (
-          <p className="text-black text-lg">Data tim tidak tersedia.</p>
+          <p className="text-black text-lg">Data peserta tidak tersedia.</p>
         )}
-
-        {teamData.leader?.member_id &&
-          renderMemberSection(teamData.leader, "Ketua")}
-
-        {teamData.members.length > 0 &&
-          teamData.members.map((member, index) =>
-            renderMemberSection(member, `Anggota ${index + 1}`, index)
-          )}
 
         <div className="flex justify-end mt-10">
           {isAdmin && (

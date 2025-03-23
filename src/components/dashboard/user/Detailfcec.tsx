@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import axiosInstance from "@/lib/utlis/axiosInstance";
 import Cookies from "js-cookie";
@@ -77,6 +78,7 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     fcec: [],
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const router = useRouter();
@@ -103,8 +105,16 @@ export default function DetailUser({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     const checkAdmin = () => {
-      const adminCookie = Cookies.get("isAdmin");
-      setIsAdmin(adminCookie === "true");
+      const userCookie = Cookies.get("user");
+      if (userCookie) {
+        try {
+          const userData = JSON.parse(userCookie);
+          setIsAdmin(userData.isAdmin === true || userData.isAdmin === "true");
+        } catch (error) {
+          console.error("Error parsing user cookie:", error);
+          setIsAdmin(false);
+        }
+      }
     };
     checkAdmin();
     fetchData();
@@ -113,6 +123,35 @@ export default function DetailUser({ params }: { params: { id: string } }) {
   const renderField = (value: string | null | undefined, isLink = false) => {
     const displayValue = value || "Not Found";
     if (isLink && value) {
+      const isPng =
+        value.toLowerCase().endsWith(".png") ||
+        value.toLowerCase().endsWith(".jpg") ||
+        value.toLowerCase().endsWith(".jpeg");
+      if (isPng) {
+        return (
+          <div className="flex flex-col gap-2">
+            <a
+              href={`${baseUrl}${value}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline text-lg font-semibold text-opacity-80"
+            >
+              {displayValue}
+            </a>
+            <Image
+              src={`${baseUrl}${value}`}
+              alt={displayValue}
+              width={200}
+              height={200}
+              className="rounded-lg object-cover"
+              onError={(e) => {
+                console.error("Error loading image:", value);
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          </div>
+        );
+      }
       return (
         <a
           href={`${baseUrl}${value}`}
@@ -174,188 +213,214 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     </div>
   );
 
-  async function downloadFile(url: string) {
+  async function downloadFile(
+    url: string
+  ): Promise<{ url: string; data: ArrayBuffer | null }> {
     try {
       const fullUrl = `${baseUrl}${url}`;
       const response = await axiosInstance.get(fullUrl, {
         responseType: "arraybuffer",
       });
-      return response.data;
+      return { url, data: response.data };
     } catch (error) {
       console.error(`Error downloading file from ${url}:`, error);
-      return null;
+      return { url, data: null };
     }
   }
 
   async function downloadFilesAsZip() {
+    setIsDownloading(true);
     const zip = new JSZip();
     const teamName = teamData.team[0]?.team_name || "UnknownTeam";
 
-    const membersData = teamData.members.map((member) => ({
-      Nama_Lengkap: member.full_name || "",
-      Departemen: member.department || "",
-      Batch: member.batch || "",
-      Nomor_Whatsapp: member.phone_number || "",
-      ID_Line: member.line_id || "",
-      Email: member.email || "",
-      KTM: member.ktm || "",
-      Nim: member.nim || "",
-      Semester: member.semester || "",
-      Surat_Keterangan_Siswa_Aktif: member.active_student_letter || "",
-      Pas_Foto_3x4: member.photo || "",
-      Link_Bukti_Upload_Twibbon: member.twibbon_and_poster_link || "",
-    }));
+    try {
+      const membersData = teamData.members.map((member) => ({
+        Nama_Lengkap: member.full_name || "",
+        Departemen: member.department || "",
+        Batch: member.batch || "",
+        Nomor_Whatsapp: member.phone_number || "",
+        ID_Line: member.line_id || "",
+        Email: member.email || "",
+        KTM: member.ktm || "",
+        Nim: member.nim || "",
+        Semester: member.semester || "",
+        Surat_Keterangan_Siswa_Aktif: member.active_student_letter || "",
+        Pas_Foto_3x4: member.photo || "",
+        Link_Bukti_Upload_Twibbon: member.twibbon_and_poster_link || "",
+      }));
 
-    const fieldsData = {
-      Nama_Tim: teamName,
-      Institusi: teamData.team[0]?.institution_name || "",
-      Nama_Lengkap: teamData.leader?.full_name || "",
-      Departemen: teamData.leader?.department || "",
-      Batch: teamData.leader?.batch || "",
-      Nomor_Whatsapp: teamData.leader?.phone_number || "",
-      ID_Line: teamData.leader?.line_id || "",
-      Email: teamData.leader?.email || "",
-      KTM: teamData.leader?.ktm || "",
-      Surat_Keterangan_Siswa_Aktif:
-        teamData.leader?.active_student_letter || "",
-      Pas_Foto_3x4: teamData.leader?.photo || "",
-      Link_Bukti_Upload_Twibbon: teamData.leader?.twibbon_and_poster_link || "",
-      Payment_Proof: teamData.team[0]?.payment_proof || "",
-      Voucher: teamData.team[0]?.voucher || "",
-      Originality_Statement: teamData.fcec[0]?.originality_statement || "",
-      Abstract_Title: teamData.fcec[0]?.abstract_title || "",
-      Abstract_File: teamData.fcec[0]?.abstract_file || "",
-      Abstract_Video_Link: teamData.fcec[0]?.abstract_video_link || "",
-    };
+      const fieldsData = {
+        Nama_Tim: teamName,
+        Institusi: teamData.team[0]?.institution_name || "",
+        Nama_Lengkap: teamData.leader?.full_name || "",
+        Departemen: teamData.leader?.department || "",
+        Batch: teamData.leader?.batch || "",
+        Nomor_Whatsapp: teamData.leader?.phone_number || "",
+        ID_Line: teamData.leader?.line_id || "",
+        Email: teamData.leader?.email || "",
+        KTM: teamData.leader?.ktm || "",
+        Surat_Keterangan_Siswa_Aktif:
+          teamData.leader?.active_student_letter || "",
+        Pas_Foto_3x4: teamData.leader?.photo || "",
+        Link_Bukti_Upload_Twibbon:
+          teamData.leader?.twibbon_and_poster_link || "",
+        Payment_Proof: teamData.team[0]?.payment_proof || "",
+        Voucher: teamData.team[0]?.voucher || "",
+        Originality_Statement: teamData.fcec[0]?.originality_statement || "",
+        Abstract_Title: teamData.fcec[0]?.abstract_title || "",
+        Abstract_File: teamData.fcec[0]?.abstract_file || "",
+        Abstract_Video_Link: teamData.fcec[0]?.abstract_video_link || "",
+      };
 
-    const allData = [fieldsData, ...membersData];
-    const combinedCsv = parse(allData, { fields: Object.keys(fieldsData) });
-    zip.file("data_all.csv", combinedCsv);
+      const allData = [fieldsData, ...membersData];
+      const combinedCsv = parse(allData, { fields: Object.keys(fieldsData) });
+      zip.file("data_all.csv", combinedCsv);
 
-    const getFileExtension = (url: string) => {
-      const parts = url.split(".");
-      return parts.length > 1 ? `.${parts.pop()}` : "";
-    };
+      const filePromises: Promise<{
+        url: string;
+        data: ArrayBuffer | null;
+        name: string;
+      }>[] = [];
+      const getFileExtension = (url: string) => {
+        const parts = url.split(".");
+        return parts.length > 1 ? `.${parts.pop()}` : "";
+      };
 
-    if (
-      teamData.leader?.ktm &&
-      teamData.leader?.active_student_letter &&
-      teamData.leader?.photo
-    ) {
-      const leaderName = teamData.leader.full_name || "UnknownLeader";
-      const ktmData = await downloadFile(teamData.leader.ktm);
-      const activeStudentLetterData = await downloadFile(
-        teamData.leader.active_student_letter
-      );
-      const photoData = await downloadFile(teamData.leader.photo);
-
-      if (ktmData)
-        zip.file(
-          `KTM_${teamName}_${leaderName}${getFileExtension(
-            teamData.leader.ktm
-          )}`,
-          ktmData
-        );
-      if (activeStudentLetterData)
-        zip.file(
-          `SKMA_${teamName}_${leaderName}${getFileExtension(
-            teamData.leader.active_student_letter
-          )}`,
-          activeStudentLetterData
-        );
-      if (photoData)
-        zip.file(
-          `Photo_${teamName}_${leaderName}${getFileExtension(
-            teamData.leader.photo
-          )}`,
-          photoData
-        );
-    }
-
-    for (const member of teamData.members) {
-      if (member.ktm && member.active_student_letter && member.photo) {
-        const memberName =
-          member.full_name || `UnknownMember_${member.member_id}`;
-        const ktmData = await downloadFile(member.ktm);
-        const activeStudentLetterData = await downloadFile(
-          member.active_student_letter
-        );
-        const photoData = await downloadFile(member.photo);
-
-        if (ktmData)
-          zip.file(
-            `KTM_${teamName}_${memberName}${getFileExtension(member.ktm)}`,
-            ktmData
-          );
-        if (activeStudentLetterData)
-          zip.file(
-            `SKMA_${teamName}_${memberName}${getFileExtension(
-              member.active_student_letter
+      if (
+        teamData.leader?.ktm &&
+        teamData.leader?.active_student_letter &&
+        teamData.leader?.photo
+      ) {
+        const leaderName = teamData.leader.full_name || "UnknownLeader";
+        filePromises.push(
+          downloadFile(teamData.leader.ktm).then((result) => ({
+            ...result,
+            name: `KTM_${teamName}_${leaderName}${getFileExtension(
+              teamData.leader.ktm
             )}`,
-            activeStudentLetterData
-          );
-        if (photoData)
-          zip.file(
-            `Photo_${teamName}_${memberName}${getFileExtension(member.photo)}`,
-            photoData
-          );
+          }))
+        );
+        filePromises.push(
+          downloadFile(teamData.leader.active_student_letter).then(
+            (result) => ({
+              ...result,
+              name: `SKMA_${teamName}_${leaderName}${getFileExtension(
+                teamData.leader.active_student_letter
+              )}`,
+            })
+          )
+        );
+        filePromises.push(
+          downloadFile(teamData.leader.photo).then((result) => ({
+            ...result,
+            name: `Photo_${teamName}_${leaderName}${getFileExtension(
+              teamData.leader.photo
+            )}`,
+          }))
+        );
       }
-    }
 
-    if (teamData.fcec[0]?.abstract_file) {
-      const abstractData = await downloadFile(teamData.fcec[0].abstract_file);
-      if (abstractData)
-        zip.file(
-          `Abstract_${teamName}${getFileExtension(
-            teamData.fcec[0].abstract_file
-          )}`,
-          abstractData
+      teamData.members.forEach((member) => {
+        if (member.ktm && member.active_student_letter && member.photo) {
+          const memberName =
+            member.full_name || `UnknownMember_${member.member_id}`;
+          filePromises.push(
+            downloadFile(member.ktm).then((result) => ({
+              ...result,
+              name: `KTM_${teamName}_${memberName}${getFileExtension(
+                member.ktm
+              )}`,
+            }))
+          );
+          filePromises.push(
+            downloadFile(member.active_student_letter).then((result) => ({
+              ...result,
+              name: `SKMA_${teamName}_${memberName}${getFileExtension(
+                member.active_student_letter
+              )}`,
+            }))
+          );
+          filePromises.push(
+            downloadFile(member.photo).then((result) => ({
+              ...result,
+              name: `Photo_${teamName}_${memberName}${getFileExtension(
+                member.photo
+              )}`,
+            }))
+          );
+        }
+      });
+
+      if (teamData.fcec[0]?.abstract_file) {
+        filePromises.push(
+          downloadFile(teamData.fcec[0].abstract_file).then((result) => ({
+            ...result,
+            name: `Abstract_${teamName}${getFileExtension(
+              teamData.fcec[0].abstract_file
+            )}`,
+          }))
         );
-    }
+      }
 
-    if (teamData.fcec[0]?.originality_statement) {
-      const originalityData = await downloadFile(
-        teamData.fcec[0].originality_statement
-      );
-      if (originalityData)
-        zip.file(
-          `Originality_${teamName}${getFileExtension(
-            teamData.fcec[0].originality_statement
-          )}`,
-          originalityData
+      if (teamData.fcec[0]?.originality_statement) {
+        filePromises.push(
+          downloadFile(teamData.fcec[0].originality_statement).then(
+            (result) => ({
+              ...result,
+              name: `Originality_${teamName}${getFileExtension(
+                teamData.fcec[0].originality_statement
+              )}`,
+            })
+          )
         );
-    }
+      }
 
-    if (teamData.team[0]?.payment_proof) {
-      const paymentProofData = await downloadFile(
-        teamData.team[0].payment_proof
-      );
-      if (paymentProofData)
-        zip.file(
-          `PaymentProof_${teamName}${getFileExtension(
-            teamData.team[0].payment_proof
-          )}`,
-          paymentProofData
+      if (teamData.team[0]?.payment_proof) {
+        filePromises.push(
+          downloadFile(teamData.team[0].payment_proof).then((result) => ({
+            ...result,
+            name: `PaymentProof_${teamName}${getFileExtension(
+              teamData.team[0].payment_proof
+            )}`,
+          }))
         );
-    }
+      }
 
-    if (teamData.team[0]?.voucher) {
-      const voucherData = await downloadFile(teamData.team[0].voucher);
-      if (voucherData)
-        zip.file(
-          `Voucher_${teamName}${getFileExtension(teamData.team[0].voucher)}`,
-          voucherData
+      if (teamData.team[0]?.voucher) {
+        filePromises.push(
+          downloadFile(teamData.team[0].voucher).then((result) => ({
+            ...result,
+            name: `Voucher_${teamName}${getFileExtension(
+              teamData.team[0].voucher || ""
+            )}`,
+          }))
         );
-    }
+      }
 
-    zip.generateAsync({ type: "blob" }).then((content: Blob) => {
+      const fileResults = await Promise.all(filePromises);
+
+      fileResults.forEach(({ name, data }) => {
+        if (data) zip.file(name, data);
+      });
+
+      const content = await zip.generateAsync({
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: { level: 1 },
+      });
+
       const url = window.URL.createObjectURL(content);
       const link = document.createElement("a");
       link.href = url;
       link.download = `${teamName}_data.zip`;
       link.click();
       window.URL.revokeObjectURL(url);
-    });
+    } catch (error) {
+      console.error("Error during download:", error);
+      setError("Gagal mengunduh file. Silakan coba lagi.");
+    } finally {
+      setIsDownloading(false);
+    }
   }
 
   if (isLoading) {
@@ -444,19 +509,46 @@ export default function DetailUser({ params }: { params: { id: string } }) {
           {isAdmin && (
             <button
               onClick={downloadFilesAsZip}
-              className="bg-cic-secondary shadow-xl text-white px-6 py-2 rounded-2xl font-sans mr-4"
+              disabled={isDownloading}
+              className={`bg-cic-secondary shadow-xl text-white px-6 py-2 rounded-2xl font-sans mr-4 flex items-center gap-2 ${
+                isDownloading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Unduh Semua Data
+              {isDownloading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Sedang Mengunduh...
+                </>
+              ) : (
+                "Unduh Semua Data"
+              )}
             </button>
           )}
-          {!isAdmin && (
-            <button
-              onClick={handleBack}
-              className="bg-cic-secondary shadow-xl text-white px-6 py-2 rounded-2xl font-sans"
-            >
-              Kembali
-            </button>
-          )}
+          <button
+            onClick={handleBack}
+            className="bg-cic-secondary shadow-xl text-white px-6 py-2 rounded-2xl font-sans"
+          >
+            Kembali
+          </button>
         </div>
       </div>
     </div>

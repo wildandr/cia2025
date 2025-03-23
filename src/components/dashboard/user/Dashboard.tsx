@@ -383,7 +383,21 @@ export default function Dashboard() {
             <p className="text-xs md:text-[14px] text-white text-center mt-1">
               {" "}
               jika ada pertanyaan lebih lanjut kontak kami melalui instagram{" "}
-              <Link href={"/"}>@civilinaction</Link>
+              <Link
+                href={
+                  "https://www.instagram.com/civilinaction?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                @civilinaction
+              </Link>{" "}
+              atau{" "}
+              <Link href="/#contact" className="underline">
+                Contact person
+              </Link>{" "}
+              event terkait
             </p>
           </div>
         </div>
