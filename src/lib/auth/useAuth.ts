@@ -119,9 +119,12 @@ export const useAuth = (): UseAuthReturn => {
   };
 
   const logout = (): void => {
-    Cookies.remove("token");
-    Cookies.remove("user");
-    router.push("/login");
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("user", { path: "/" });
+    setTimeout(() => {
+      router.push("/login");
+      window.location.reload();
+    }, 100);
   };
 
   return {
