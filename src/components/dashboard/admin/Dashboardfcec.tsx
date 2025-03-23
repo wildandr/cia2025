@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import axios from "axios";
+import axiosInstance from "@/lib/utlis/axiosInstance"; // Ganti axios dengan axiosInstance
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import {
@@ -13,7 +13,6 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  Input,
   Textarea,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
@@ -23,11 +22,11 @@ import { parse } from "json2csv";
 export default function DashboardAdmin() {
   const [registrations, setRegistrations] = useState<any[]>([]);
   const [participant, setParticipant] = useState<any[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false); // Tambah state untuk loading download
   const token = Cookies.get("token");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [rejectMessage, setRejectMessage] = useState("");
-  const [currentTeamId, setCurrentTeamId] = useState(null);
-
+  const [currentTeamId, setCurrentTeamId] = useState<number | null>(null);
   const router = useRouter();
 
   const handleRejectMessageChange: React.ChangeEventHandler<
@@ -38,59 +37,23 @@ export default function DashboardAdmin() {
 
   const fetchParticipant = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/fcec-participant`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axiosInstance.get("/fcec-participant", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setParticipant(response.data.members);
     } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const handleReject = async (team_id: number, rejectMessage: string) => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/teams/${team_id}/reject`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ rejectMessage }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      toast.success("Tim berhasil ditolak");
-      fetchData();
-    } catch (error) {
-      console.error("Error:", error);
+      console.error("Error fetching participant data:", error);
     }
   };
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/teams/fcec/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(response.data);
+      const response = await axiosInstance.get("/teams/fcec/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setRegistrations(response.data);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching team data:", error);
     }
   };
 
@@ -99,91 +62,121 @@ export default function DashboardAdmin() {
     fetchParticipant();
   }, []);
 
-  async function downloadFile(url: string) {
-    const fullUrl = `${url}`;
+  async function downloadFile(
+    url: string
+  ): Promise<{ url: string; data: ArrayBuffer | null }> {
     try {
-      const response = await axios.get(fullUrl, {
-        responseType: "arraybuffer", // this is important
+      const response = await axiosInstance.get(url, {
+        responseType: "arraybuffer",
       });
-      return response.data;
+      return { url, data: response.data };
     } catch (error) {
-      console.error(`Error downloading file from ${fullUrl}:`, error);
-      return null; // return null or some default value
+      console.error(`Error downloading file from ${url}:`, error);
+      return { url, data: null };
     }
   }
 
   async function downloadFilesAsZip() {
+    setIsDownloading(true);
     const zip = new JSZip();
 
-    const data = participant.map((participant: any) => participant.data);
+    try {
+      const data = participant.map((p: any) => p.data);
+      const combinedCsv = parse(data, { fields: Object.keys(data[0] || {}) });
+      zip.file("data_fcec.csv", combinedCsv);
 
-    const combinedCsv = parse(data, { fields: Object.keys(data[0]) });
-    zip.file("data_fcec.csv", combinedCsv);
+      const downloadPath = participant.map((p: any) => p.download);
+      const filePromises: Promise<{
+        url: string;
+        data: ArrayBuffer | null;
+        name: string;
+      }>[] = [];
+      const getFileName = (url: string) => url?.split("/").pop() || "unknown";
 
-    const downloadPath = participant.map(
-      (participant: any) => participant.download
-    );
+      downloadPath.forEach((participant: any) => {
+        const {
+          voucher,
+          active_student_letter,
+          photo,
+          ktm,
+          abstract_file,
+          originality_statement,
+        } = participant;
+        if (ktm)
+          filePromises.push(
+            downloadFile(ktm).then((result) => ({
+              ...result,
+              name: getFileName(ktm),
+            }))
+          );
+        if (active_student_letter)
+          filePromises.push(
+            downloadFile(active_student_letter).then((result) => ({
+              ...result,
+              name: getFileName(active_student_letter),
+            }))
+          );
+        if (photo)
+          filePromises.push(
+            downloadFile(photo).then((result) => ({
+              ...result,
+              name: getFileName(photo),
+            }))
+          );
+        if (voucher)
+          filePromises.push(
+            downloadFile(voucher).then((result) => ({
+              ...result,
+              name: getFileName(voucher),
+            }))
+          );
+        if (abstract_file)
+          filePromises.push(
+            downloadFile(abstract_file).then((result) => ({
+              ...result,
+              name: getFileName(abstract_file),
+            }))
+          );
+        if (originality_statement)
+          filePromises.push(
+            downloadFile(originality_statement).then((result) => ({
+              ...result,
+              name: getFileName(originality_statement),
+            }))
+          );
+      });
 
-    for (const participant of downloadPath) {
-      const {
-        voucher,
-        active_student_letter,
-        photo,
-        ktm,
-        abstract_file,
-        originality_statement,
-      } = participant;
+      const fileResults = await Promise.all(filePromises);
+      fileResults.forEach(({ name, data }) => {
+        if (data) zip.file(name, data);
+      });
 
-      const ktmData = await downloadFile(ktm);
-      const activeStudentLetterData = await downloadFile(active_student_letter);
-      const photoData = await downloadFile(photo);
-      const voucherData = await downloadFile(voucher);
-      const abstractData = await downloadFile(abstract_file);
-      const originalityStatementData = await downloadFile(
-        originality_statement
-      );
+      const content = await zip.generateAsync({
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: { level: 1 },
+      });
 
-      const ktmFileName = ktm ? ktm.split("/").pop() : null;
-      const activeStudentLetterFileName = active_student_letter
-        ? active_student_letter.split("/").pop()
-        : null;
-      const photoFileName = photo ? photo.split("/").pop() : null;
-      const voucherFileName = voucher ? voucher.split("/").pop() : null;
-      const abstractFileName = abstract_file
-        ? abstract_file.split("/").pop()
-        : null;
-      const originalityStatementFileName = originality_statement
-        ? originality_statement.split("/").pop()
-        : null;
-
-      zip.file(ktmFileName, ktmData);
-      zip.file(activeStudentLetterFileName, activeStudentLetterData);
-      zip.file(photoFileName, photoData);
-      zip.file(abstractFileName, abstractData);
-      zip.file(voucherFileName, voucherData);
-      zip.file(originalityStatementFileName, originalityStatementData);
-    }
-
-    zip.generateAsync({ type: "blob" }).then(function (content: Blob) {
       const url = window.URL.createObjectURL(content);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "files.zip";
+      link.download = "files_fcec.zip";
       link.click();
       window.URL.revokeObjectURL(url);
-    });
+    } catch (error) {
+      console.error("Error during ZIP generation:", error);
+      toast.error("Gagal mengunduh data. Silakan coba lagi.");
+    } finally {
+      setIsDownloading(false);
+    }
   }
 
   const verifyTeam = async (teamId: string) => {
     try {
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/teams/${teamId}/verify`,
+      const response = await axiosInstance.put(
+        `/teams/${teamId}/verify`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.status === "success") {
@@ -194,6 +187,27 @@ export default function DashboardAdmin() {
       }
     } catch (error) {
       console.error("Error verifying team:", error);
+      toast.error("Terjadi kesalahan saat memverifikasi tim.");
+    }
+  };
+
+  const handleReject = async (team_id: number, rejectMessage: string) => {
+    try {
+      const response = await axiosInstance.put(
+        `/teams/${team_id}/reject`,
+        { rejectMessage },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.status === 200) {
+        toast.success("Tim berhasil ditolak");
+        fetchData();
+      } else {
+        throw new Error("Gagal menolak tim");
+      }
+    } catch (error) {
+      console.error("Error rejecting team:", error);
+      toast.error("Gagal menolak tim. Silakan coba lagi.");
     }
   };
 
@@ -201,21 +215,20 @@ export default function DashboardAdmin() {
     <div className="bg-cia-primary bg-[url('/assets/autentikasi/teksture.svg')] min-h-screen bg-fixed font-plusJakarta">
       <div className="flex w-full min-h-screen z-40">
         <div className="bg-white p-4 rounded-xl h-full w-[90%] mx-auto mt-28">
-          <p className="text-green-600/80 text-center text-2xl font-semibold px-6  z-20 ">
+          <p className="text-green-600/80 text-center text-2xl font-semibold px-6 z-20">
             Dashboard Panitia FCEC
           </p>
 
           <div className="max-h-[400px] lg:max-h-[350px] 2xl:max-h-[500px] overflow-y-auto mt-5">
-            <table className="w-full text-[20px] table-auto border-separate border-spacing-y-2 ">
-              <thead className="">
+            <table className="w-full text-[20px] table-auto border-separate border-spacing-y-2">
+              <thead>
                 <tr className="text-black text-left">
-                  <th className="">Nama Peserta/Tim</th>
+                  <th>Nama Peserta/Tim</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
-
-              <tbody className=" text-black rounded-xl">
+              <tbody className="text-black rounded-xl">
                 {registrations.map((registration, index) => (
                   <tr
                     className={`text-left ${
@@ -223,9 +236,7 @@ export default function DashboardAdmin() {
                     }`}
                     key={index}
                   >
-                    <td
-                      className={`font-semibold px-2 py-2 border-r border-ciaGreen border-opacity-10 rounded-l-xl`}
-                    >
+                    <td className="font-semibold px-2 py-2 border-r border-ciaGreen border-opacity-10 rounded-l-xl">
                       {registration.team.team_name}
                     </td>
                     <td
@@ -244,7 +255,6 @@ export default function DashboardAdmin() {
                         ? "Perlu Konfirmasi"
                         : "Sudah Terkonfirmasi"}
                     </td>
-
                     <td className="px-[0.6rem] py-2 rounded-r-xl">
                       <div className="flex-col flex gap-2 md:flex-row">
                         <Link
@@ -297,9 +307,38 @@ export default function DashboardAdmin() {
           <div className="flex justify-end pt-10">
             <button
               onClick={downloadFilesAsZip}
-              className="bg-[#18AB8E] shadow-xl text-white  px-6 py-2 rounded-2xl  font-sans"
+              disabled={isDownloading}
+              className={`bg-[#18AB8E] shadow-xl text-white px-6 py-2 rounded-2xl font-sans flex items-center gap-2 ${
+                isDownloading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Unduh Semua Data
+              {isDownloading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Sedang Mengunduh...
+                </>
+              ) : (
+                "Unduh Semua Data"
+              )}
             </button>
           </div>
 
@@ -307,7 +346,7 @@ export default function DashboardAdmin() {
             isOpen={isOpen}
             onOpenChange={onOpenChange}
             placement="center"
-            className="bg-gray-50 z-[1000] absolute" // Background abu-abu sangat terang
+            className="bg-gray-50 z-[1000] absolute"
           >
             <ModalContent>
               {(onClose) => (
@@ -324,7 +363,6 @@ export default function DashboardAdmin() {
                       className="text-gray-800"
                       variant="bordered"
                     />
-                    <div className="flex py-2 px-1 justify-between"></div>
                   </ModalBody>
                   <ModalFooter>
                     <Button

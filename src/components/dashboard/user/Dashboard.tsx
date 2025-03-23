@@ -188,14 +188,14 @@ export default function Dashboard() {
       <div className="flex w-full h-full flex-col items-center justify-center bg-[url('/assets/dashboard/bg_dashboard-mobile.svg')] sm:bg-[url('/assets/dashboard/bg_dashboard-tab.svg')] lg:bg-[url('/assets/dashboard/bg_dashboard.svg')] bg-contain bg-no-repeat bg-center px-8 lg:p-0 lg:px-[10%]">
         <div className="flex items-center justify-center w-full z-20 mb-4">
           <Image
-            src="/assets/dashboard/icon2Mobile.png"
+            src="/assets/home/logo.svg"
             alt="iconlogo"
             width={1000}
             height={1000}
             className="w-auto h-[3.5rem] sm:h-[10%] md:hidden"
           />
           <Image
-            src="/assets/dashboard/icon2.png"
+            src="/assets/home/logo.svg"
             alt="iconlogo"
             width={1000}
             height={1000}
@@ -383,7 +383,21 @@ export default function Dashboard() {
             <p className="text-xs md:text-[14px] text-white text-center mt-1">
               {" "}
               jika ada pertanyaan lebih lanjut kontak kami melalui instagram{" "}
-              <Link href={"/"}>@civilinaction</Link>
+              <Link
+                href={
+                  "https://www.instagram.com/civilinaction?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                @civilinaction
+              </Link>{" "}
+              atau{" "}
+              <Link href="/#contact" className="underline">
+                Contact person
+              </Link>{" "}
+              event terkait
             </p>
           </div>
         </div>

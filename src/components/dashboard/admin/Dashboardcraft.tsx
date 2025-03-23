@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import axios from "axios";
+import axiosInstance from "@/lib/utlis/axiosInstance"; // Ganti axios dengan axiosInstance
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import {
@@ -20,10 +20,11 @@ import { parse } from "json2csv";
 
 export default function DashboardAdmin() {
   const [registrations, setRegistrations] = useState<any[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false); // Tambah state untuk loading download
   const token = Cookies.get("token");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [rejectMessage, setRejectMessage] = useState("");
-  const [participantId, setParticipantId] = useState("");
+  const [participantId, setParticipantId] = useState<string | null>(null);
   const router = useRouter();
 
   const handleRejectMessageChange: React.ChangeEventHandler<
@@ -34,14 +35,9 @@ export default function DashboardAdmin() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/crafts/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axiosInstance.get("/crafts/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setRegistrations(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -52,60 +48,94 @@ export default function DashboardAdmin() {
     fetchData();
   }, []);
 
-  async function downloadFile(url: string) {
-    const fullUrl = `${url}`;
+  async function downloadFile(
+    url: string
+  ): Promise<{ url: string; data: ArrayBuffer | null }> {
     try {
-      const response = await axios.get(fullUrl, {
+      const response = await axiosInstance.get(url, {
         responseType: "arraybuffer",
       });
-      return response.data;
+      return { url, data: response.data };
     } catch (error) {
-      console.error(`Error downloading file from ${fullUrl}:`, error);
-      return null;
+      console.error(`Error downloading file from ${url}:`, error);
+      return { url, data: null };
     }
   }
 
   async function downloadFilesAsZip() {
+    setIsDownloading(true);
     const zip = new JSZip();
-    const combinedCsv = parse(registrations, {
-      fields: Object.keys(registrations[0]),
-    });
-    zip.file("data_craft.csv", combinedCsv);
 
-    for (const participant of registrations) {
-      const { ktm, payment_proof } = participant;
-      const ktmData = await downloadFile(ktm);
-      const paymentProofData = await downloadFile(payment_proof);
+    try {
+      // Persiapan data CSV secara sinkron
+      const combinedCsv = parse(registrations, {
+        fields: Object.keys(registrations[0]),
+      });
+      zip.file("data_craft.csv", combinedCsv);
 
-      const ktmFileName = ktm ? ktm.split("/").pop() : null;
-      const paymentProofFileName = payment_proof
-        ? payment_proof.split("/").pop()
-        : null;
+      // Kumpulkan semua URL file untuk diunduh secara paralel
+      const filePromises: Promise<{
+        url: string;
+        data: ArrayBuffer | null;
+        name: string;
+      }>[] = [];
+      const getFileName = (url: string) => url?.split("/").pop() || "unknown";
 
-      zip.file(ktmFileName, ktmData);
-      zip.file(paymentProofFileName, paymentProofData);
-    }
+      registrations.forEach((participant) => {
+        const { ktm, payment_proof } = participant;
+        if (ktm) {
+          filePromises.push(
+            downloadFile(ktm).then((result) => ({
+              ...result,
+              name: getFileName(ktm),
+            }))
+          );
+        }
+        if (payment_proof) {
+          filePromises.push(
+            downloadFile(payment_proof).then((result) => ({
+              ...result,
+              name: getFileName(payment_proof),
+            }))
+          );
+        }
+      });
 
-    zip.generateAsync({ type: "blob" }).then(function (content: Blob) {
+      // Unduh semua file secara paralel
+      const fileResults = await Promise.all(filePromises);
+
+      // Tambahkan file ke ZIP
+      fileResults.forEach(({ name, data }) => {
+        if (data) zip.file(name, data);
+      });
+
+      // Generate ZIP dengan kompresi cepat
+      const content = await zip.generateAsync({
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: { level: 1 },
+      });
+
       const url = window.URL.createObjectURL(content);
       const link = document.createElement("a");
       link.href = url;
       link.download = "files_craft.zip";
       link.click();
       window.URL.revokeObjectURL(url);
-    });
+    } catch (error) {
+      console.error("Error during ZIP generation:", error);
+      toast.error("Gagal mengunduh data. Silakan coba lagi.");
+    } finally {
+      setIsDownloading(false);
+    }
   }
 
   const verifyTeam = async (participant_id: string) => {
     try {
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/crafts/verify/${participant_id}`,
+      const response = await axiosInstance.put(
+        `/crafts/verify/${participant_id}`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.message === "Participant has been verified") {
@@ -115,7 +145,8 @@ export default function DashboardAdmin() {
         toast.error("Gagal Memverifikasi");
       }
     } catch (error) {
-      console.error("Error verifying team", error);
+      console.error("Error verifying participant:", error);
+      toast.error("Terjadi kesalahan saat memverifikasi peserta.");
     }
   };
 
@@ -124,24 +155,21 @@ export default function DashboardAdmin() {
     rejectMessage: string
   ) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/crafts/reject/${participant_id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ rejectMessage }),
-        }
+      const response = await axiosInstance.put(
+        `/crafts/reject/${participant_id}`,
+        { rejectMessage },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (!response.ok) throw new Error("Network response was not ok");
-
-      toast.success("Peserta berhasil ditolak");
-      fetchData();
+      if (response.status === 200) {
+        toast.success("Peserta berhasil ditolak");
+        fetchData();
+      } else {
+        throw new Error("Gagal menolak peserta");
+      }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error rejecting participant:", error);
+      toast.error("Gagal menolak peserta. Silakan coba lagi.");
     }
   };
 
@@ -241,9 +269,38 @@ export default function DashboardAdmin() {
           <div className="flex justify-end pt-10">
             <button
               onClick={downloadFilesAsZip}
-              className="bg-[#18AB8E] shadow-xl text-white px-6 py-2 rounded-2xl font-sans"
+              disabled={isDownloading}
+              className={`bg-[#18AB8E] shadow-xl text-white px-6 py-2 rounded-2xl font-sans flex items-center gap-2 ${
+                isDownloading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Unduh Semua Data
+              {isDownloading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Sedang Mengunduh...
+                </>
+              ) : (
+                "Unduh Semua Data"
+              )}
             </button>
           </div>
 
