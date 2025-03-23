@@ -14,7 +14,7 @@ export const formInstructions: Instruction[] = [
     text: "Periode pendaftaran dimulai pada tanggal 22 Maret 2025 - 30 April 2025"
   },
   {
-    text: "Peserta diharapkan untuk membayar biaya pendaftaran sebesar Rp300.000/tim yang dapat dilakukan dengan cara transfer ke rekening 1370022414649 Bank Mandiri atas nama NAOMI ELLENA MANURUN dengan menambahkan kode unik 13 (nominal yang dibayarkan menjadi Rp300.031,00)"
+    text: "Peserta diharapkan untuk membayar biaya pendaftaran sebesar Rp300.000/tim yang dapat dilakukan dengan cara transfer ke rekening 1370022414649 Bank Mandiri atas nama NAOMI ELLENA MANURUN dengan menambahkan kode unik 31 (nominal yang dibayarkan menjadi Rp300.031,00)"
   },
   {
     text: 'Dalam proses transaksi/transfer, peserta diharapkan untuk menambahkan keterangan "Registrasi SBC 2025" pada kolom keterangan/catatan pembayaran;'
