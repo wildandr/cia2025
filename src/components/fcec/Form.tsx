@@ -914,13 +914,13 @@ export function Form() {
                         onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
                       />
                       <FileInput
-                        label="KTM" // Ubah label menjadi KTM
+                        label="Kartu Tanda Pengenal" // Ubah label menjadi KTM
                         accept="application/pdf, image/*"
                         name="member0_ktm" // Ubah name menjadi member0_ktm
                         onChange={(e) => handleFileChange("member", 0, "ktm", e.target.files?.[0] || null)} // Ubah field menjadi ktm
                         required
                         variant="fcec"
-                        helperText="Format Penamaan: Nama Tim_KTM_Nama Lengkap" // Ubah helperText
+                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap" // Ubah helperText
                       />
                       <FileInput
                         label="Surat Pernyataan Siswa Aktif"
@@ -996,12 +996,12 @@ export function Form() {
                         onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
                       />
                       <FileInput
-                        label="KTM" // Ubah label menjadi KTM
+                        label="Kartu Tanda Pengenal" // Ubah label menjadi KTM
                         accept="application/pdf, image/*"
                         name="member1_ktm" // Ubah name menjadi member1_ktm
                         onChange={(e) => handleFileChange("member", 1, "ktm", e.target.files?.[0] || null)} // Ubah field menjadi ktm
                         variant="fcec"
-                        helperText="Format Penamaan: Nama Tim_KTM_Nama Lengkap" // Ubah helperText
+                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap" // Ubah helperText
                       />
                       <FileInput
                         label="Surat Pernyataan Siswa Aktif"
