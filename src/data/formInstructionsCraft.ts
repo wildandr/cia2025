@@ -53,14 +53,8 @@ export const formInstructionsCraft: Instruction[] = [
     ]
   },
   {
-    text: "Peserta menyerahkan bukti pembayaran pada formulir (PDF).\n\nFormat penamaan file: Bukti Pembayaran_Nama Peserta\nContoh: Bukti Pembayaran_Dimas Apta\n\nBiaya pendaftaran yang harus dibayarkan sejumlah berikut:\nTiket Early Bird(60k) [10 tiket]\nBunding [60 tiket]\n •⁠  ⁠1 orang (80k)\n•⁠  ⁠3 orang (70k)\n•⁠  ⁠5 orang (65k)\nPembayaran ditambah dengan kode unik (+Rp 13)\nContoh: Rp 40.233,00\nPembayaran dilakukan melalui rekening 1370022414649 (Mandiri) a.n NAOMI ELLENA MANURUN",
-    documents: [
-      {
-        description: "Bukti Pembayaran (PDF)",
-        format: "Bukti Pembayaran_Nama Peserta",
-        example: "Bukti Pembayaran_Dimas Apta"
-      }
-    ]
+    text: "Peserta menyerahkan bukti pembayaran pada formulir (PDF).\n\nFormat penamaan file: Bukti Pembayaran_Nama Peserta\nContoh: Bukti Pembayaran_Dimas Apta\n\nBiaya pendaftaran yang harus dibayarkan sejumlah berikut:\nTiket Early Bird(60k) [10 tiket]\nBundling [60 tiket]\n •⁠  ⁠1 orang (80k)\n•⁠  ⁠3 orang (70k)\n•⁠  ⁠5 orang (65k)\nPembayaran ditambah dengan kode unik (+Rp 13)\nContoh: Rp 60.013,00\nPembayaran dilakukan melalui rekening 1370022414649 (Mandiri) a.n NAOMI ELLENA MANURUN",
+  
   },
   {
     text: "Apabila terdapat kendala dan kesalahan dalam mengisi google form dapat menghubungi Contact Person:\n(081225449240) Anggito\n(081341316170) Nandita"
