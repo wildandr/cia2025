@@ -53,7 +53,7 @@ export const formInstructionsCraft: Instruction[] = [
     ]
   },
   {
-    text: "Peserta menyerahkan bukti pembayaran pada formulir (PDF).\n\nFormat penamaan file: Bukti Pembayaran_Nama Peserta\nContoh: Bukti Pembayaran_Dimas Apta\n\nBiaya pendaftaran yang harus dibayarkan sejumlah berikut:\nTiket Early Bird(60k) [10 tiket]\nBundling [60 tiket]\n •⁠  ⁠1 orang (80k)\n•⁠  ⁠3 orang (70k)\n•⁠  ⁠5 orang (65k)\nPembayaran ditambah dengan kode unik (+Rp 13)\nContoh: Rp 60.013,00\nPembayaran dilakukan melalui rekening 1370022414649 (Mandiri) a.n NAOMI ELLENA MANURUN",
+    text: "Peserta menyerahkan bukti pembayaran pada formulir (PDF).\n\nFormat penamaan file: Bukti Pembayaran_Nama Peserta\nContoh: Bukti Pembayaran_Angga Peuliken Ginting\n\nBiaya pendaftaran yang harus dibayarkan sejumlah berikut:\nTiket Early Bird(60k) [10 tiket]\nBundling [60 tiket]\n •⁠  ⁠1 orang (80k)\n•⁠  ⁠3 orang (210k)\n•⁠  ⁠5 orang (325k)\nPembayaran ditambah dengan kode unik (+Rp 13)\nContoh: Rp 60.013,00\nPembayaran dilakukan melalui rekening 1370022414649 (Mandiri) a.n NAOMI ELLENA MANURUN",
   
   },
   {
