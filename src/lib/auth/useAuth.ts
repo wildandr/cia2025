@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -34,98 +34,130 @@ export const useAuth = (): UseAuthReturn => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const login = async (credentials: LoginCredentials): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
+  const login = useCallback(
+    async (credentials: LoginCredentials): Promise<void> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const response = await axios.post(`${baseURL}/user/login`, credentials, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = response.data;
-
-      if (data.message === "User logged in successfully") {
-        Cookies.set("token", data.token, { expires: 1 });
-        Cookies.set("user", JSON.stringify(data.user), { expires: 1 });
-        if (data.user.isAdmin) {
-          router.push("/admin");
-        } else {
-          router.push("/dashboard");
-        }
-      } else {
-        setError(data.message || "Login gagal");
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setError(
-          error.response?.data?.message || "Terjadi kesalahan saat login"
+      try {
+        const response = await axios.post(
+          `${baseURL}/user/login`,
+          credentials,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
-      } else {
-        setError("Terjadi kesalahan yang tidak diketahui");
-      }
-      console.error("Login error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const register = async (credentials: RegisterCredentials): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
+        const data = response.data;
 
-    try {
-      const response = await axios.post(
-        `${baseURL}/user/register`,
-        credentials,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
+        if (data.message === "User logged in successfully" && data.token) {
+          Cookies.set("token", data.token, { expires: 1, path: "/" });
+          Cookies.set("user", JSON.stringify(data.user), {
+            expires: 1,
+            path: "/",
+          });
+
+          // Refresh router sebelum redirect
+          await router.refresh();
+
+          // Redirect berdasarkan role
+          const redirectPath = data.user.isAdmin ? "/admin" : "/dashboard";
+          router.push(redirectPath);
+
+          // Tambahkan delay kecil untuk memastikan redirect
+          setTimeout(() => {
+            window.location.href = redirectPath; // Fallback jika router.push gagal
+          }, 100);
+        } else {
+          setError(data.message || "Login gagal");
         }
-      );
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          setError(
+            error.response?.data?.message || "Terjadi kesalahan saat login"
+          );
+        } else {
+          setError("Terjadi kesalahan yang tidak diketahui");
+        }
+        console.error("Login error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [router]
+  );
 
-      const data = response.data;
+  const register = useCallback(
+    async (credentials: RegisterCredentials): Promise<void> => {
+      setIsLoading(true);
+      setError(null);
 
-      if (data.message === "User created successfully") {
-        if (data.token) {
-          Cookies.set("token", data.token, { expires: 7 });
-          Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
-          if (credentials.isAdmin) {
-            router.push("/admin");
+      try {
+        const response = await axios.post(
+          `${baseURL}/user/register`,
+          credentials,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const data = response.data;
+
+        if (data.message === "User created successfully") {
+          if (data.token) {
+            Cookies.set("token", data.token, { expires: 7, path: "/" });
+            Cookies.set("user", JSON.stringify(data.user), {
+              expires: 7,
+              path: "/",
+            });
+
+            await router.refresh();
+
+            const redirectPath = credentials.isAdmin ? "/admin" : "/dashboard";
+            router.push(redirectPath);
+
+            setTimeout(() => {
+              window.location.href = redirectPath;
+            }, 100);
           } else {
-            router.push("/dashboard");
+            router.push("/login");
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 100);
           }
         } else {
-          router.push("/login");
+          setError(data.message || "Pendaftaran gagal");
         }
-      } else {
-        setError(data.message || "Pendaftaran gagal");
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          setError(
+            error.response?.data?.message ||
+              "Terjadi kesalahan saat pendaftaran"
+          );
+        } else {
+          setError("Terjadi kesalahan yang tidak diketahui");
+        }
+        console.error("Register error:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setError(
-          error.response?.data?.message || "Terjadi kesalahan saat pendaftaran"
-        );
-      } else {
-        setError("Terjadi kesalahan yang tidak diketahui");
-      }
-      console.error("Register error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [router]
+  );
 
-  const logout = (): void => {
+  const logout = useCallback((): void => {
     Cookies.remove("token", { path: "/" });
     Cookies.remove("user", { path: "/" });
+    router.push("/login");
     setTimeout(() => {
-      router.push("/login");
+      router.refresh();
       window.location.reload();
     }, 100);
-  };
+  }, [router]);
 
   return {
     login,

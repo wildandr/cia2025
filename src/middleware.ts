@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import Cookies from "js-cookie"; // Tidak akan bekerja langsung di server
 
 // Event ID mapping
 const EVENT_MAPPING: Record<number, string> = {
@@ -48,7 +47,16 @@ export async function middleware(request: NextRequest) {
     return path.startsWith(`/admin/${eventName}`);
   };
 
+  // Daftar nama event dari EVENT_MAPPING
+  const eventNames = Object.values(EVENT_MAPPING);
+
   try {
+    // Cek jika user mencoba akses halaman event sebelum login
+    if (eventNames.some((name) => pathname === `/${name}`) && !token) {
+      console.log(`User belum login, redirect ke /login dari ${pathname}`);
+      return redirectTo("/login");
+    }
+
     if (pathname.startsWith("/dashboard") && !token) {
       console.log("User belum login, redirect ke /login dari /dashboard");
       return redirectTo("/login");
@@ -116,5 +124,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/login", "/register"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/login",
+    "/register",
+    "/:event(fcec|craft|sbc|cic)",
+  ],
 };
