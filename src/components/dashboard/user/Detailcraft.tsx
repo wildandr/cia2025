@@ -24,7 +24,8 @@ interface Participant {
   bukti_follow_pktsl: string;
   bukti_follow_cia: string;
   bukti_story: string;
-  bundling_member: string;
+  bundling_member: string; // Kolom lama tetap dipertahankan
+  bundle: string; // Kolom baru untuk bukti bundle (misalnya link PDF)
 }
 
 export default function DetailUser({ params }: { params: { id: string } }) {
@@ -41,11 +42,17 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     router.back();
   };
 
+  useEffect(() => {
+    console.log(participant);
+  }, [participant]);
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await axiosInstance.get(`/crafts/user/${params.id}`);
+      const response = await axiosInstance.get(
+        `/crafts/participant/${params.id}`
+      );
       setParticipant(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -75,11 +82,13 @@ export default function DetailUser({ params }: { params: { id: string } }) {
   const renderField = (value: string | null | undefined, isLink = false) => {
     const displayValue = value || "Not Found";
     if (isLink && value) {
-      const isPng =
+      const isImage =
         value.toLowerCase().endsWith(".png") ||
         value.toLowerCase().endsWith(".jpg") ||
         value.toLowerCase().endsWith(".jpeg");
-      if (isPng) {
+      const isPdf = value.toLowerCase().endsWith(".pdf");
+
+      if (isImage) {
         return (
           <div className="flex flex-col gap-2">
             <a
@@ -102,6 +111,17 @@ export default function DetailUser({ params }: { params: { id: string } }) {
               }}
             />
           </div>
+        );
+      } else if (isPdf) {
+        return (
+          <a
+            href={`${baseUrl}${value}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 underline text-lg font-semibold text-opacity-80"
+          >
+            {displayValue} (PDF)
+          </a>
         );
       }
       return (
@@ -168,6 +188,7 @@ export default function DetailUser({ params }: { params: { id: string } }) {
         Bukti_Follow_CIA: participant.bukti_follow_cia || "",
         Bukti_Story: participant.bukti_story || "",
         Bundling_Member: participant.bundling_member || "",
+        Bundle: participant.bundle || "",
       };
 
       const combinedCsv = parse([participantData], {
@@ -246,6 +267,17 @@ export default function DetailUser({ params }: { params: { id: string } }) {
             ...result,
             name: `Bundling_${participantName}${getFileExtension(
               participant.bundling_member
+            )}`,
+          }))
+        );
+      }
+
+      if (participant.bundle) {
+        filePromises.push(
+          downloadFile(participant.bundle).then((result) => ({
+            ...result,
+            name: `Bundle_${participantName}${getFileExtension(
+              participant.bundle
             )}`,
           }))
         );
@@ -338,7 +370,7 @@ export default function DetailUser({ params }: { params: { id: string } }) {
             },
             {
               label: "Bukti Bundling Member",
-              value: participant.bundling_member,
+              value: participant.bundle,
               isLink: true,
             },
           ].map((field, index) => (
