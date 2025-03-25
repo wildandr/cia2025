@@ -151,9 +151,9 @@ export function Footer() {
             <p className="font-medium text-xl">Formulir</p>
             <div className="flex flex-wrap gap-4">
               <div className="flex flex-col gap-5">
-                <p className="hover:underline text-white/70">
-                  Registrasi Peserta CRAFT(Coming Soon)
-                </p>
+                <Link href={"/craft"} className="hover:underline">
+                  Registrasi Peserta CRAFT
+                </Link>
                 <Link href="/cic" className="hover:underline ">
                   Registrasi Peserta CIC {">"}
                 </Link>
