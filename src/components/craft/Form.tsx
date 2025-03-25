@@ -25,6 +25,7 @@ interface FormData {
   bukti_follow_pktsl?: File;
   bukti_follow_cia?: File;
   bukti_story?: File;
+  bundle?: File;
 }
 
 export function Form() {
@@ -44,6 +45,7 @@ export function Form() {
     bukti_follow_pktsl: undefined,
     bukti_follow_cia: undefined,
     bukti_story: undefined,
+    bundle: undefined,
   });
 
   const validateTextFields = () => {
@@ -118,6 +120,9 @@ export function Form() {
     checkFileSize(formData.bukti_follow_pktsl, "Bukti Follow Instagram PKTSL");
     checkFileSize(formData.bukti_follow_cia, "Bukti Follow Instagram CIA");
     checkFileSize(formData.bukti_story, "Bukti Story Instagram CRAFT");
+
+    // Add bundle file size check
+    checkFileSize(formData.bundle, "File Bundle");
 
     if (errors.length > 0) {
       console.log("File Validation Errors:", errors);
@@ -198,6 +203,12 @@ export function Form() {
       if (formData.bukti_story) {
         formDataToSend.append("bukti_story", formData.bukti_story);
         console.log("Bukti Story File:", formData.bukti_story.name);
+      }
+
+      // Add bundle file to FormData if it exists
+      if (formData.bundle) {
+        formDataToSend.append("bundle", formData.bundle);
+        console.log("Bundle File:", formData.bundle.name);
       }
 
       // Log the FormData contents (for debugging)
@@ -475,6 +486,14 @@ export function Form() {
               required
               variant="craft"
               helperText="Format Penamaan: Bukti Story CRAFT_Nama Peserta"
+            />
+            <FileInput
+              label="Formulir Bundle (Jika Ada)"
+              accept="application/pdf"
+              name="bundle"
+              onChange={(e) => handleFileChange("bundle", e.target.files?.[0] || null)}
+              variant="craft"
+              helperText="Format Penamaan: Bundle_Nama Peserta"
             />
 
             {/* Submit Button */}

@@ -31,7 +31,7 @@ export const DesktopLayout = () => {
           />
           <Image
             src="/assets/craft/title_craft.png"
-            alt="FCEC Banner"
+            alt="Craft Banner"
             className="h-64 xl:h-[20rem] 2xl:h-[24rem] w-auto relative z-[4]"
             width={1000}
             height={1000}
