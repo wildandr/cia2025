@@ -222,7 +222,7 @@ export default function DashboardAdmin() {
                     <td className="px-[0.6rem] py-2 rounded-r-xl">
                       <div className="flex-col flex gap-2 md:flex-row">
                         <Link
-                          href={`/admin/craft/${registration.user_id}`}
+                          href={`/admin/craft/${registration.participant_id}`}
                           className="bg-green-600/80 text-white text-[13px] lg:text-[16px] text-center rounded-md px-3 py-1 w-full"
                         >
                           Lihat Detail
