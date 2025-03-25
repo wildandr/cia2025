@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       screens: {
         "custom-410": "410px",
+        "custom-480": "480px",
         "custom-580": "580px",
       },
       backgroundImage: {

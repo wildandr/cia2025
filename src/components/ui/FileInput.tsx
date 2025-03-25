@@ -8,7 +8,7 @@ interface FileInputProps extends InputHTMLAttributes<HTMLInputElement> {
   required?: boolean;
   helperText?: string;
   variant?: FileInputVariant;
-  fileName?: string; // Add this line to include fileName in the props
+  fileName?: string;
 }
 
 export const FileInput = ({ 
@@ -17,7 +17,7 @@ export const FileInput = ({
   helperText, 
   variant = 'sbc',
   className,
-  fileName, // Add this to the destructured props
+  fileName,
   ...props 
 }: FileInputProps) => {
   const variantStyles: Record<FileInputVariant, string> = {
@@ -43,11 +43,9 @@ export const FileInput = ({
             variantStyles[variant],
             className
           )}
-          required={required}
           {...props}
         />
       </div>
-     
     </div>
   );
 };

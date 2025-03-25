@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import axiosInstance from "@/lib/utlis/axiosInstance"; // Ganti axios dengan axiosInstance
+import axiosInstance from "@/lib/utils/axiosInstance"; // Ganti axios dengan axiosInstance
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import {

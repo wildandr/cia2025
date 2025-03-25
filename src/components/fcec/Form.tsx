@@ -22,7 +22,7 @@ interface TeamMember {
   batch: string;
   nim: string;
   semester: number;
-  ktm?: File; // Ubah dari identity_card menjadi ktm
+  ktm?: File;
   active_student_letter?: File;
   photo?: File;
 }
@@ -49,76 +49,109 @@ interface FormData {
 
 export function Form() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
-    team_name: "",
-    institution_name: "",
-    user_id: user?.id || 1, // Default to 1 if user.id is not available
-    email: "",
-    abstract_title: "",
-    abstract_video_link: "no_video", // Set default value here
-    abstract_file: undefined,
-    originality_statement: undefined,
-    leader: {
-      full_name: "",
-      phone_number: "",
-      line_id: "",
+
+  // Inisialisasi state dari localStorage jika ada
+  const getInitialFormData = (): FormData => {
+    const savedFormData = localStorage.getItem("formData");
+    if (savedFormData) {
+      const parsedData = JSON.parse(savedFormData);
+      // Kosongkan file karena file tidak dapat disimpan di localStorage
+      return {
+        ...parsedData,
+        abstract_file: undefined,
+        originality_statement: undefined,
+        leader: {
+          ...parsedData.leader,
+          ktm: undefined,
+          active_student_letter: undefined,
+          photo: undefined,
+        },
+        members: parsedData.members.map((member: TeamMember) => ({
+          ...member,
+          ktm: undefined,
+          active_student_letter: undefined,
+          photo: undefined,
+        })),
+      };
+    }
+    return {
+      team_name: "",
+      institution_name: "",
+      user_id: user?.id || 1,
       email: "",
-      twibbon_and_poster_link: "",
-      is_leader: 1,
-      department: "",
-      batch: "no",
-      nim: "no",
-      semester: 2,
-      ktm: undefined, // Ubah dari identity_card menjadi ktm
-      active_student_letter: undefined,
-      photo: undefined,
-    },
-    members: [
-      {
+      abstract_title: "",
+      abstract_video_link: "no_video",
+      abstract_file: undefined,
+      originality_statement: undefined,
+      leader: {
         full_name: "",
         phone_number: "",
         line_id: "",
         email: "",
         twibbon_and_poster_link: "",
-        is_leader: 0,
+        is_leader: 1,
         department: "",
         batch: "no",
         nim: "no",
         semester: 2,
-        ktm: undefined, // Ubah dari identity_card menjadi ktm
+        ktm: undefined,
         active_student_letter: undefined,
         photo: undefined,
       },
-      {
-        full_name: "",
-        phone_number: "",
-        line_id: "",
-        email: "",
-        twibbon_and_poster_link: "",
-        is_leader: 0,
-        department: "",
-        batch: "no",
-        nim: "no",
-        semester: 2,
-        ktm: undefined, // Ubah dari identity_card menjadi ktm
-        active_student_letter: undefined,
-        photo: undefined,
-      },
-    ],
-  });
+      members: [
+        {
+          full_name: "",
+          phone_number: "",
+          line_id: "",
+          email: "",
+          twibbon_and_poster_link: "",
+          is_leader: 0,
+          department: "",
+          batch: "no",
+          nim: "no",
+          semester: 2,
+          ktm: undefined,
+          active_student_letter: undefined,
+          photo: undefined,
+        },
+        {
+          full_name: "",
+          phone_number: "",
+          line_id: "",
+          email: "",
+          twibbon_and_poster_link: "",
+          is_leader: 0,
+          department: "",
+          batch: "no",
+          nim: "no",
+          semester: 2,
+          ktm: undefined,
+          active_student_letter: undefined,
+          photo: undefined,
+        },
+      ],
+    };
+  };
+
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData>(getInitialFormData());
+
+  // Simpan formData ke localStorage setiap kali berubah
+  useEffect(() => {
+    localStorage.setItem("formData", JSON.stringify(formData));
+  }, [formData]);
 
   // Deteksi autofill menggunakan animationstart
   useEffect(() => {
     const handleAutofill = (e: Event) => {
-      if (e.type === "animationstart" && (e as AnimationEvent).animationName === "autofill") {
+      if (
+        e.type === "animationstart" &&
+        (e as AnimationEvent).animationName === "autofill"
+      ) {
         const input = e.target as HTMLInputElement;
         const name = input.name;
         const value = input.value;
 
-        console.log(`Autofill detected on input: ${name}, value: ${value}`);
-
-        // Update state berdasarkan nama input
         if (name === "email") {
           handleTeamInfoChange("email", value);
         } else if (name === "team_name") {
@@ -158,7 +191,12 @@ export function Form() {
             } else if (name === `member${index}_line_id`) {
               handleMemberChange("member", index, "line_id", value);
             } else if (name === `member${index}_twibbon_and_poster_link`) {
-              handleMemberChange("member", index, "twibbon_and_poster_link", value);
+              handleMemberChange(
+                "member",
+                index,
+                "twibbon_and_poster_link",
+                value
+              );
             } else if (name === `member${index}_department`) {
               handleMemberChange("member", index, "department", value);
             } else if (name === `member${index}_batch`) {
@@ -166,7 +204,12 @@ export function Form() {
             } else if (name === `member${index}_nim`) {
               handleMemberChange("member", index, "nim", value);
             } else if (name === `member${index}_semester`) {
-              handleMemberChange("member", index, "semester", parseInt(value) || 0);
+              handleMemberChange(
+                "member",
+                index,
+                "semester",
+                parseInt(value) || 0
+              );
             }
           });
         }
@@ -180,6 +223,7 @@ export function Form() {
   const validateTextFields = () => {
     const errors: string[] = [];
 
+    // Validasi untuk informasi tim
     if (!formData.team_name.trim()) {
       errors.push("Nama Tim wajib diisi");
     }
@@ -196,6 +240,7 @@ export function Form() {
       errors.push("Link Video Abstrak wajib diisi");
     }
 
+    // Validasi untuk Ketua
     if (!formData.leader.full_name.trim()) {
       errors.push("Nama Lengkap Ketua wajib diisi");
     }
@@ -211,19 +256,8 @@ export function Form() {
     if (!formData.leader.twibbon_and_poster_link.trim()) {
       errors.push("Link Bukti Upload Twibbon Ketua wajib diisi");
     }
-    if (!formData.leader.department.trim()) {
-      errors.push("Jurusan Ketua wajib diisi");
-    }
-    if (!formData.leader.batch.trim()) {
-      errors.push("Angkatan Ketua wajib diisi");
-    }
-    if (!formData.leader.nim.trim()) {
-      errors.push("NIM Ketua wajib diisi");
-    }
-    if (formData.leader.semester <= 0) {
-      errors.push("Semester Ketua wajib diisi dengan angka lebih dari 0");
-    }
 
+    // Validasi untuk Anggota 1
     if (!formData.members[0].full_name.trim()) {
       errors.push("Nama Lengkap Anggota 1 wajib diisi");
     }
@@ -239,63 +273,8 @@ export function Form() {
     if (!formData.members[0].twibbon_and_poster_link.trim()) {
       errors.push("Link Bukti Upload Twibbon Anggota 1 wajib diisi");
     }
-    if (!formData.members[0].department.trim()) {
-      errors.push("Jurusan Anggota 1 wajib diisi");
-    }
-    if (!formData.members[0].batch.trim()) {
-      errors.push("Angkatan Anggota 1 wajib diisi");
-    }
-    if (!formData.members[0].nim.trim()) {
-      errors.push("NIM Anggota 1 wajib diisi");
-    }
-    if (formData.members[0].semester <= 0) {
-      errors.push("Semester Anggota 1 wajib diisi dengan angka lebih dari 0");
-    }
-
-    // Anggota 2 bersifat opsional, tetapi jika salah satu field diisi, semua field wajib diisi
-    const member2Fields = [
-      formData.members[1].full_name,
-      formData.members[1].email,
-      formData.members[1].phone_number,
-      formData.members[1].line_id,
-      formData.members[1].twibbon_and_poster_link,
-      formData.members[1].department,
-      formData.members[1].batch,
-      formData.members[1].nim,
-    ];
-    const member2HasData = member2Fields.some((field) => field.trim() !== "");
-    if (member2HasData) {
-      if (!formData.members[1].full_name.trim()) {
-        errors.push("Nama Lengkap Anggota 2 wajib diisi jika salah satu field Anggota 2 diisi");
-      }
-      if (!formData.members[1].email.trim()) {
-        errors.push("Email Anggota 2 wajib diisi jika salah satu field Anggota 2 diisi");
-      }
-      if (!formData.members[1].phone_number.trim()) {
-        errors.push("Nomor Whatsapp Anggota 2 wajib diisi jika salah satu field Anggota 2 diisi");
-      }
-      if (!formData.members[1].line_id.trim()) {
-        errors.push("ID Line Anggota 2 wajib diisi jika salah satu field Anggota 2 diisi");
-      }
-      if (!formData.members[1].twibbon_and_poster_link.trim()) {
-        errors.push("Link Bukti Upload Twibbon Anggota 2 wajib diisi jika salah satu field Anggota 2 diisi");
-      }
-      if (!formData.members[1].department.trim()) {
-        errors.push("Jurusan Anggota 2 wajib diisi jika salah satu field Anggota 2 diisi");
-      }
-      if (!formData.members[1].batch.trim()) {
-        errors.push("Angkatan Anggota 2 wajib diisi jika salah satu field Anggota 2 diisi");
-      }
-      if (!formData.members[1].nim.trim()) {
-        errors.push("NIM Anggota 2 wajib diisi jika salah satu field Anggota 2 diisi");
-      }
-      if (formData.members[1].semester <= 0) {
-        errors.push("Semester Anggota 2 wajib diisi dengan angka lebih dari 0 jika salah satu field Anggota 2 diisi");
-      }
-    }
 
     if (errors.length > 0) {
-      console.log("Text Field Validation Errors:", errors);
       toast.error(`Silakan lengkapi data berikut:\n${errors.join("\n")}`, {
         position: "top-right",
         autoClose: 5000,
@@ -312,24 +291,25 @@ export function Form() {
 
   const validateFiles = () => {
     const errors: string[] = [];
-    const maxFileSize = 500 * 1024; // 500KB in bytes
+    const maxFileSize = 500 * 1024;
 
-    // Helper function to check file size
     const checkFileSize = (file: File | undefined, fileLabel: string) => {
       if (file && file.size > maxFileSize) {
         errors.push(`${fileLabel} melebihi ukuran maksimum 500KB`);
       }
     };
 
-    // Check for missing required files
+    // Validasi file untuk informasi tim
     if (!formData.abstract_file) {
       errors.push("File Abstrak wajib diupload");
     }
     if (!formData.originality_statement) {
       errors.push("Surat Pernyataan Orisinalitas wajib diupload");
     }
-    if (!formData.leader.ktm) { // Ubah dari identity_card menjadi ktm
-      errors.push("Kartu Tanda Pengal Ketua wajib diupload");
+
+    // Validasi file untuk Ketua
+    if (!formData.leader.ktm) {
+      errors.push("Kartu Tanda Pengenal Ketua wajib diupload");
     }
     if (!formData.leader.active_student_letter) {
       errors.push("Surat Pernyataan Siswa Aktif Ketua wajib diupload");
@@ -337,7 +317,9 @@ export function Form() {
     if (!formData.leader.photo) {
       errors.push("Pas Foto Ketua wajib diupload");
     }
-    if (!formData.members[0].ktm) { // Ubah dari identity_card menjadi ktm
+
+    // Validasi file untuk Anggota 1
+    if (!formData.members[0].ktm) {
       errors.push("Kartu Tanda Pengenal Anggota 1 wajib diupload");
     }
     if (!formData.members[0].active_student_letter) {
@@ -347,44 +329,17 @@ export function Form() {
       errors.push("Pas Foto Anggota 1 wajib diupload");
     }
 
-    // Anggota 2 bersifat opsional, tetapi jika data teks diisi, file juga wajib diupload
-    const member2HasData =
-      formData.members[1].full_name.trim() ||
-      formData.members[1].email.trim() ||
-      formData.members[1].phone_number.trim() ||
-      formData.members[1].line_id.trim() ||
-      formData.members[1].twibbon_and_poster_link.trim() ||
-      formData.members[1].department.trim() ||
-      formData.members[1].batch.trim() ||
-      formData.members[1].nim.trim() ||
-      formData.members[1].semester > 0;
-    if (member2HasData) {
-      if (!formData.members[1].ktm) { // Ubah dari identity_card menjadi ktm
-        errors.push("Kartu Tanda Pengenal Anggota 2 wajib diupload jika data Anggota 2 diisi");
-      }
-      if (!formData.members[1].active_student_letter) {
-        errors.push("Surat Pernyataan Siswa Aktif Anggota 2 wajib diupload jika data Anggota 2 diisi");
-      }
-      if (!formData.members[1].photo) {
-        errors.push("Pas Foto Anggota 2 wajib diupload jika data Anggota 2 diisi");
-      }
-    }
-
-    // Check file sizes for all uploaded files
+    // Pengecekan ukuran file
     checkFileSize(formData.abstract_file, "File Abstrak");
     checkFileSize(formData.originality_statement, "Surat Pernyataan Orisinalitas");
-    checkFileSize(formData.leader.ktm, "Kartu Tanda Pengenal Ketua"); // Ubah dari identity_card menjadi ktm
+    checkFileSize(formData.leader.ktm, "Kartu Tanda Pengenal Ketua");
     checkFileSize(formData.leader.active_student_letter, "Surat Pernyataan Siswa Aktif Ketua");
     checkFileSize(formData.leader.photo, "Pas Foto Ketua");
-    checkFileSize(formData.members[0].ktm, "Kartu Tanda Pengenal Anggota 1"); // Ubah dari identity_card menjadi ktm
+    checkFileSize(formData.members[0].ktm, "Kartu Tanda Pengenal Anggota 1");
     checkFileSize(formData.members[0].active_student_letter, "Surat Pernyataan Siswa Aktif Anggota 1");
     checkFileSize(formData.members[0].photo, "Pas Foto Anggota 1");
-    checkFileSize(formData.members[1].ktm, "Kartu Tanda Pengenal Anggota 2"); // Ubah dari identity_card menjadi ktm
-    checkFileSize(formData.members[1].active_student_letter, "Surat Pernyataan Siswa Aktif Anggota 2");
-    checkFileSize(formData.members[1].photo, "Pas Foto Anggota 2");
 
     if (errors.length > 0) {
-      console.log("File Validation Errors:", errors);
       toast.error(`Silakan periksa dokumen berikut:\n${errors.join("\n")}`, {
         position: "top-right",
         autoClose: 5000,
@@ -401,36 +356,29 @@ export function Form() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log("Form submission triggered");
     setLoading(true);
 
     try {
-      console.log("Starting form submission...");
       if (!validateTextFields()) {
-        console.log("Text field validation failed. Submission stopped.");
         setLoading(false);
         return;
       }
 
       if (!validateFiles()) {
-        console.log("File validation failed. Submission stopped.");
         setLoading(false);
         return;
       }
 
       const token = Cookies.get("token");
-      console.log("Token:", token);
 
-      // Prepare the team data
       const teamData = {
         team_name: formData.team_name,
         institution_name: formData.institution_name,
         user_id: formData.user_id || 1,
         email: formData.email,
-        payment_proof: "", // Sesuai expected response, field ini ada tetapi kosong
+        payment_proof: "",
       };
 
-      // Prepare the leader data (excluding files)
       const leaderData = {
         full_name: formData.leader.full_name,
         phone_number: formData.leader.phone_number,
@@ -444,9 +392,8 @@ export function Form() {
         semester: formData.leader.semester,
       };
 
-      // Prepare the members data (excluding files)
       const membersData = formData.members
-        .filter((member) => member.full_name.trim() !== "") // Hanya kirim anggota yang memiliki data
+        .filter((member) => member.full_name.trim() !== "")
         .map((member) => ({
           full_name: member.full_name,
           phone_number: member.phone_number,
@@ -460,13 +407,11 @@ export function Form() {
           semester: member.semester,
         }));
 
-      // Prepare the FCEC data
       const fcecData = {
         abstract_title: formData.abstract_title,
         abstract_video_link: formData.abstract_video_link,
       };
 
-      // Combine all data into a single object
       const combinedData = {
         team: teamData,
         leader: leaderData,
@@ -474,61 +419,38 @@ export function Form() {
         fcec: fcecData,
       };
 
-      // Log the data being sent
-      console.log("Combined Data:", combinedData);
-
-      // Create FormData object
       const formDataToSend = new FormData();
-
-      // Append the combined data as a JSON string under the 'data' key
       formDataToSend.append("data", JSON.stringify(combinedData));
 
-      // Append team files
       if (formData.abstract_file) {
         formDataToSend.append("abstract_file", formData.abstract_file);
-        console.log("Abstract File:", formData.abstract_file.name);
       }
       if (formData.originality_statement) {
         formDataToSend.append("originality_statement", formData.originality_statement);
-        console.log("Originality Statement File:", formData.originality_statement.name);
       }
 
-      // Append leader files
-      if (formData.leader.ktm) { // Ubah dari identity_card menjadi ktm
-        formDataToSend.append("leader_ktm", formData.leader.ktm); // Ubah key menjadi leader_ktm
-        console.log("Leader KTM File:", formData.leader.ktm.name); // Ubah log
+      if (formData.leader.ktm) {
+        formDataToSend.append("leader_ktm", formData.leader.ktm);
       }
       if (formData.leader.active_student_letter) {
         formDataToSend.append("leader_active_student_letter", formData.leader.active_student_letter);
-        console.log("Leader Active Student Letter File:", formData.leader.active_student_letter.name);
       }
       if (formData.leader.photo) {
         formDataToSend.append("leader_photo", formData.leader.photo);
-        console.log("Leader Photo File:", formData.leader.photo.name);
       }
 
-      // Append member files
       formData.members.forEach((member, index) => {
         if (member.full_name.trim() !== "") {
-          if (member.ktm) { // Ubah dari identity_card menjadi ktm
-            formDataToSend.append(`member${index + 1}_ktm`, member.ktm); // Ubah key menjadi memberX_ktm
-            console.log(`Member ${index + 1} KTM File:`, member.ktm.name); // Ubah log
+          if (member.ktm) {
+            formDataToSend.append(`member${index + 1}_ktm`, member.ktm);
           }
           if (member.active_student_letter) {
             formDataToSend.append(`member${index + 1}_active_student_letter`, member.active_student_letter);
-            console.log(`Member ${index + 1} Active Student Letter File:`, member.active_student_letter.name);
           }
           if (member.photo) {
             formDataToSend.append(`member${index + 1}_photo`, member.photo);
-            console.log(`Member ${index + 1} Photo File:`, member.photo.name);
           }
         }
-      });
-
-      // Log the FormData contents (for debugging)
-      console.log("Submitting to:", `${process.env.NEXT_PUBLIC_BASE_URL}/teams/fcec/new`);
-      Array.from(formDataToSend.entries()).forEach(([key, value]) => {
-        console.log(`FormData Entry - ${key}:`, value);
       });
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/teams/fcec/new`, {
@@ -539,9 +461,7 @@ export function Form() {
         body: formDataToSend,
       });
 
-      console.log("Response status:", response.status);
       const responseData = await response.json();
-      console.log("Response data:", responseData);
 
       if (!response.ok) {
         throw new Error(responseData.message || "Unknown error occurred during submission");
@@ -555,8 +475,11 @@ export function Form() {
         pauseOnHover: true,
         draggable: true,
       });
+
+      // Bersihkan localStorage setelah berhasil submit
+      localStorage.removeItem("formData");
+      setFormData(getInitialFormData());
     } catch (error: any) {
-      console.error("Submission Error:", error.message);
       toast.error(`Failed to submit form: ${error.message}`, {
         position: "top-right",
         autoClose: 5000,
@@ -567,7 +490,6 @@ export function Form() {
       });
     } finally {
       setLoading(false);
-      console.log("Submission process completed. Loading state:", loading);
     }
   };
 
@@ -576,7 +498,6 @@ export function Form() {
       ...prev,
       [field]: value || "",
     }));
-    console.log(`Team Info Updated - ${field}:`, value);
   };
 
   const handleMemberChange = (
@@ -593,15 +514,18 @@ export function Form() {
           [field]: value || (typeof value === "number" ? 0 : ""),
         },
       }));
-      console.log(`Leader Updated - ${field}:`, value);
     } else if (type === "member" && index !== null) {
       setFormData((prev) => ({
         ...prev,
         members: prev.members.map((member, i) =>
-          i === index ? { ...member, [field]: value || (typeof value === "number" ? 0 : "") } : member
+          i === index
+            ? {
+                ...member,
+                [field]: value || (typeof value === "number" ? 0 : ""),
+              }
+            : member
         ),
       }));
-      console.log(`Member ${index + 1} Updated - ${field}:`, value);
     }
   };
 
@@ -618,7 +542,6 @@ export function Form() {
         ...prev,
         [field]: file,
       }));
-      console.log(`Team File Updated - ${field}:`, file.name);
     } else if (type === "leader") {
       setFormData((prev) => ({
         ...prev,
@@ -627,7 +550,6 @@ export function Form() {
           [field]: file,
         },
       }));
-      console.log(`Leader File Updated - ${field}:`, file.name);
     } else if (type === "member" && index !== null) {
       setFormData((prev) => ({
         ...prev,
@@ -635,14 +557,12 @@ export function Form() {
           i === index ? { ...member, [field]: file } : member
         ),
       }));
-      console.log(`Member ${index + 1} File Updated - ${field}:`, file.name);
     }
   };
 
   const isAuthenticated = useAuthCheck();
 
   if (!isAuthenticated) {
-    console.log("User not authenticated. Rendering null.");
     return null;
   }
 
@@ -650,7 +570,6 @@ export function Form() {
 
   const handleTabChange = (tab: "ketua" | "anggota1" | "anggota2") => {
     setActiveTab(tab);
-    console.log("Active Tab Changed:", tab);
   };
 
   return (
@@ -668,8 +587,7 @@ export function Form() {
                     <ol className="list-[lower-alpha] pl-5">
                       {instruction.documents.map((doc, docIndex) => (
                         <li key={docIndex} className="mb-1">
-                          {doc.description} Format penamaan file: {doc.format}{" "}
-                          Contoh: {doc.example}
+                          {doc.description} Format penamaan file: {doc.format} Contoh: {doc.example}
                         </li>
                       ))}
                     </ol>
@@ -718,24 +636,32 @@ export function Form() {
               onChange={(e) => handleTeamInfoChange("abstract_title", e.target.value)}
               required
             />
-            <FileInput
-              label="File Abstrak"
-              accept="application/pdf, image/*"
-              name="abstract_file"
-              onChange={(e) => handleFileChange("team", null, "abstract_file", e.target.files?.[0] || null)}
-              required
-              variant="fcec"
-              helperText="Format Penamaan: Nama Tim_Abstrak"
-            />
-            <FileInput
-              label="Surat Pernyataan Orisinalitas"
-              accept="application/pdf, image/*"
-              name="originality_statement"
-              onChange={(e) => handleFileChange("team", null, "originality_statement", e.target.files?.[0] || null)}
-              required
-              variant="fcec"
-              helperText="Format Penamaan: Nama Tim_Surat Pernyataan Orisinalitas"
-            />
+            <div>
+              <FileInput
+                label="File Abstrak"
+                accept="application/pdf, image/*"
+                name="abstract_file"
+                onChange={(e) =>
+                  handleFileChange("team", null, "abstract_file", e.target.files?.[0] || null)
+                }
+                required
+                variant="fcec"
+                helperText="Format Penamaan: Nama Tim_Abstrak"
+              />
+            </div>
+            <div>
+              <FileInput
+                label="Surat Pernyataan Orisinalitas"
+                accept="application/pdf, image/*"
+                name="originality_statement"
+                onChange={(e) =>
+                  handleFileChange("team", null, "originality_statement", e.target.files?.[0] || null)
+                }
+                required
+                variant="fcec"
+                helperText="Format Penamaan: Nama Tim_Surat Pernyataan Orisinalitas"
+              />
+            </div>
 
             {/* Tabs Section */}
             <div className="w-full mt-[3%]">
@@ -768,73 +694,73 @@ export function Form() {
                   </div>
                 </div>
 
-                {/* Tab Content */}
+                {/* Tab Content - Render semua tab, sembunyikan dengan CSS */}
                 <div className="flex flex-col gap-4 p-4">
-                  {activeTab === "ketua" && (
-                    <>
-                      <Input
-                        label="Nama Lengkap"
-                        type="text"
-                        name="leader_full_name"
-                        autoComplete="name"
-                        value={formData.leader.full_name}
-                        onChange={(e) => handleMemberChange("leader", null, "full_name", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="Email"
-                        type="email"
-                        name="leader_email"
-                        autoComplete="email"
-                        value={formData.leader.email}
-                        onChange={(e) => handleMemberChange("leader", null, "email", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="Nomor Whatsapp"
-                        type="text"
-                        name="leader_phone_number"
-                        autoComplete="tel"
-                        value={formData.leader.phone_number}
-                        onChange={(e) => handleMemberChange("leader", null, "phone_number", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="ID Line"
-                        type="text"
-                        name="leader_line_id"
-                        autoComplete="off"
-                        value={formData.leader.line_id}
-                        onChange={(e) => handleMemberChange("leader", null, "line_id", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="Link Bukti Upload Twibbon"
-                        type="text"
-                        name="leader_twibbon_and_poster_link"
-                        autoComplete="url"
-                        value={formData.leader.twibbon_and_poster_link}
-                        onChange={(e) => handleMemberChange("leader", null, "twibbon_and_poster_link", e.target.value)}
-                        required
-                      />
-                        <Input
-                        label="Asal Sekolah"
-                        type="text"
-                        name="leader_department"
-                        autoComplete="off"
-                        value={formData.members[1].department}
-                        onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
-                      />
-                     
+                  {/* Tab Ketua */}
+                  <div
+                    className={`flex flex-col gap-4 ${activeTab === "ketua" ? "block" : "hidden"}`}
+                  >
+                    <Input
+                      label="Nama Lengkap"
+                      type="text"
+                      name="leader_full_name"
+                      autoComplete="name"
+                      value={formData.leader.full_name}
+                      onChange={(e) => handleMemberChange("leader", null, "full_name", e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="Email"
+                      type="email"
+                      name="leader_email"
+                      autoComplete="email"
+                      value={formData.leader.email}
+                      onChange={(e) => handleMemberChange("leader", null, "email", e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="Nomor Whatsapp"
+                      type="text"
+                      name="leader_phone_number"
+                      autoComplete="tel"
+                      value={formData.leader.phone_number}
+                      onChange={(e) => handleMemberChange("leader", null, "phone_number", e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="ID Line"
+                      type="text"
+                      name="leader_line_id"
+                      autoComplete="off"
+                      value={formData.leader.line_id}
+                      onChange={(e) => handleMemberChange("leader", null, "line_id", e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="Link Bukti Upload Twibbon"
+                      type="text"
+                      name="leader_twibbon_and_poster_link"
+                      autoComplete="url"
+                      value={formData.leader.twibbon_and_poster_link}
+                      onChange={(e) =>
+                        handleMemberChange("leader", null, "twibbon_and_poster_link", e.target.value)
+                      }
+                      required
+                    />
+                    <div>
                       <FileInput
-                        label="Kartu Tanda Pengenal" // Ubah label menjadi KTM
+                        label="Kartu Tanda Pengenal"
                         accept="application/pdf, image/*"
-                        name="leader_ktm" // Ubah name menjadi leader_ktm
-                        onChange={(e) => handleFileChange("leader", null, "ktm", e.target.files?.[0] || null)} // Ubah field menjadi ktm
+                        name="leader_ktm"
+                        onChange={(e) =>
+                          handleFileChange("leader", null, "ktm", e.target.files?.[0] || null)
+                        }
                         required
                         variant="fcec"
-                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap" // Ubah helperText
+                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap"
                       />
+                    </div>
+                    <div>
                       <FileInput
                         label="Surat Pernyataan Siswa Aktif"
                         accept="application/pdf, image/*"
@@ -846,82 +772,87 @@ export function Form() {
                         variant="fcec"
                         helperText="Format Penamaan: Nama Tim_Surat Pernyataan Siswa Aktif_Nama Lengkap"
                       />
+                    </div>
+                    <div>
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="application/pdf, image/*"
                         name="leader_photo"
-                        onChange={(e) => handleFileChange("leader", null, "photo", e.target.files?.[0] || null)}
+                        onChange={(e) =>
+                          handleFileChange("leader", null, "photo", e.target.files?.[0] || null)
+                        }
                         required
                         variant="fcec"
                         helperText="Format Penamaan: Nama Tim_Pas Foto_Nama Lengkap"
                       />
-                    </>
-                  )}
+                    </div>
+                  </div>
 
-                  {activeTab === "anggota1" && (
-                    <>
-                      <Input
-                        label="Nama Lengkap"
-                        type="text"
-                        name="member0_full_name"
-                        autoComplete="name"
-                        value={formData.members[0].full_name}
-                        onChange={(e) => handleMemberChange("member", 0, "full_name", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="Email"
-                        type="email"
-                        name="member0_email"
-                        autoComplete="email"
-                        value={formData.members[0].email}
-                        onChange={(e) => handleMemberChange("member", 0, "email", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="Nomor Whatsapp"
-                        type="text"
-                        name="member0_phone_number"
-                        autoComplete="tel"
-                        value={formData.members[0].phone_number}
-                        onChange={(e) => handleMemberChange("member", 0, "phone_number", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="ID Line"
-                        type="text"
-                        name="member0_line_id"
-                        autoComplete="off"
-                        value={formData.members[0].line_id}
-                        onChange={(e) => handleMemberChange("member", 0, "line_id", e.target.value)}
-                        required
-                      />
-                      <Input
-                        label="Link Bukti Upload Twibbon"
-                        type="text"
-                        name="member0_twibbon_and_poster_link"
-                        autoComplete="url"
-                        value={formData.members[0].twibbon_and_poster_link}
-                        onChange={(e) => handleMemberChange("member", 0, "twibbon_and_poster_link", e.target.value)}
-                        required
-                      />
-                       <Input
-                        label="Asal Sekolah"
-                        type="text"
-                        name="member0_department"
-                        autoComplete="off"
-                        value={formData.members[0].department}
-                        onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
-                      />
+                  {/* Tab Anggota 1 */}
+                  <div
+                    className={`flex flex-col gap-4 ${activeTab === "anggota1" ? "block" : "hidden"}`}
+                  >
+                    <Input
+                      label="Nama Lengkap"
+                      type="text"
+                      name="member0_full_name"
+                      autoComplete="name"
+                      value={formData.members[0].full_name}
+                      onChange={(e) => handleMemberChange("member", 0, "full_name", e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="Email"
+                      type="email"
+                      name="member0_email"
+                      autoComplete="email"
+                      value={formData.members[0].email}
+                      onChange={(e) => handleMemberChange("member", 0, "email", e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="Nomor Whatsapp"
+                      type="text"
+                      name="member0_phone_number"
+                      autoComplete="tel"
+                      value={formData.members[0].phone_number}
+                      onChange={(e) => handleMemberChange("member", 0, "phone_number", e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="ID Line"
+                      type="text"
+                      name="member0_line_id"
+                      autoComplete="off"
+                      value={formData.members[0].line_id}
+                      onChange={(e) => handleMemberChange("member", 0, "line_id", e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="Link Bukti Upload Twibbon"
+                      type="text"
+                      name="member0_twibbon_and_poster_link"
+                      autoComplete="url"
+                      value={formData.members[0].twibbon_and_poster_link}
+                      onChange={(e) =>
+                        handleMemberChange("member", 0, "twibbon_and_poster_link", e.target.value)
+                      }
+                      required
+                    />
+                    <div>
                       <FileInput
-                        label="Kartu Tanda Pengenal" // Ubah label menjadi KTM
+                        label="Kartu Tanda Pengenal"
                         accept="application/pdf, image/*"
-                        name="member0_ktm" // Ubah name menjadi member0_ktm
-                        onChange={(e) => handleFileChange("member", 0, "ktm", e.target.files?.[0] || null)} // Ubah field menjadi ktm
+                        name="member0_ktm"
+                        onChange={(e) =>
+                          handleFileChange("member", 0, "ktm", e.target.files?.[0] || null)
+                        }
                         required
                         variant="fcec"
-                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap" // Ubah helperText
+                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap"
                       />
+                    </div>
+                    <div>
                       <FileInput
                         label="Surat Pernyataan Siswa Aktif"
                         accept="application/pdf, image/*"
@@ -933,76 +864,81 @@ export function Form() {
                         variant="fcec"
                         helperText="Format Penamaan: Nama Tim_Surat Pernyataan Siswa Aktif_Nama Lengkap"
                       />
+                    </div>
+                    <div>
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="application/pdf, image/*"
                         name="member0_photo"
-                        onChange={(e) => handleFileChange("member", 0, "photo", e.target.files?.[0] || null)}
+                        onChange={(e) =>
+                          handleFileChange("member", 0, "photo", e.target.files?.[0] || null)
+                        }
                         required
                         variant="fcec"
                         helperText="Format Penamaan: Nama Tim_Pas Foto_Nama Lengkap"
                       />
-                    </>
-                  )}
+                    </div>
+                  </div>
 
-                  {activeTab === "anggota2" && (
-                    <>
-                      <Input
-                        label="Nama Lengkap"
-                        type="text"
-                        name="member1_full_name"
-                        autoComplete="name"
-                        value={formData.members[1].full_name}
-                        onChange={(e) => handleMemberChange("member", 1, "full_name", e.target.value)}
-                      />
-                      <Input
-                        label="Email"
-                        type="email"
-                        name="member1_email"
-                        autoComplete="email"
-                        value={formData.members[1].email}
-                        onChange={(e) => handleMemberChange("member", 1, "email", e.target.value)}
-                      />
-                      <Input
-                        label="Nomor Whatsapp"
-                        type="text"
-                        name="member1_phone_number"
-                        autoComplete="tel"
-                        value={formData.members[1].phone_number}
-                        onChange={(e) => handleMemberChange("member", 1, "phone_number", e.target.value)}
-                      />
-                      <Input
-                        label="ID Line"
-                        type="text"
-                        name="member1_line_id"
-                        autoComplete="off"
-                        value={formData.members[1].line_id}
-                        onChange={(e) => handleMemberChange("member", 1, "line_id", e.target.value)}
-                      />
-                      <Input
-                        label="Link Bukti Upload Twibbon"
-                        type="text"
-                        name="member1_twibbon_and_poster_link"
-                        autoComplete="url"
-                        value={formData.members[1].twibbon_and_poster_link}
-                        onChange={(e) => handleMemberChange("member", 1, "twibbon_and_poster_link", e.target.value)}
-                      />
-                      <Input
-                        label="Asal Sekolah"
-                        type="text"
-                        name="member1_department"
-                        autoComplete="off"
-                        value={formData.members[1].department}
-                        onChange={(e) => handleMemberChange("member", 1, "department", e.target.value)}
-                      />
+                  {/* Tab Anggota 2 */}
+                  <div
+                    className={`flex flex-col gap-4 ${activeTab === "anggota2" ? "block" : "hidden"}`}
+                  >
+                    <Input
+                      label="Nama Lengkap"
+                      type="text"
+                      name="member1_full_name"
+                      autoComplete="name"
+                      value={formData.members[1].full_name}
+                      onChange={(e) => handleMemberChange("member", 1, "full_name", e.target.value)}
+                    />
+                    <Input
+                      label="Email"
+                      type="email"
+                      name="member1_email"
+                      autoComplete="email"
+                      value={formData.members[1].email}
+                      onChange={(e) => handleMemberChange("member", 1, "email", e.target.value)}
+                    />
+                    <Input
+                      label="Nomor Whatsapp"
+                      type="text"
+                      name="member1_phone_number"
+                      autoComplete="tel"
+                      value={formData.members[1].phone_number}
+                      onChange={(e) => handleMemberChange("member", 1, "phone_number", e.target.value)}
+                    />
+                    <Input
+                      label="ID Line"
+                      type="text"
+                      name="member1_line_id"
+                      autoComplete="off"
+                      value={formData.members[1].line_id}
+                      onChange={(e) => handleMemberChange("member", 1, "line_id", e.target.value)}
+                    />
+                    <Input
+                      label="Link Bukti Upload Twibbon"
+                      type="text"
+                      name="member1_twibbon_and_poster_link"
+                      autoComplete="url"
+                      value={formData.members[1].twibbon_and_poster_link}
+                      onChange={(e) =>
+                        handleMemberChange("member", 1, "twibbon_and_poster_link", e.target.value)
+                      }
+                    />
+                    <div>
                       <FileInput
-                        label="Kartu Tanda Pengenal" // Ubah label menjadi KTM
+                        label="Kartu Tanda Pengenal"
                         accept="application/pdf, image/*"
-                        name="member1_ktm" // Ubah name menjadi member1_ktm
-                        onChange={(e) => handleFileChange("member", 1, "ktm", e.target.files?.[0] || null)} // Ubah field menjadi ktm
+                        name="member1_ktm"
+                        onChange={(e) =>
+                          handleFileChange("member", 1, "ktm", e.target.files?.[0] || null)
+                        }
                         variant="fcec"
-                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap" // Ubah helperText
+                        helperText="Format Penamaan: Nama Tim_Kartu Identitas_Nama Lengkap"
                       />
+                    </div>
+                    <div>
                       <FileInput
                         label="Surat Pernyataan Siswa Aktif"
                         accept="application/pdf, image/*"
@@ -1013,16 +949,20 @@ export function Form() {
                         variant="fcec"
                         helperText="Format Penamaan: Nama Tim_Surat Pernyataan Siswa Aktif_Nama Lengkap"
                       />
+                    </div>
+                    <div>
                       <FileInput
                         label="Pas Foto 3x4"
                         accept="application/pdf, image/*"
                         name="member1_photo"
-                        onChange={(e) => handleFileChange("member", 1, "photo", e.target.files?.[0] || null)}
+                        onChange={(e) =>
+                          handleFileChange("member", 1, "photo", e.target.files?.[0] || null)
+                        }
                         variant="fcec"
                         helperText="Format Penamaan: Nama Tim_Pas Foto_Nama Lengkap"
                       />
-                    </>
-                  )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1033,7 +973,6 @@ export function Form() {
                 variant="fcec-primary"
                 type="submit"
                 disabled={loading}
-                onClick={() => console.log("Submit button clicked")}
               >
                 {loading ? "Mengirim..." : "Kirim Formulir"}
               </Button>
