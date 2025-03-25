@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
-import axiosInstance, { isAxiosError } from "@/lib/utlis/axiosInstance";
+import axiosInstance, { isAxiosError } from "@/lib/utils/axiosInstance";
 
 interface UserEvent {
   user_id: number | null;
