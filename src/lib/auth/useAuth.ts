@@ -48,8 +48,8 @@ export const useAuth = (): UseAuthReturn => {
       const data = response.data;
 
       if (data.message === "User logged in successfully") {
-        Cookies.set("token", data.token, { expires: 7 });
-        Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
+        Cookies.set("token", data.token, { expires: 1 });
+        Cookies.set("user", JSON.stringify(data.user), { expires: 1 });
         if (data.user.isAdmin) {
           router.push("/admin");
         } else {
