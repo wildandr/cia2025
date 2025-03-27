@@ -3,7 +3,7 @@ import { Inter, Open_Sans, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-
+import { Analytics } from '@vercel/analytics/react';
 const inter = Inter({
   subsets: ["latin"],
 });
@@ -32,6 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${openSans.variable} ${plusJakarta.variable}`}>
       <body className={inter.className}>
+        <Analytics />
         <Navbar />
         {children}
         <Footer />

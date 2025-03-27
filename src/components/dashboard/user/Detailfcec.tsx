@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import axiosInstance from "@/lib/utlis/axiosInstance";
+import axiosInstance from "@/lib/utils/axiosInstance";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import JSZip from "jszip";

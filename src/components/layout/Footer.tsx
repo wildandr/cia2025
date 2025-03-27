@@ -52,9 +52,9 @@ export function Footer() {
           <h2 className="text-lg md:text-xl font-bold mb-2">Formulir</h2>
           <ul className="text-sm md:text-base space-y-1">
             <li>
-              <p className="hover:underline text-white/70">
-                Registrasi Peserta CRAFT(Coming Soon)
-              </p>
+              <Link href="/craft" className="hover:underline ">
+                Registrasi Peserta CRAFT
+              </Link>
             </li>
             <li>
               <Link href="/cic" className="hover:underline">
