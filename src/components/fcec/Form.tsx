@@ -50,46 +50,39 @@ interface FormData {
 export function Form() {
   const { user } = useAuth();
 
-  // Inisialisasi state dari localStorage jika ada
-  const getInitialFormData = (): FormData => {
-    const savedFormData = localStorage.getItem("formData");
-    if (savedFormData) {
-      const parsedData = JSON.parse(savedFormData);
-      // Kosongkan file karena file tidak dapat disimpan di localStorage
-      return {
-        ...parsedData,
-        abstract_file: undefined,
-        originality_statement: undefined,
-        leader: {
-          ...parsedData.leader,
-          ktm: undefined,
-          active_student_letter: undefined,
-          photo: undefined,
-        },
-        members: parsedData.members.map((member: TeamMember) => ({
-          ...member,
-          ktm: undefined,
-          active_student_letter: undefined,
-          photo: undefined,
-        })),
-      };
-    }
-    return {
-      team_name: "",
-      institution_name: "",
-      user_id: user?.id || 1,
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    team_name: "",
+    institution_name: "",
+    user_id: user?.id || 1,
+    email: "",
+    abstract_title: "",
+    abstract_video_link: "no_video",
+    abstract_file: undefined,
+    originality_statement: undefined,
+    leader: {
+      full_name: "",
+      phone_number: "",
+      line_id: "",
       email: "",
-      abstract_title: "",
-      abstract_video_link: "no_video",
-      abstract_file: undefined,
-      originality_statement: undefined,
-      leader: {
+      twibbon_and_poster_link: "",
+      is_leader: 1,
+      department: "",
+      batch: "no",
+      nim: "no",
+      semester: 2,
+      ktm: undefined,
+      active_student_letter: undefined,
+      photo: undefined,
+    },
+    members: [
+      {
         full_name: "",
         phone_number: "",
         line_id: "",
         email: "",
         twibbon_and_poster_link: "",
-        is_leader: 1,
+        is_leader: 0,
         department: "",
         batch: "no",
         nim: "no",
@@ -98,48 +91,23 @@ export function Form() {
         active_student_letter: undefined,
         photo: undefined,
       },
-      members: [
-        {
-          full_name: "",
-          phone_number: "",
-          line_id: "",
-          email: "",
-          twibbon_and_poster_link: "",
-          is_leader: 0,
-          department: "",
-          batch: "no",
-          nim: "no",
-          semester: 2,
-          ktm: undefined,
-          active_student_letter: undefined,
-          photo: undefined,
-        },
-        {
-          full_name: "",
-          phone_number: "",
-          line_id: "",
-          email: "",
-          twibbon_and_poster_link: "",
-          is_leader: 0,
-          department: "",
-          batch: "no",
-          nim: "no",
-          semester: 2,
-          ktm: undefined,
-          active_student_letter: undefined,
-          photo: undefined,
-        },
-      ],
-    };
-  };
-
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<FormData>(getInitialFormData());
-
-  // Simpan formData ke localStorage setiap kali berubah
-  useEffect(() => {
-    localStorage.setItem("formData", JSON.stringify(formData));
-  }, [formData]);
+      {
+        full_name: "",
+        phone_number: "",
+        line_id: "",
+        email: "",
+        twibbon_and_poster_link: "",
+        is_leader: 0,
+        department: "",
+        batch: "no",
+        nim: "no",
+        semester: 2,
+        ktm: undefined,
+        active_student_letter: undefined,
+        photo: undefined,
+      },
+    ],
+  });
 
   // Deteksi autofill menggunakan animationstart
   useEffect(() => {
@@ -476,9 +444,64 @@ export function Form() {
         draggable: true,
       });
 
-      // Bersihkan localStorage setelah berhasil submit
-      localStorage.removeItem("formData");
-      setFormData(getInitialFormData());
+      // Reset form to initial state after successful submission
+      setFormData({
+        team_name: "",
+        institution_name: "",
+        user_id: user?.id || 1,
+        email: "",
+        abstract_title: "",
+        abstract_video_link: "no_video",
+        abstract_file: undefined,
+        originality_statement: undefined,
+        leader: {
+          full_name: "",
+          phone_number: "",
+          line_id: "",
+          email: "",
+          twibbon_and_poster_link: "",
+          is_leader: 1,
+          department: "",
+          batch: "no",
+          nim: "no",
+          semester: 2,
+          ktm: undefined,
+          active_student_letter: undefined,
+          photo: undefined,
+        },
+        members: [
+          {
+            full_name: "",
+            phone_number: "",
+            line_id: "",
+            email: "",
+            twibbon_and_poster_link: "",
+            is_leader: 0,
+            department: "",
+            batch: "no",
+            nim: "no",
+            semester: 2,
+            ktm: undefined,
+            active_student_letter: undefined,
+            photo: undefined,
+          },
+          {
+            full_name: "",
+            phone_number: "",
+            line_id: "",
+            email: "",
+            twibbon_and_poster_link: "",
+            is_leader: 0,
+            department: "",
+            batch: "no",
+            nim: "no",
+            semester: 2,
+            ktm: undefined,
+            active_student_letter: undefined,
+            photo: undefined,
+          },
+        ],
+      });
     } catch (error: any) {
       toast.error(`Failed to submit form: ${error.message}`, {
         position: "top-right",

@@ -1,3 +1,4 @@
+// components/Form.tsx (SBC Form)
 "use client";
 import React, { useState, FormEvent, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -51,43 +52,29 @@ interface FormData {
 export function Form() {
   const { user } = useAuth();
 
-  // Inisialisasi state dari localStorage jika ada
-  const getInitialFormData = (): FormData => {
-    const savedFormData = localStorage.getItem("formDataSbc");
-    if (savedFormData) {
-      const parsedData = JSON.parse(savedFormData);
-      // Kosongkan file karena file tidak dapat disimpan di localStorage
-      return {
-        ...parsedData,
-        payment_proof: undefined,
-        voucher: undefined,
-        leader: {
-          ...parsedData.leader,
-          ktm: undefined,
-          active_student_letter: undefined,
-          photo: undefined,
-        },
-        members: parsedData.members.map((member: TeamMember) => ({
-          ...member,
-          ktm: undefined,
-          active_student_letter: undefined,
-          photo: undefined,
-        })),
-        dosbim: {
-          ...parsedData.dosbim,
-          photo: undefined,
-        },
-      };
-    }
-    return {
-      team_name: "",
-      institution_name: "",
-      user_id: user?.id || 1,
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    team_name: "",
+    institution_name: "",
+    user_id: user?.id || 1,
+    email: "",
+    payment_proof: undefined,
+    voucher: undefined,
+    bridge_name: "",
+    leader: {
+      full_name: "",
+      nim: "",
+      batch: "",
+      phone_number: "",
+      line_id: "",
       email: "",
-      payment_proof: undefined,
-      voucher: undefined,
-      bridge_name: "",
-      leader: {
+      twibbon_and_poster_link: "",
+      ktm: undefined,
+      active_student_letter: undefined,
+      photo: undefined,
+    },
+    members: [
+      {
         full_name: "",
         nim: "",
         batch: "",
@@ -99,49 +86,27 @@ export function Form() {
         active_student_letter: undefined,
         photo: undefined,
       },
-      members: [
-        {
-          full_name: "",
-          nim: "",
-          batch: "",
-          phone_number: "",
-          line_id: "",
-          email: "",
-          twibbon_and_poster_link: "",
-          ktm: undefined,
-          active_student_letter: undefined,
-          photo: undefined,
-        },
-        {
-          full_name: "",
-          nim: "",
-          batch: "",
-          phone_number: "",
-          line_id: "",
-          email: "",
-          twibbon_and_poster_link: "",
-          ktm: undefined,
-          active_student_letter: undefined,
-          photo: undefined,
-        },
-      ],
-      dosbim: {
+      {
         full_name: "",
-        nip: "",
-        email: "",
+        nim: "",
+        batch: "",
         phone_number: "",
+        line_id: "",
+        email: "",
+        twibbon_and_poster_link: "",
+        ktm: undefined,
+        active_student_letter: undefined,
         photo: undefined,
       },
-    };
-  };
-
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<FormData>(getInitialFormData());
-
-  // Simpan formData ke localStorage setiap kali berubah
-  useEffect(() => {
-    localStorage.setItem("formDataSbc", JSON.stringify(formData));
-  }, [formData]);
+    ],
+    dosbim: {
+      full_name: "",
+      nip: "",
+      email: "",
+      phone_number: "",
+      photo: undefined,
+    },
+  });
 
   // Deteksi autofill menggunakan animationstart
   useEffect(() => {
@@ -514,9 +479,61 @@ export function Form() {
         draggable: true,
       });
 
-      // Bersihkan localStorage setelah berhasil submit
-      localStorage.removeItem("formDataSbc");
-      setFormData(getInitialFormData());
+      // Reset form to initial state after successful submission
+      setFormData({
+        team_name: "",
+        institution_name: "",
+        user_id: user?.id || 1,
+        email: "",
+        payment_proof: undefined,
+        voucher: undefined,
+        bridge_name: "",
+        leader: {
+          full_name: "",
+          nim: "",
+          batch: "",
+          phone_number: "",
+          line_id: "",
+          email: "",
+          twibbon_and_poster_link: "",
+          ktm: undefined,
+          active_student_letter: undefined,
+          photo: undefined,
+        },
+        members: [
+          {
+            full_name: "",
+            nim: "",
+            batch: "",
+            phone_number: "",
+            line_id: "",
+            email: "",
+            twibbon_and_poster_link: "",
+            ktm: undefined,
+            active_student_letter: undefined,
+            photo: undefined,
+          },
+          {
+            full_name: "",
+            nim: "",
+            batch: "",
+            phone_number: "",
+            line_id: "",
+            email: "",
+            twibbon_and_poster_link: "",
+            ktm: undefined,
+            active_student_letter: undefined,
+            photo: undefined,
+          },
+        ],
+        dosbim: {
+          full_name: "",
+          nip: "",
+          email: "",
+          phone_number: "",
+          photo: undefined,
+        },
+      });
     } catch (error: any) {
       toast.error(`Failed to submit form: ${error.message}`, {
         position: "top-right",
