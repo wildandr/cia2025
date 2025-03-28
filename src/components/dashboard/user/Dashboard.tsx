@@ -36,6 +36,7 @@ interface UserEvent {
   isMahasiswaDTSL: boolean | null;
   ktm: string | null;
   event_name: string;
+  teams_rejectMessage: string | null;
 }
 
 interface Craft {
@@ -234,10 +235,12 @@ export default function Dashboard() {
                 <th className="">Nama</th>
                 <th>Event</th>
                 <th>Status</th>
+                <th>Keterangan</th> {/* Kolom baru */}
                 <th>Action</th>
               </tr>
               <tr>
                 <th className="min-[600px]:hidden"></th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -246,8 +249,18 @@ export default function Dashboard() {
             <tbody className="text-black rounded-xl">
               {combinedData.map((registration, index) => {
                 if (registration) {
+                  const isRejected =
+                    ("teams_isRejected" in registration &&
+                      registration.teams_isRejected) ||
+                    ("isRejected" in registration && registration.isRejected);
+                  const rejectMessage =
+                    "teams_rejectMessage" in registration &&
+                    registration.teams_rejectMessage
+                      ? registration.teams_rejectMessage.slice(0, 20) + "..." // Truncate ke 20 karakter
+                      : "Tidak ada keterangan";
+
                   return (
-                    <tr key={index} className={`text-left bg-white/20`}>
+                    <tr key={index} className={`text-left bg-white/60`}>
                       <td
                         className={`font-semibold bg-white/20 max-w-full truncate px-2 py-5 border-r border-cia-dark border-opacity-20 ${
                           index === 0
@@ -267,36 +280,32 @@ export default function Dashboard() {
                           : "CRAFT"}
                       </td>
                       <td
-                        className="bg-white/20 font-semibold px-2 border-none"
+                        className="bg-white/20 font-semibold px-2 border-r border-cia-dark border-opacity-10"
                         style={{
-                          color:
-                            ("teams_isRejected" in registration &&
-                              registration.teams_isRejected) ||
-                            ("isRejected" in registration &&
-                              registration.isRejected)
-                              ? "red"
-                              : ("teams_isVerified" in registration &&
-                                  registration.teams_isVerified === 1) ||
-                                ("isVerified" in registration &&
-                                  registration.isVerified)
-                              ? "#166534"
-                              : "red",
+                          color: isRejected
+                            ? "red"
+                            : ("teams_isVerified" in registration &&
+                                registration.teams_isVerified === 1) ||
+                              ("isVerified" in registration &&
+                                registration.isVerified)
+                            ? "#166534"
+                            : "#ca8a04",
                         }}
                       >
-                        {("teams_isRejected" in registration &&
-                          registration.teams_isRejected) ||
-                        ("isRejected" in registration &&
-                          registration.isRejected)
+                        {isRejected
                           ? "Pendaftaran Ditolak"
                           : ("teams_isVerified" in registration &&
                               registration.teams_isVerified === 1) ||
                             ("isVerified" in registration &&
                               registration.isVerified)
-                          ? "Berhasil Verifikasi"
-                          : "Pendaftaran Belum Berhasil"}
+                          ? "Pendaftaran Berhasil"
+                          : "Menunggu Verifikasi"}
+                      </td>
+                      <td className="bg-white/20 font-semibold px-2 border-r border-cia-dark border-opacity-10 text-cia-dark">
+                        {isRejected ? rejectMessage : "-"}
                       </td>
                       <td
-                        className={`bg-white/20  px-[0.6rem] py-2 ${
+                        className={`bg-white/20 px-[0.6rem] py-2 ${
                           index === 0
                             ? "rounded-tr-xl"
                             : index === combinedData.length - 1
