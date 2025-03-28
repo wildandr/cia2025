@@ -17,6 +17,8 @@ interface Team {
   user_id: number;
   email: string | null;
   isVerified: number;
+  rejectMessage?: string; // Added rejectMessage property
+  isRejected: number;
 }
 
 interface Member {
@@ -445,6 +447,27 @@ export default function DetailUser({ params }: { params: { id: string } }) {
         <p className="text-black text-center text-2xl font-semibold px-6 z-20">
           Detail Tim FCEC
         </p>
+        {/* Bagian status pendaftaran */}
+        {teamData.team[0] && (
+          <div className="mt-4 text-center">
+            {teamData.team[0].isVerified === 1 ? (
+              <p className="text-green-600 text-lg font-semibold">
+                Pendaftaran telah diterima
+              </p>
+            ) : teamData.team[0].isRejected === 1 ? (
+              <p className="text-red-600 text-lg font-semibold">
+                Pendaftaran ditolak
+                {teamData.team[0].rejectMessage && (
+                  <span>: "{teamData.team[0].rejectMessage}"</span>
+                )}
+              </p>
+            ) : (
+              <p className="text-yellow-600 text-lg font-semibold">
+                Pendaftaran masih dalam proses verifikasi
+              </p>
+            )}
+          </div>
+        )}
 
         {teamData.team[0] ? (
           [

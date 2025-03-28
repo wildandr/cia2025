@@ -26,6 +26,8 @@ interface Participant {
   bukti_story: string;
   bundling_member: string; // Kolom lama tetap dipertahankan
   bundle: string; // Kolom baru untuk bukti bundle (misalnya link PDF)
+  isRejected: boolean;
+  rejectMessage?: string; // Added rejectMessage property
 }
 
 export default function DetailUser({ params }: { params: { id: string } }) {
@@ -41,10 +43,6 @@ export default function DetailUser({ params }: { params: { id: string } }) {
   const handleBack = () => {
     router.back();
   };
-
-  useEffect(() => {
-    console.log(participant);
-  }, [participant]);
 
   const fetchData = async () => {
     try {
@@ -331,6 +329,27 @@ export default function DetailUser({ params }: { params: { id: string } }) {
         <p className="text-black text-center text-2xl font-semibold px-6 z-20">
           Detail Peserta
         </p>
+        {/* Bagian status pendaftaran */}
+        {participant && (
+          <div className="mt-4 text-center">
+            {participant.isVerified === true ? (
+              <p className="text-green-600 text-lg font-semibold">
+                Pendaftaran telah diterima
+              </p>
+            ) : participant.isRejected === true ? (
+              <p className="text-red-600 text-lg font-semibold">
+                Pendaftaran ditolak
+                {participant.rejectMessage && (
+                  <span>: "{participant.rejectMessage}"</span>
+                )}
+              </p>
+            ) : (
+              <p className="text-yellow-600 text-lg font-semibold">
+                Pendaftaran masih dalam proses verifikasi
+              </p>
+            )}
+          </div>
+        )}
 
         {participant ? (
           [

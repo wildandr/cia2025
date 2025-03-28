@@ -35,6 +35,8 @@ interface Team {
   user_id: number;
   email: null | string;
   isVerified: number;
+  isRejected: number;
+  rejectMessage?: string;
 }
 
 interface TeamData {
@@ -383,8 +385,29 @@ export default function DetailUser({ params }: { params: { id: string } }) {
     <div className="min-h-screen flex flex-col bg-fixed bg-cia-primary bg-[url('/assets/autentikasi/teksture.svg')] font-plusJakarta">
       <div className="bg-white/80 p-4 rounded-xl w-[90%] mx-auto mt-28 mb-8">
         <p className="text-black text-center text-2xl font-semibold px-6 z-20">
-          Detail Tim
+          Detail Tim CIC
         </p>
+        {/* Bagian status pendaftaran */}
+        {teamData.team[0] && (
+          <div className="mt-4 text-center">
+            {teamData.team[0].isVerified === 1 ? (
+              <p className="text-green-600 text-lg font-semibold">
+                Pendaftaran telah diterima
+              </p>
+            ) : teamData.team[0].isRejected === 1 ? (
+              <p className="text-red-600 text-lg font-semibold">
+                Pendaftaran ditolak
+                {teamData.team[0].rejectMessage && (
+                  <span>: "{teamData.team[0].rejectMessage}"</span>
+                )}
+              </p>
+            ) : (
+              <p className="text-yellow-600 text-lg font-semibold">
+                Pendaftaran masih dalam proses verifikasi
+              </p>
+            )}
+          </div>
+        )}
 
         {teamData.team[0] ? (
           [
