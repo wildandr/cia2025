@@ -9,6 +9,7 @@ import { useAuthCheck } from "@/hooks/useAuthCheck";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
 
 // Interface untuk TeamMember
 interface TeamMember {
@@ -38,6 +39,7 @@ interface FormData {
 
 export function Form() {
   const { user } = useAuth();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     team_name: "",
@@ -417,11 +419,14 @@ export function Form() {
 
       toast.success("Form submitted successfully!", {
         position: "top-right",
-        autoClose: 5000,
+        autoClose: 3000, // Reduced to 3 seconds
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+        onClose: () => {
+          router.push('/dashboard'); // Redirect after toast closes
+        }
       });
 
       // Reset form after successful submission
