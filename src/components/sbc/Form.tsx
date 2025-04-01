@@ -43,7 +43,6 @@ interface FormData {
   user_id: number;
   email: string;
   payment_proof?: File;
-  voucher?: File;
   bridge_name: string;
   leader: TeamMember;
   members: TeamMember[];
@@ -61,7 +60,6 @@ export function Form() {
     user_id: user?.id || 1,
     email: "",
     payment_proof: undefined,
-    voucher: undefined,
     bridge_name: "",
     leader: {
       full_name: "",
@@ -332,7 +330,6 @@ export function Form() {
     }
 
     checkFileSize(formData.payment_proof, "Bukti Pembayaran");
-    checkFileSize(formData.voucher, "Bukti Voucher");
     checkFileSize(formData.leader.ktm, "KTM Ketua Tim");
     checkFileSize(formData.leader.active_student_letter, "SKMA Ketua Tim");
     checkFileSize(formData.leader.photo, "Pas Foto Ketua Tim");
@@ -428,9 +425,6 @@ export function Form() {
       if (formData.payment_proof) {
         formDataToSend.append("payment_proof", formData.payment_proof);
       }
-      if (formData.voucher) {
-        formDataToSend.append("voucher", formData.voucher);
-      }
 
       if (formData.leader.ktm) {
         formDataToSend.append("leader_ktm", formData.leader.ktm);
@@ -491,7 +485,6 @@ export function Form() {
         user_id: user?.id || 1,
         email: "",
         payment_proof: undefined,
-        voucher: undefined,
         bridge_name: "",
         leader: {
           full_name: "",
@@ -721,16 +714,6 @@ export function Form() {
                 required
                 variant="sbc"
                 helperText="Format Penamaan: Bukti Pembayaran_Nama Tim"
-              />
-            </div>
-            <div>
-              <FileInput
-                label="Bukti Voucher"
-                accept="image/*"
-                name="voucher"
-                onChange={(e) => handleFileChange("team", null, "voucher", e.target.files?.[0] || null)}
-                variant="sbc"
-                helperText="Format Penamaan: Bukti Voucher_Nama Tim"
               />
             </div>
 
