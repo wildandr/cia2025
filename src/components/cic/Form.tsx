@@ -32,7 +32,6 @@ interface FormData {
   user_id: number;
   email: string;
   payment_proof?: File;
-  voucher?: File;
   leader: TeamMember;
   members: TeamMember[];
 }
@@ -47,7 +46,6 @@ export function Form() {
     user_id: user?.id || 1,
     email: "",
     payment_proof: undefined,
-    voucher: undefined,
     leader: {
       full_name: "",
       department: "",
@@ -270,7 +268,6 @@ export function Form() {
     }
 
     checkFileSize(formData.payment_proof, "Bukti Pembayaran");
-    checkFileSize(formData.voucher, "Voucher");
     checkFileSize(formData.leader.ktm, "KTM Ketua Tim");
     checkFileSize(formData.leader.active_student_letter, "SKMA Ketua Tim");
     checkFileSize(formData.leader.photo, "Foto Ketua Tim");
@@ -363,10 +360,6 @@ export function Form() {
         formDataToSend.append("payment_proof", formData.payment_proof);
         console.log("Payment Proof File:", formData.payment_proof.name);
       }
-      if (formData.voucher) {
-        formDataToSend.append("voucher", formData.voucher);
-        console.log("Voucher File:", formData.voucher.name);
-      }
 
       if (formData.leader.ktm) {
         formDataToSend.append("leader_ktm", formData.leader.ktm);
@@ -436,7 +429,6 @@ export function Form() {
         user_id: user?.id || 1,
         email: "",
         payment_proof: undefined,
-        voucher: undefined,
         leader: {
           full_name: "",
           department: "",
@@ -646,17 +638,6 @@ export function Form() {
                 required
                 variant="cic"
                 helperText="Format Penamaan: Bukti Pembayaran_Nama Tim"
-              />
-            </div>
-            <div>
-              <FileInput
-                label="Voucher"
-                accept="application/pdf"
-                onChange={(e) =>
-                  handleFileChange("team", null, "voucher", e.target.files?.[0] || null)
-                }
-                variant="cic"
-                helperText="Format Penamaan: Voucher_Nama Tim"
               />
             </div>
 
