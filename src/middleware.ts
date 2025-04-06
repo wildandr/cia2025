@@ -8,8 +8,64 @@ const EVENT_MAPPING: Record<number, string> = {
   4: "cic",
 };
 
+async function isTokenValid(token: string): Promise<boolean> {
+  try {
+    // Clean and format token
+    const cleanToken = token.replace('Bearer ', '').trim();
+    
+    if (!cleanToken) {
+      console.log('Empty token detected');
+      return false;
+    }
+
+    // Log request details for debugging
+    console.log('Validating token with endpoint:', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/me`);
+    
+    // Use /auth/me instead of /auth/verify since it's a more reliable endpoint for checking token validity
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/me`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${cleanToken}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    // Log response status for debugging
+    console.log('Token validation response status:', response.status);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log('Token validation endpoint not found, assuming valid token temporarily');
+        return true; // Temporarily assume valid if endpoint not found
+      }
+      console.log('Token invalid or expired:', response.status);
+      return false;
+    }
+
+    const data = await response.json();
+    return !!data; // Return true if we got valid user data
+  } catch (error) {
+    console.error("Token validation error details:", error);
+    return true; // Temporarily return true on error to prevent logout loops
+  }
+}
+
+function clearAuthCookies(response: NextResponse) {
+  response.cookies.delete('token');
+  response.cookies.delete('user');
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  
+  // Always allow access to login and register without token check
+  if (pathname === "/login" || pathname === "/register") {
+    return NextResponse.next();
+  }
+
   const cookieString = request.headers.get("cookie") || "";
 
   // Parsing manual karena js-cookie tidak bisa langsung parse di server
@@ -49,6 +105,25 @@ export async function middleware(request: NextRequest) {
 
   // Daftar nama event dari EVENT_MAPPING
   const eventNames = Object.values(EVENT_MAPPING);
+
+  // For protected routes, only validate token if present
+  if (token) {
+    try {
+      const isValid = await isTokenValid(token);
+      if (!isValid) {
+        console.log("Token validation failed, redirecting to login");
+        const response = redirectTo("/login");
+        return clearAuthCookies(response);
+      }
+    } catch (error) {
+      console.error("Error validating token:", error);
+      const response = redirectTo("/login");
+      return clearAuthCookies(response);
+    }
+  } else if (pathname !== "/login" && pathname !== "/register") {
+    // No token present for protected route
+    return redirectTo("/login");
+  }
 
   try {
     // Cek jika user mencoba akses halaman event sebelum login
