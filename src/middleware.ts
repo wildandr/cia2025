@@ -8,20 +8,6 @@ const EVENT_MAPPING: Record<number, string> = {
   4: "cic",
 };
 
-async function isTokenExpired(token: string): Promise<boolean> {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/verify`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return !response.ok;
-  } catch (error) {
-    console.error("Error verifying token:", error);
-    return true;
-  }
-}
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const cookieString = request.headers.get("cookie") || "";
@@ -63,40 +49,6 @@ export async function middleware(request: NextRequest) {
 
   // Daftar nama event dari EVENT_MAPPING
   const eventNames = Object.values(EVENT_MAPPING);
-
-  // If trying to access login or register, allow it
-  if (pathname === "/login" || pathname === "/register") {
-    if (token) {
-      // Check if token is still valid when user has token and tries to access login/register
-      const expired = await isTokenExpired(token);
-      if (expired) {
-        // Clear cookies and continue to login
-        const response = NextResponse.redirect(new URL('/login', request.url));
-        response.cookies.delete('token');
-        response.cookies.delete('user');
-        return response;
-      }
-      // Token valid, redirect to appropriate page
-      return redirectTo(
-        isAdmin && eventId && EVENT_MAPPING[eventId]
-          ? `/admin/${EVENT_MAPPING[eventId]}`
-          : "/dashboard"
-      );
-    }
-    return NextResponse.next();
-  }
-
-  // For all other protected routes
-  if (token) {
-    const expired = await isTokenExpired(token);
-    if (expired) {
-      console.log("Token expired, redirecting to login");
-      const response = NextResponse.redirect(new URL('/login', request.url));
-      response.cookies.delete('token');
-      response.cookies.delete('user');
-      return response;
-    }
-  }
 
   try {
     // Cek jika user mencoba akses halaman event sebelum login
