@@ -76,15 +76,23 @@ export default function Dashboard() {
       }
 
       try {
+        console.log("Fetching CRAFT data for user:", user?.user_id);
         const craftResponse = await axiosInstance.get(
-          `/user/${user?.user_id}/craft`
+          `/crafts/user/${user?.user_id}`
         );
+        
+ 
 
-        if (craftResponse.data.success) {
-          setCraftData(craftResponse.data.data || null);
+        // Check if data exists and has required properties instead of checking success flag
+        if (craftResponse.data && craftResponse.data.participant_id) {
+        
+          setCraftData(craftResponse.data);
+        } else {
+         
+          setCraftData(null);
         }
       } catch (craftError) {
-        console.log("No craft data found or not implemented yet");
+    
         setCraftData(null);
       }
     } catch (error) {
@@ -111,6 +119,9 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+  }, [craftData]);
 
   const handleDeleteClick = (registration: UserEvent | Craft) => {
     setSelectedRegistration(registration);
@@ -314,15 +325,22 @@ export default function Dashboard() {
                         } ${combinedData.length === 1 ? "rounded-r-xl" : ""}`}
                       >
                         <div className="flex-col flex gap-2 md:flex-row">
-                          {"event_id" in registration &&
-                          "team_id" in registration ? (
-                            <Link
-                              href={`/dashboard/${registration.event_id}&${registration.team_id}`}
-                              className="bg-fcec-secondary text-white text-[13px] lg:text-[16px] text-center rounded-md px-3 py-1 w-full"
-                            >
-                              Lihat
-                            </Link>
-                          ) : null}
+                          {("event_id" in registration &&
+                            "team_id" in registration) ? (
+                              <Link
+                                href={`/dashboard/${registration.event_id}&${registration.team_id}`}
+                                className="bg-fcec-secondary text-white text-[13px] lg:text-[16px] text-center rounded-md px-3 py-1 w-full"
+                              >
+                                Lihat
+                              </Link>
+                            ) : ("participant_id" in registration) ? (
+                              <Link
+                                href={`/dashboard/craft/${registration.participant_id}`}
+                                className="bg-fcec-secondary text-white text-[13px] lg:text-[16px] text-center rounded-md px-3 py-1 w-full"
+                              >
+                                Lihat
+                              </Link>
+                            ) : null}
                           <button
                             className="bg-[#E25933] text-white text-[13px] lg:text-[16px] rounded-md px-1 py-1 w-full"
                             onClick={() => handleDeleteClick(registration)}
