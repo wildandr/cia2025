@@ -11,6 +11,7 @@ import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
+import { getErrorMessage } from "@/utils/errorMessages";
 
 interface TeamMember {
   full_name: string;
@@ -508,7 +509,8 @@ export function Form() {
         ],
       });
     } catch (error: any) {
-      toast.error(`Failed to submit form: ${error.message}`, {
+      const errorMessage = getErrorMessage(error.message);
+      toast.error(`Gagal mengirim formulir: ${errorMessage}`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
