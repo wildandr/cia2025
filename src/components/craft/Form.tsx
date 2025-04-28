@@ -37,7 +37,7 @@ export function Form() {
     full_name: "",
     institution_name: "",
     user_id: user?.id || 1, // Default to 1 if user.id is not available
-    activity_choice: "offline", // Default value
+    activity_choice: "offline", // Default and fixed value
     whatsapp_number: "",
     isMahasiswaDTSL: false, // Default value
     email: "",
@@ -64,9 +64,6 @@ export function Form() {
     }
     if (!formData.whatsapp_number.trim()) {
       errors.push("Nomor Whatsapp wajib diisi");
-    }
-    if (!formData.activity_choice) {
-      errors.push("Pilihan Kegiatan wajib dipilih");
     }
     if (formData.isMahasiswaDTSL === undefined) {
       errors.push("Status Mahasiswa DTSL FT UGM wajib dipilih");
@@ -342,38 +339,7 @@ export function Form() {
 
           {/* Form Sections */}
           <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 font-openSans p-4">
-            {/* Pilihan Kegiatan */}
-            <div className="flex flex-col gap-2">
-              <label className="text-white text-[0.7rem] md:text-base lg:text-lg">
-                Pilihan Kegiatan <span className="text-red-500">*</span>
-              </label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-1 text-[0.7rem] md:text-base lg:text-lg text-white">
-                  <input
-                    type="radio"
-                    name="activity_choice"
-                    value="online"
-                    checked={formData.activity_choice === "online"}
-                    onChange={(e) => handleRadioChange("activity_choice", e.target.value)}
-                    required
-                    className="accent-cia-green"
-                  />
-                  Online
-                </label>
-                <label className="flex items-center gap-1 text-[0.7rem] md:text-base lg:text-lg text-white">
-                  <input
-                    type="radio"
-                    name="activity_choice"
-                    value="offline"
-                    checked={formData.activity_choice === "offline"}
-                    onChange={(e) => handleRadioChange("activity_choice", e.target.value)}
-                    required
-                    className="accent-cia-green"
-                  />
-                  Offline
-                </label>
-              </div>
-            </div>
+            {/* Remove activity_choice radio buttons section */}
 
             {/* Apakah Mahasiswa DTSL FT UGM */}
             <div className="flex flex-col gap-2">
