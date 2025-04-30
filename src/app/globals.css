@@ -26,24 +26,14 @@ body {
     rgb(var(--background-start-rgb));
 }
 
-/* Styling untuk input saat autofill - khusus .input-form
-.input-form:-webkit-autofill,
-.input-form:-webkit-autofill:hover,
-.input-form:-webkit-autofill:focus,
-.input-form:-webkit-autofill:active {
-  background-color: #FFFFFF !important;
+/* Styling untuk input saat autofill - khusus .input-form */
+.input-form:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
   -webkit-text-fill-color: #000 !important;
   border: 1.5px solid #000 !important;
   border-radius: 0.5rem !important;
-  -webkit-box-shadow: 2.5px 3px 0 #000, 0 0 0 1000px #FFFFFF inset !important;
-  box-shadow: 2.5px 3px 0 #000, 0 0 0 1000px #FFFFFF inset !important;
-  padding: 0.5rem !important;
-  font-size: 0.75rem !important;
-  outline: none !important;
-  transition: ease 0.25s !important;
-  background-clip: content-box !important;
+  box-shadow: 2.5px 3px 0 #000, 0 0 0 30px white inset !important;
 }
-
 
 @media (min-width: 768px) {
   .input-form:-webkit-autofill,
@@ -55,12 +45,10 @@ body {
   }
 }
 
-
 .input-form:-webkit-autofill:focus {
   -webkit-box-shadow: 5.5px 7px 0 black, 0 0 0 1000px #FFFFFF inset !important;
   box-shadow: 5.5px 7px 0 black, 0 0 0 1000px #FFFFFF inset !important;
 }
-
 
 .input-form:-moz-autofill {
   background-color: #FFFFFF !important;
@@ -77,11 +65,10 @@ body {
     padding: 0.875rem !important;
     font-size: 1rem !important;
   }
-} */
+}
 
 /* Custom Input Styles */
 .input-form {
-  background: #FFFFFF;
   padding: 0.5rem; /* Smaller padding for mobile */
   font-size: 0.75rem; /* Default for mobile */
   border: 1.5px solid #000;
@@ -130,4 +117,16 @@ body {
     padding: 0.75rem 1.25rem;
     font-size: 1rem;
   }
+}
+
+.login-input {
+  @apply pl-10 pr-3 py-2 w-full bg-transparent border-b border-white text-white 2xl:text-xl focus:outline-none placeholder:text-white/50;
+}
+
+.login-input:-webkit-autofill,
+.login-input:-webkit-autofill:hover,
+.login-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+  transition: background-color 5000s ease-in-out 0s;
 }

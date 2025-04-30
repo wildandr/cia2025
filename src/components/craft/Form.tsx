@@ -211,7 +211,7 @@ export function Form() {
       }
 
       // Log the FormData contents (for debugging)
-      console.log("Submitting to:", `${process.env.NEXT_PUBLIC_BASE_URL}/crafts/register`);
+   
       Array.from(formDataToSend.entries()).forEach(([key, value]) => {
         console.log(`FormData Entry - ${key}:`, value);
       });
@@ -224,8 +224,7 @@ export function Form() {
         body: formDataToSend,
       });
 
-      console.log("Response status:", response.status);
-      console.log("Response headers:", response.headers.get("content-type"));
+
 
       if (!response.ok) {
         const contentType = response.headers.get("content-type");
@@ -244,7 +243,6 @@ export function Form() {
       }
 
       const responseData = await response.json();
-      console.log("Response data:", responseData);
 
       toast.success("Form submitted successfully!", {
         position: "top-right",
@@ -259,7 +257,7 @@ export function Form() {
       });
     } catch (error: any) {
       console.error("Submission Error:", error.message);
-      toast.error(`Failed to submit form: ${error.message}`, {
+      toast.error(`Gagal Submit: ${error.message}`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -269,7 +267,7 @@ export function Form() {
       });
     } finally {
       setLoading(false);
-      console.log("Submission process completed. Loading state:", loading);
+  
     }
   };
 
@@ -314,7 +312,7 @@ export function Form() {
 
   return (
     <div className="relative flex flex-col overflow-hidden max-w-5xl mx-auto font-openSans">
-      <ToastContainer style={{ marginTop: "24px" }} />
+      <ToastContainer style={{ marginTop: "40px" }} />
       <div className="flex flex-col lg:justify-center items-center relative min-w-full">
         <div className="z-[10] min-h-screen flex flex-col">
           {/* Instructions */}

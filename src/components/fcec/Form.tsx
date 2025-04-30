@@ -604,7 +604,7 @@ export function Form() {
 
   return (
     <div className="relative flex flex-col overflow-hidden max-w-5xl mx-auto font-openSans">
-      <ToastContainer style={{ marginTop: "24px" }} />
+      <ToastContainer style={{ marginTop: "40px" }} />
       <div className="flex flex-col lg:justify-center items-center relative min-w-full">
         <div className="z-[10] min-h-screen flex flex-col">
           {/* Instructions */}
