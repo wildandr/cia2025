@@ -92,7 +92,7 @@ export default function Login() {
                     id="email"
                     type="text"
                     placeholder="Masukkan alamat emailmu"
-                    className="pl-10 pr-3 py-2 w-full bg-transparent border-b border-white text-white 2xl:text-xl focus:outline-none autofill:text-white autofill:bg-transparent placeholder:text-white/50"
+                    className="login-input"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -118,7 +118,7 @@ export default function Login() {
                     id="password"
                     type={isVisible ? "text" : "password"}
                     placeholder="Masukkan passwordmu disini"
-                    className="pl-10 pr-10 py-2 w-full bg-transparent border-b border-white text-white 2xl:text-xl focus:outline-none autofill:bg-transparent placeholder:text-white/50"
+                    className="login-input"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
