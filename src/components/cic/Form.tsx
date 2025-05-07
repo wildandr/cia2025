@@ -212,7 +212,7 @@ export function Form() {
     }
 
     if (errors.length > 0) {
-      console.log("Text Field Validation Errors:", errors);
+      
       toast.error(`Silakan lengkapi data berikut:\n${errors.join("\n")}`, {
         position: "top-right",
         autoClose: 5000,
@@ -279,7 +279,7 @@ export function Form() {
     }
 
     if (errors.length > 0) {
-      console.log("File Validation Errors:", errors);
+     
       toast.error(`Silakan periksa dokumen berikut:\n${errors.join("\n")}`, {
         position: "top-right",
         autoClose: 5000,
@@ -296,25 +296,25 @@ export function Form() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log("Form submission triggered");
+ 
     setLoading(true);
 
     try {
       console.log("Starting form submission...");
       if (!validateTextFields()) {
-        console.log("Text field validation failed. Submission stopped.");
+ 
         setLoading(false);
         return;
       }
 
       if (!validateFiles()) {
-        console.log("File validation failed. Submission stopped.");
+    
         setLoading(false);
         return;
       }
 
       const token = Cookies.get("token");
-      console.log("Token:", token);
+     
 
       const teamData = {
         team_name: formData.team_name,
@@ -323,7 +323,6 @@ export function Form() {
         email: formData.email,
       };
 
-      console.log("User ID being sent:", teamData.user_id);
 
       const leaderData = {
         full_name: formData.leader.full_name,
@@ -351,47 +350,46 @@ export function Form() {
         members: membersData,
       };
 
-      console.log("Combined Data:", combinedData);
 
       const formDataToSend = new FormData();
       formDataToSend.append("data", JSON.stringify(combinedData));
 
       if (formData.payment_proof) {
         formDataToSend.append("payment_proof", formData.payment_proof);
-        console.log("Payment Proof File:", formData.payment_proof.name);
+      
       }
 
       if (formData.leader.ktm) {
         formDataToSend.append("leader_ktm", formData.leader.ktm);
-        console.log("Leader KTM File:", formData.leader.ktm.name);
+
       }
       if (formData.leader.active_student_letter) {
         formDataToSend.append("leader_active_student_letter", formData.leader.active_student_letter);
-        console.log("Leader Active Student Letter File:", formData.leader.active_student_letter.name);
+      
       }
       if (formData.leader.photo) {
         formDataToSend.append("leader_photo", formData.leader.photo);
-        console.log("Leader Photo File:", formData.leader.photo.name);
+        
       }
 
       formData.members.forEach((member, index) => {
         if (member.ktm) {
           formDataToSend.append(`member${index + 1}_ktm`, member.ktm);
-          console.log(`Member ${index + 1} KTM File:`, member.ktm.name);
+          
         }
         if (member.active_student_letter) {
           formDataToSend.append(`member${index + 1}_active_student_letter`, member.active_student_letter);
-          console.log(`Member ${index + 1} Active Student Letter File:`, member.active_student_letter.name);
+  
         }
         if (member.photo) {
           formDataToSend.append(`member${index + 1}_photo`, member.photo);
-          console.log(`Member ${index + 1} Photo File:`, member.photo.name);
+         
         }
       });
 
-      console.log("Submitting to:", `${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/new`);
+      
       Array.from(formDataToSend.entries()).forEach(([key, value]) => {
-        console.log(`FormData Entry - ${key}:`, value);
+   
       });
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/teams/cic/new`, {
@@ -402,9 +400,9 @@ export function Form() {
         body: formDataToSend,
       });
 
-      console.log("Response status:", response.status);
+   
       const responseData = await response.json();
-      console.log("Response data:", responseData);
+     
 
       if (!response.ok) {
         throw new Error(responseData.message || "Unknown error occurred during submission");
@@ -492,7 +490,7 @@ export function Form() {
       });
     } finally {
       setLoading(false);
-      console.log("Submission process completed. Loading state:", loading);
+     
     }
   };
 
@@ -501,7 +499,7 @@ export function Form() {
       ...prev,
       [field]: value,
     }));
-    console.log(`Team Info Updated - ${field}:`, value);
+  
   };
 
   const handleMemberChange = (
@@ -518,7 +516,7 @@ export function Form() {
           [field]: value,
         },
       }));
-      console.log(`Leader Updated - ${field}:`, value);
+   
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -526,7 +524,7 @@ export function Form() {
           i === index ? { ...member, [field]: value } : member
         ),
       }));
-      console.log(`Member ${index + 1} Updated - ${field}:`, value);
+
     }
   };
 
@@ -543,7 +541,7 @@ export function Form() {
         ...prev,
         [field]: file,
       }));
-      console.log(`Team File Updated - ${field}:`, file.name);
+
     } else if (type === "leader") {
       setFormData((prev) => ({
         ...prev,
@@ -552,7 +550,7 @@ export function Form() {
           [field]: file,
         },
       }));
-      console.log(`Leader File Updated - ${field}:`, file.name);
+
     } else if (type === "member" && index !== null) {
       setFormData((prev) => ({
         ...prev,
@@ -560,14 +558,14 @@ export function Form() {
           i === index ? { ...member, [field]: file } : member
         ),
       }));
-      console.log(`Member ${index + 1} File Updated - ${field}:`, file.name);
+   
     }
   };
 
   const isAuthenticated = useAuthCheck();
 
   if (!isAuthenticated) {
-    console.log("User not authenticated. Rendering null.");
+
     return null;
   }
 
@@ -575,7 +573,7 @@ export function Form() {
 
   const handleTabChange = (tab: "ketua" | "anggota1" | "anggota2" | "anggota3") => {
     setActiveTab(tab);
-    console.log("Active Tab Changed:", tab);
+   
   };
 
   return (
