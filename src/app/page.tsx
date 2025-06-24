@@ -15,8 +15,8 @@ export default function Home() {
       <Tema />
       <Event />
       <Utama />
-      {/* <Galeri /> */}
-      {/* <Contact /> */}
+      <Galeri />
+      <Contact />
       {/* <Sponsorship />
       <Mediapatner /> */}
     </div>
