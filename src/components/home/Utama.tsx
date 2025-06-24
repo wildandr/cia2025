@@ -98,21 +98,24 @@ export function Utama() {
           </div>
           <p className="text-white text-justify my-4">
             Sustainable Bridge Competition (SBC) merupakan lomba rancang
-            jembatan tingkat nasional yang akan diikuti oleh kurang lebih 20 tim
-            dari seluruh universitas dan/atau sederajat di Indonesia dengan
-            masing-masing tim beranggotakan tiga mahasiswa/i aktif D3, D4, atau
-            S1 Teknik Sipil sebagai tim inti, satu hingga tiga mahasiswa/i
-            sebagai tim support pada tahap perakitan, serta satu dosen
-            pembimbing.
+            jembatan tingkat nasional yang bertujuan untuk menjadi wadah
+            pengembangan potensi mahasiswa Teknik sipil agar dapat berinovasi
+            dalam merancang jembatan yang dapat mendukung pembangunan
+            berkelanjutan dan diharapkan Sustainable Bridge Competition (SBC)
+            ini dapat memberikan gambaran lebih luas mengenai Teknik sipil.
           </p>
           <p className="text-white text-justify my-4">
-            Sustainable Bridge Competition mengusung tema “Realisasi Ibu Kota
-            Impian dengan Jembatan Inovatif dan Berkelanjutan Karya Pionir
-            Pembangunan Bangsa.” Tema ini diambil dengan berkonsentrasi pada
-            pionir pembangunan dengan mengacu pada Ibu Kota Negara baru,
-            Nusantara yang berkelanjutan berupa desain jembatan dengan
-            mengutamakan hasil inovatif yang mengacu pada konfigurasi struktur,
-            sambungan, metode perakitan, dan metode perawatan
+            Pada tahun ini, Sustainable Bridge Competition mengusung tema
+            “Merdeka Berkoneksi dengan Jembatan sebagai Pilar Akselerasi
+            Pembangunan Negeri”. Tema ini diambil dengan latar belakang yang
+            mencerminkan peran vital jembatan dalam pembangunan nasional.
+            Jembatan, sebagai infrastruktur krusial, berfungsi menghubungkan
+            wilayah-wilayah yang terpisah oleh rintangan alam, menjadi katalis
+            penting dalam meningkatkan aktivitas perekonomian nasional. Nuansa
+            kemerdekaan dalam tema ini mencerminkan semangat kebebasan dalam
+            berkreasi dan berinovasi, sejalan dengan upaya mendorong generasi
+            muda untuk berkontribusi dalam pembangunan infrastruktur nasional
+            melalui ide-ide inovatif.
           </p>
           <div className="flex flex-col lg:flex-row lg:gap-4">
             <Link
@@ -190,12 +193,17 @@ export function Utama() {
             menyelesaikan suatu permasalahan ilmu teknik sipil dan lingkungan.
           </p>
           <p className="text-white text-justify my-4">
-            Pada tahun ini, Civil Innovation Challenge mengusung tema “Solusi
-            Inovatif dalam Mengatasi Permasalahan Tanah pada Tahap
-            Pra-Konstruksi untuk Pembangunan Ibu Kota yang Berkelanjutan”. Tema
-            ini diangkat untuk menciptakan solusi mengenai ketidakstabilan tanah
-            yang diharapkan dapat diterapkan dalam pembangunan ibu kota baru
-            yang berkelanjutan.
+            Pada tahun ini, Civil Innovation Challenge mengusung tema “
+            <b>
+              Rekayasa Geoteknik Guna Membebaskan Indonesia dari Barier
+              Interaksi antar Daerah
+            </b>
+            ”. Tema ini menyoroti bagaimana penerapan ilmu rekayasa geoteknik
+            dapat berperan dalam meningkatkan konektivitas wilayah di Indonesia.
+            Dengan kondisi geografis yang beragam—terdiri dari pulau-pulau,
+            pegunungan, rawa, dan daerah dengan tanah yang tidak
+            stabil—Indonesia menghadapi berbagai tantangan dalam pembangunan
+            infrastruktur transportasi.
           </p>
           <div className="flex flex-col lg:flex-row lg:gap-4">
             <Link
@@ -267,21 +275,27 @@ export function Utama() {
           </div>
           <p className="text-white text-justify my-4">
             FCEC (Future Civil Engineer Challenge) merupakan salah satu
-            rangkaian acara 12th Civil in Action yang berfokus pada karya tulis
+            rangkaian acara 13th Civil in Action yang berfokus pada karya tulis
             ilmiah di bidang teknik sipil, lingkungan, dan sumber daya air untuk
-            tingkatan SMA dan/atau sederajat. Perlombaan ini diadakan karena
-            minimnya pemakaian sumber daya berkelanjutan dalam aspek
-            pembangunan. Oleh karena itu, perlu adanya peran dari generasi muda
-            penerus bangsa yang kreatif dan inovatif sehingga mampu melahirkan
-            karya yang solutif dalam menciptakan pembangunan berwawasan
-            lingkungan dan pemanfaatan sumberdaya berkelanjutan
+            tingkatan SMA/SMK/MA dan/atau sederajat pada taraf nasional.
+            Kompetisi ini diadakan untuk mengatasi potensi masalah yang timbul
+            dari pemenuhan pembangunan untuk mengimbangi kebutuhan manusia atas
+            populasi yang kian bertambah. Pesatnya pembangunan membawa
+            konsekuensi terhadap lingkungan akibat peningkatan eksploitasi
+            sumber daya alam serta dampak yang menyertainya, seperti peningkatan
+            emisi gas rumah kaca dari sektor energi, lonjakan jumlah limbah, dan
+            krisis ketersediaan air. Oleh karena itu, diperlukan solusi-solusi
+            kreatif dari generasi muda penerus bangsa yang inovatif dan
+            aplikatif guna mewujudkan akselerasi transisi energi dan
+            infrastruktur yang ramah lingkungan.
           </p>
           <p className="text-white text-justify my-4">
-            FCEC 2024 mengusung tema “Strategi generasi muda dalam menciptakan
-            pembangunan berwawasan lingkungan dan pemanfaatan sumberdaya
-            berkelanjutan”. Tema ini bermaksud untuk mewujudkan pembangunan
-            Indonesia yang berwawasan lingkungan dengan karya kreatif dan
-            inovatif dari generasi muda yang bermanfaat bagi masyarakat.
+            Dalam mencapai hal tersebut, FCEC 2025 mengusung tema “Perwujudan
+            Pembangunan Berkelanjutan: Peran Generasi Muda dalam Akselerasi
+            Transisi Energi dan Infrastruktur Ramah Lingkungan”. Tema ini
+            bermaksud untuk mewujudkan pembangunan Indonesia yang berkelanjutan
+            dengan karya kreatif dan inovatif dari generasi muda serta
+            bermanfaat bagi masyarakat.
           </p>
           <div className="flex flex-col lg:flex-row lg:gap-4">
             <Link
@@ -353,19 +367,28 @@ export function Utama() {
             </p>
           </div>
           <p className="text-white text-justify my-4">
-            Suatu persembahan dari PKTSL FT UGM, yaitu CRAFT (Civil Engineering
-            Advanced Software Training) berupa seminar yang membawa materi
-            seputar BIM (Building Information Modelling) yang marak pada
-            akhir-akhir ini.
-          </p>
-          <p className="text-white text-justify my-4">
-            CRAFT mengambil tema “Digital Transformation in Construction:
-            Implementation Building Information Modelling (BIM) for Sustainable
-            Future”. Dalam era perkembangan teknologi dan industri, konsep
-            Building Information Modelling (BIM) telah menjadi bagian dari
-            industri konstruksi modern. BIM telah menjadi pendorong utama dalam
+            Civil Engineering Advance Software Training (CRAFT) merupakan
+            workshop hybrid (offline dan online) yang diadakan oleh PKTSL dan
+            bekerjasama dengan 13th Civil in Action di bawah naungan Keluarga
+            Mahasiswa Teknik Sipil Fakultas Teknik Universitas Gadjah Mada.
+            Dalam era perkembangan teknologi dan industri, konsep Building
+            Information Modelling (BIM) telah menjadi bagian dari industri
+            konstruksi modern. BIM bukan hanya mencakup model 3D dari struktur
+            bangunan, tetapi juga menghimpun aspek-aspek informasi yang lebih
+            luas seperti data geometris, data spasial, data waktu, data biaya,
+            dan data lingkungan. BIM telah menjadi pendorong utama dalam
             mengubah landasan industri konstruksi, membuka peluang dalam cara
             mendesain, membangun, dan mengelola proyek-proyek yang kompleks.
+          </p>
+          <p className="text-white text-justify my-4">
+            Pada tahun ini, CRAFT akan membawakan tema : "Optimalkan Biaya dan
+            Waktu Proyek dengan BIM 5D: Membangun Masa Depan Berkelanjutan di 8
+            Dekade Indonesia Merdeka" Dengan tema ini, diharapkan CRAFT akan
+            menjadi tempat yang menginspirasi mahasiswa, akademisi, dan praktisi
+            dunia konstruksi untuk menggali potensi digitalisasi konstruksi
+            melalui penerapan Building Information Modelling (BIM), khususnya
+            bagaimana memanfaatkan segala tools yang ada untuk meningkatkan
+            efisiensi, kualitas, dan keberlanjutan suatu proyek konstruksi.
           </p>
           <div className="flex flex-col lg:flex-row lg:gap-4">
             <Link
@@ -439,12 +462,14 @@ export function Utama() {
           alt=""
           className="w-full h-auto"
         />
-        <div className="absolute flex flex-col px-[15%] top-[6%] md:top-[10%] 2xl:top-[15%] font-plusJakarta font-bold text-xs md:text-xl 2xl:text-2xl text-chiasGreen-500 ">
+        <div className="absolute flex flex-col px-[15%] top-[6%] md:top-[10%] 2xl:top-[15%] font-plusJakarta font-bold text-xs md:text-lg 2xl:text-xl text-chiasGreen-500 ">
           <p>● SBC </p>
           <p>
-            Tim beranggotakan tiga mahasiswa/i aktif D3, D4, atau S1 Teknik
-            Sipil sebagai tim inti, nol hingga tiga mahasiswa/i sebagai tim
-            support pada tahap perakitan, serta satu dosen pembimbing.
+            Kompetisi ini terbuka bagi mahasiswa aktif jenjang D3/D4/S1 dari
+            Perguruan Tinggi Negeri atau Swasta di Indonesia, dengan setiap tim
+            minimal beranggotakan satu mahasiswa Program Studi Teknik Sipil
+            dan/atau peserta lain berasal dari program studi yang berkaitan
+            dengan perancangan jembatan
           </p>
           <p className="mt-1 md:mt-4">● CIC</p>
           <p>
@@ -454,26 +479,22 @@ export function Utama() {
           </p>
           <p className="mt-1 md:mt-4">● FCEC </p>
           <p>
-            Peserta didik SMA, SMK, MA dan/atau sederajat dari seluruh sekolah
-            di Indonesia{" "}
+            Setiap tim beranggotakan 2–3 peserta didik aktif SMA/SMK/MA dan/atau
+            sederajat dan berasal dari sekolah yang sama.
           </p>
           <p className="mt-1 md:mt-4">● CRAFT </p>
           <p>
-            1. Peserta setiap sub-event CIA 12th yang telah melakukan
-            registrasi.{" "}
+            1. Peserta setiap sub-event CIA 13th yang telah melakukan registrasi
+            untuk online.
           </p>
           <p>
             2. Masyarakat umum yang memiliki ketertarikan terhadap perangkat
-            lunak di bidang ketekniksipilan dengan rincian jumlah 50 orang untuk
-            offline dan 150 orang untuk online.{" "}
-          </p>
-          <p>
-            3. Mahasiswa/i aktif Departemen Teknik Sipil Universitas Gadjah Mada
-            dengan jumlah 100 orang untuk online.{" "}
+            lunak di bidang ketekniksipilan dengan rincian jumlah 70 orang untuk
+            offline.
           </p>
           <Link
             href={`https://drive.google.com/drive/folders/1BIPbxrMwFPct-onz0vY670BoVGjQFChi`}
-            className="w-full mt-3 md:mt-12 bg-[#18AB8E] text-white py-2 px-16 rounded-2xl hover:opacity-50 text-center font-bold text-xs md:text-base"
+            className="w-full mt-3 md:mt-12 bg-craft-primary text-white py-2 px-16 rounded-2xl hover:opacity-50 text-center font-bold text-xs md:text-base"
           >
             Download ToR
           </Link>
