@@ -246,14 +246,14 @@ export function Contact() {
             <div className="w-full h-full flex flex-col items-center justify-center mt-6 lg:mt-0">
               <div className="w-full flex flex-col border border-cia-primary items-center justify-center p-[10%] rounded-3xl gap-5">
                 <Image
-                  src={`/assets/cia/proposal.png`}
+                  src={`/assets/home/civilinaction_qr.png`}
                   className="w-auto h-[10.5rem] lg:h-[12rem] object-contain"
                   width={1000}
                   height={1000}
                   alt={""}
                 />
                 <Link
-                  href={`https://drive.google.com/file/d/11NhCcgID6pnfR-fz3hKWZpZ9P9iVC2V7/view?usp=drive_link`}
+                  href={`https://www.instagram.com/civilinaction?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==`}
                   className="flex flex-row bg-cia-primary border-cia-primary w-full lg:w-[40%] justify-center border text-white px-4 py-2 rounded-lg font-bold text-xs lg:text-base hover:opacity-50 items-center"
                 >
                   Sponsorship
